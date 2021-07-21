@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 13 Sep 2021 01:18:10 +0200
+Subject: [PATCH] Adventure additions
+
+This commit contains any form of adventure additions done by the ktp
+server software.
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 231711179ac2c75e561facb0899a453bf9d6f01c..43d00f268a8402e0d10c8fe6f7f6b38b6e53fced 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -37,6 +37,7 @@ dependencies {
+     apiAndDocs("net.kyori:adventure-text-serializer-gson")
+     apiAndDocs("net.kyori:adventure-text-serializer-legacy")
+     apiAndDocs("net.kyori:adventure-text-serializer-plain")
++    apiAndDocs("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") // KTP - add mini messages
+     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
+     api("org.slf4j:slf4j-api:1.7.30") // Paper
+ 
+diff --git a/src/main/java/dev/lynxplay/ktp/text/KTPComponents.java b/src/main/java/dev/lynxplay/ktp/text/KTPComponents.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4028cfd81b2c1d3340b6c2e6d6b38ac4fd11ced5
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/text/KTPComponents.java
+@@ -0,0 +1,8 @@
++package dev.lynxplay.ktp.text;
++
++/**
++ * Pure utility class that serves as an entry point to all ktp specific adventure utilities, defaults etc. that may
++ * be used to interact with {@link net.kyori.adventure.text.Component}.
++ */
++public final class KTPComponents {
++}
+diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
+index 096dca3b733688dcc17669d78efbc5115f9b6e4a..b2f1b5f18cacc08d0212bc9610d2bd860c28f8fc 100644
+--- a/src/main/java/org/bukkit/command/CommandSender.java
++++ b/src/main/java/org/bukkit/command/CommandSender.java
+@@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
+      *
+      * @param message Message to be displayed
+      * @see #sendMessage(net.kyori.adventure.text.Component)
++     * @deprecated use {@link #sendMessage(Component)}
+      */
++    @Deprecated // KTP - more adventure deprecations
+     public void sendMessage(@NotNull String message);
+ 
+     /**
+@@ -24,7 +26,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
+      *
+      * @param messages An array of messages to be displayed
+      * @see #sendMessage(net.kyori.adventure.text.Component)
++     * @deprecated use {@link #sendMessage(Component)}
+      */
++    @Deprecated // KTP - more adventure deprecations
+     public void sendMessage(@NotNull String... messages);
+ 
+     /**
