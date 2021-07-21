@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Tuinity"
+rootProject.name = "KTP"
 
-include("Tuinity-API", "Tuinity-Server")
+include("KTP-API", "KTP-Server")
