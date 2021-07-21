@@ -44,12 +44,12 @@ out/
 *~
 
 # other stuff
-Tuinity-Server
-Tuinity-API
+KTP-Server
+KTP-API
 mc-dev
 .idea
 testserver
 run
-tuinity-paperclip.jar
+ktp-paperclip.jar
 
 !gradle/wrapper/gradle-wrapper.jar

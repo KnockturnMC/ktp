@@ -50,22 +50,22 @@ subprojects {
 }
 
 paperweight {
-    serverProject.set(project(":Tuinity-Server"))
+    serverProject.set(project(":KTP-Server"))
 
     usePaperUpstream(provider { file("current-paper").readText().trim() }) {
         withPaperPatcher {
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("Tuinity-API"))
+            apiOutputDir.set(layout.projectDirectory.dir("KTP-API"))
 
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("Tuinity-Server"))
+            serverOutputDir.set(layout.projectDirectory.dir("KTP-Server"))
         }
     }
 }
 
 tasks.paperclipJar {
     destinationDirectory.set(rootProject.layout.projectDirectory)
-    archiveFileName.set("tuinity-paperclip.jar")
+    archiveFileName.set("ktp-paperclip.jar")
 }
 
 tasks.withType<io.papermc.paperweight.patcher.tasks.SimpleRebuildGitPatches> {
