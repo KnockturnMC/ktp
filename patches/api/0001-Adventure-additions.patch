@@ -6,20 +6,8 @@ Subject: [PATCH] Adventure additions
 This commit contains any form of adventure additions done by the ktp
 server software.
 
-diff --git a/build.gradle.kts b/build.gradle.kts
-index 689d470ebe2c7e25e4c87f6127978d1d283e55b5..7e222c8b880d74e8ca680de2ee4c8ba59d6847f4 100644
---- a/build.gradle.kts
-+++ b/build.gradle.kts
-@@ -37,6 +37,7 @@ dependencies {
-     apiAndDocs("net.kyori:adventure-text-serializer-gson")
-     apiAndDocs("net.kyori:adventure-text-serializer-legacy")
-     apiAndDocs("net.kyori:adventure-text-serializer-plain")
-+    apiAndDocs("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") // KTP - add mini messages
-     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
-     api("org.slf4j:slf4j-api:1.7.30") // Paper
- 
 diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index 096dca3b733688dcc17669d78efbc5115f9b6e4a..b2f1b5f18cacc08d0212bc9610d2bd860c28f8fc 100644
+index 39ce012fcf2b22471a2ace9218f4f696ec93f466..b97e7285cf9a6ac1d285839dc3e1f5dbf878e9a9 100644
 --- a/src/main/java/org/bukkit/command/CommandSender.java
 +++ b/src/main/java/org/bukkit/command/CommandSender.java
 @@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
@@ -42,3 +30,55 @@ index 096dca3b733688dcc17669d78efbc5115f9b6e4a..b2f1b5f18cacc08d0212bc9610d2bd86
      public void sendMessage(@NotNull String... messages);
  
      /**
+diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
+index f093f991f1fedd20fcef041b093398250b7fb286..7c1663fef636587e6f33179582637ae7e76250ce 100644
+--- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
++++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
+@@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+     void displayName(final @Nullable net.kyori.adventure.text.Component displayName);
+     // Paper end
+ 
++    // KTP start
++    /**
++     * Sets the display name of the item meta and enforces that the display name is not displayed with an italic decoration.
++     * It is hence a shorthand for explicitly decorating the passed component with non-italic.
++     *
++     * @param displayName the display name to set
++     */
++    default void displayNameNonItalic(final @Nullable net.kyori.adventure.text.Component displayName) {
++        this.displayName(displayName == null ? null : displayName.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
++    }
++    // KTP end
++
+     /**
+      * Gets the display name that is set.
+      * <p>
+@@ -146,6 +158,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+     void lore(final @Nullable List<net.kyori.adventure.text.Component> lore);
+     // Paper end
+ 
++    // KTP start
++    /**
++     * Sets the lore of the item meta and enforcing that none of the components are rendered italic.
++     * This method is hence a shorthand for decorating all components in the lore with an explicit non-italic
++     * decoration.
++     *
++     * @param lore the lore to set.
++     */
++    default void loreNonItalic(final @Nullable List<net.kyori.adventure.text.Component> lore) {
++        if (lore == null) {
++            this.lore(null);
++            return;
++        }
++
++        final var mutated = new java.util.ArrayList<net.kyori.adventure.text.Component>(lore.size());
++        for (final var component : lore) {
++            mutated.add(component.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
++        }
++        this.lore(mutated);
++    }
++    // KTP end
++
+     /**
+      * Gets the lore that is set.
+      * <p>
