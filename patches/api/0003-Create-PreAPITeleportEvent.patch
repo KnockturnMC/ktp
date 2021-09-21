@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Bjarne Koll <lynxplay101@gmail.com>
-Date: Wed, 21 Jul 2021 02:41:04 +0200
+Date: Tue, 21 Sep 2021 15:38:00 +0200
 Subject: [PATCH] Create PreAPITeleportEvent
 
 As spigot api teleportation is subject to stricter checks than the
@@ -13,13 +13,13 @@ compatibility the PreAPITeleportEvent is called prior to most checks
 executed by spigot which allows plugins to modify potential target
 entities that are teleported by other plugins prior to the checks.
 
-diff --git a/src/main/java/org/bukkit/event/server/PreAPITeleportEvent.java b/src/main/java/org/bukkit/event/server/PreAPITeleportEvent.java
+diff --git a/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java b/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f03f003550face88d43b69e2b8a0ec33de44d165
+index 0000000000000000000000000000000000000000..d7790b7bdc7e137ce259f9653807cbacdb563b03
 --- /dev/null
-+++ b/src/main/java/org/bukkit/event/server/PreAPITeleportEvent.java
++++ b/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java
 @@ -0,0 +1,99 @@
-+package org.bukkit.event.server;
++package dev.lynxplay.ktp.event.server;
 +
 +import org.bukkit.Bukkit;
 +import org.bukkit.Location;

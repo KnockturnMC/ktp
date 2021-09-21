@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "KTP"
+rootProject.name = "ktp"
 
 include("KTP-API", "KTP-Server")
