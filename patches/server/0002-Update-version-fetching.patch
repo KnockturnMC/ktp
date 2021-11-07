@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Sat, 13 Nov 2021 15:35:33 +0100
+Subject: [PATCH] Update version fetching
+
+Updates the version fetching algorithm to use ktp's github instead of
+the paper build pipeline by default.
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index ece77f5ea4b14bbed7c070131b3251ea86764538..6d5f6965df5458e48f8574251ff06529a11ea322 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -19,8 +19,8 @@ import java.util.stream.StreamSupport;
+ 
+ public class PaperVersionFetcher implements VersionFetcher {
+     private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
+-    private static final String GITHUB_BRANCH_NAME = "master";
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads";
++    private static final String GITHUB_BRANCH_NAME = "main"; // KTP - update version fetching
++    private static final String DOWNLOAD_PAGE = "https://github.com/lynxplay/ktp"; // KTP - update version fetching
+     private static @Nullable String mcVer;
+ 
+     @Override
+@@ -31,8 +31,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Paper-".length()).split("[-\\s]");
+-        final Component updateMessage = getUpdateStatusMessage("PaperMC/Paper", GITHUB_BRANCH_NAME, parts[0]);
++        String[] parts = serverVersion.substring("git-ktp-".length()).split("[-\\s]"); // KTP - update version fetching
++        final Component updateMessage = getUpdateStatusMessage("lynxplay/ktp", GITHUB_BRANCH_NAME, parts[0]); // KTP - update version fetching
+         final Component history = getHistory();
+ 
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+@@ -56,6 +56,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+ 
+     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+         int distance;
++        // KTP start - update version fetching
++        /*
+         try {
+             int jenkinsBuild = Integer.parseInt(versionInfo);
+             distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
+@@ -63,6 +65,10 @@ public class PaperVersionFetcher implements VersionFetcher {
+             versionInfo = versionInfo.replace("\"", "");
+             distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+         }
++        */
++        versionInfo = versionInfo.replace("\"", "");
++        distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
++        // KTP end - update version fetching
+ 
+         switch (distance) {
+             case -1:

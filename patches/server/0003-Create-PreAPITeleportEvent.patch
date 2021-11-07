@@ -14,7 +14,7 @@ executed by spigot which allows plugins to modify potential target
 entities that are teleported by other plugins prior to the checks.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 986f045a2e6a040c6e2aab7420c8cb2d4ac3a726..ccd049990e388792be8026fdf5b436d35f378c83 100644
+index 0bd800e1aeda87689a6c56ee6fadda381c74a4ff..40ed4f9a9174c2ab1e2d4c4c77497527c333f68c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -561,9 +561,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
@@ -33,7 +33,7 @@ index 986f045a2e6a040c6e2aab7420c8cb2d4ac3a726..ccd049990e388792be8026fdf5b436d3
          // If this entity is riding another entity, we must dismount before teleporting.
          this.entity.stopRiding();
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 755e3bcc4d620d5550cbfd7ba56e83816d270498..50fc42a38290f81f906555675b8baba40eabbab9 100644
+index 4ff4143f3a7cd89ef92f4b8882fa3e5addfe0f06..1f5c474a521cc07da7f9a1fef9c5b3a4ffbd7488 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -1005,6 +1005,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
