@@ -1,0 +1,112 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Tue, 23 Nov 2021 18:44:08 -0800
+Subject: [PATCH] Expand translation support
+
+Default TranslatableComponents as provided by Adventure only permit plain text translations. With this change, support for markdown-style formatting is possible through MiniMessage alongside new methods in the Player interface that take Translatable objects. The use of these methods ensure that the translated messages are parsed and their templates resolved, permitting rich and dynamic translations.
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 92b612126a6bac0b89198a92bbb73b742ec9d064..628b75507c12d66cb45917e9f62b2eca7383ae6a 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -37,6 +37,7 @@ dependencies {
+     apiAndDocs("net.kyori:adventure-text-serializer-gson")
+     apiAndDocs("net.kyori:adventure-text-serializer-legacy")
+     apiAndDocs("net.kyori:adventure-text-serializer-plain")
++    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // KTP
+     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
+     api("org.slf4j:slf4j-api:1.7.30") // Paper
+ 
+diff --git a/src/main/java/dev/lynxplay/ktp/text/TemplatedTranslatable.java b/src/main/java/dev/lynxplay/ktp/text/TemplatedTranslatable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b72768623fbbe6d9933f2babe2a7032d76775c51
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/text/TemplatedTranslatable.java
+@@ -0,0 +1,57 @@
++package dev.lynxplay.ktp.text;
++
++import net.kyori.adventure.text.Component;
++import net.kyori.adventure.text.TranslatableComponent;
++import net.kyori.adventure.text.minimessage.Template;
++import net.kyori.adventure.text.minimessage.template.TemplateResolver;
++import net.kyori.adventure.translation.Translatable;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++/**
++ * Defines a translation key and a {@link TemplateResolver} that are tied together.
++ * <p>
++ * This class may be used to declare the expected templates within a translatable message at compile time
++ * so as to ensure that all replaceable aspects of a message are provided and can be properly resolved at runtime.
++ * </p>
++ */
++public class TemplatedTranslatable implements Translatable {
++
++    private final TranslatableComponent translatableComponent;
++    private final TemplateResolver templateResolver;
++
++    public TemplatedTranslatable(@NotNull String translationKey, @Nullable TemplateResolver templateResolver) {
++        this.translatableComponent = Component.translatable(translationKey);
++        this.templateResolver = templateResolver;
++    }
++
++    @Override
++    public @NotNull String translationKey() {
++        return this.translatableComponent.key();
++    }
++
++    /**
++     * Gets the {@link TemplateResolver} instance used to resolve templates within the translated message.
++     * <p>
++     * This instance may be null if there are not any templates expected in the translated message.
++     * See {@link #hasTemplateResolver()}
++     * </p>
++     * @return the nullable {@link TemplateResolver} instance
++     */
++    public @Nullable TemplateResolver getTemplateResolver() {
++        return this.templateResolver;
++    }
++
++    /**
++     * Determines whether this translatable has a template resolver.
++     * <p>
++     * Note that if this were to be false, any templates in the translated message will
++     * be displayed as their key, as defined by {@link Template#key()}
++     * </p>
++     * @return whether a template resolver exists for this TemplatedTranslatable
++     */
++    public boolean hasTemplateResolver() {
++        return this.templateResolver != null;
++    }
++
++}
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 9a6e410206852029f1fea0c4409352d5743dcf64..4eaeb664c9c7d3920833cf70b0b277fbaff113e6 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -921,6 +921,25 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+     @Deprecated
+     public void sendActionBar(@NotNull net.md_5.bungee.api.chat.BaseComponent... message);
+ 
++    // KTP start
++
++    /**
++     * Sends a translatable message to the player
++     * <p>
++     * For templated translatable messages, see {@link #sendMessage(dev.lynxplay.ktp.text.TemplatedTranslatable)}
++     * </p>
++     * @param translatable the translatable object providing a translation key
++     */
++    public void sendMessage(net.kyori.adventure.translation.Translatable translatable);
++
++    /**
++     * Sends a translatable message containing resolvable templates to the player
++     * @param templatedTranslatable the {@link dev.lynxplay.ktp.text.TemplatedTranslatable} containing the translation key and template resolver
++     */
++    public void sendMessage(dev.lynxplay.ktp.text.TemplatedTranslatable templatedTranslatable);
++
++// KTP end
++
+     /**
+      * Sends the component to the player
+      *

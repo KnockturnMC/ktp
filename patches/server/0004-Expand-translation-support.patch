@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Tue, 23 Nov 2021 18:44:08 -0800
+Subject: [PATCH] Expand translation support
+
+Default TranslatableComponents as provided by Adventure only permit plain text translations. With this change, support for markdown-style formatting is possible through MiniMessage alongside new methods in the Player interface that take Translatable objects. The use of these methods ensure that the translated messages are parsed and their templates resolved, permitting rich and dynamic translations.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 1f5c474a521cc07da7f9a1fef9c5b3a4ffbd7488..bdabba6e09ef15730cbc7ea1db8b39670c790ced 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -268,6 +268,36 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+         }
+     }
+ 
++    // KTP start
++
++    @Override
++    public void sendMessage(final net.kyori.adventure.translation.Translatable translatable) {
++        this.ktp$sendTranslatableMessage(translatable.translationKey(), null);
++    }
++
++    @Override
++    public void sendMessage(final dev.lynxplay.ktp.text.TemplatedTranslatable templatedTranslatable) {
++        this.ktp$sendTranslatableMessage(templatedTranslatable.translationKey(), templatedTranslatable.getTemplateResolver());
++    }
++
++    private void ktp$sendTranslatableMessage(final String translationKey, final net.kyori.adventure.text.minimessage.template.TemplateResolver resolver) {
++        if (getHandle().connection == null) return;
++
++        final var translator = net.kyori.adventure.translation.GlobalTranslator.get();
++        final var miniMessage = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage();
++
++        final var messageFormat = translator.translate(translationKey, this.locale());
++        if (messageFormat == null) throw new IllegalArgumentException("A translation for key \"" + translationKey + "\" could not be found.");
++
++        final String rawTranslatedText = messageFormat.format(null, new java.lang.StringBuffer(), null).toString();
++
++        final var packet = new ClientboundChatPacket(null, net.minecraft.network.chat.ChatType.CHAT, null);
++        packet.adventure$message = resolver == null ? miniMessage.parse(rawTranslatedText) : miniMessage.deserialize(rawTranslatedText, resolver);
++        this.getHandle().connection.send(packet);
++    }
++
++    // KTP end
++
+     // Paper start
+     @Override
+     public void sendActionBar(BaseComponent[] message) {
