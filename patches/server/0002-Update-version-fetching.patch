@@ -7,7 +7,7 @@ Updates the version fetching algorithm to use ktp's github instead of
 the paper build pipeline by default.
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index ece77f5ea4b14bbed7c070131b3251ea86764538..6d5f6965df5458e48f8574251ff06529a11ea322 100644
+index bf42969859545a8a520923ef1836ffa4a5cc24a0..bee7c49ff96b6c173972656fb5e0a112f65b02ed 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -19,8 +19,8 @@ import java.util.stream.StreamSupport;

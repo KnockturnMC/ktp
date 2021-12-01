@@ -15,26 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 94c0fc4ad061e261e6cc4848557c61c7325d9f61..4b02833709a19ffecfd77ebf55ed3f615100e94a 100644
+index 1d4f596549dfcc064cda666047a991c63716aad9..9b3e177be7bfc127d4505e72e1282d91b6f708be 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -158,6 +158,7 @@ import net.minecraft.world.phys.Vec3;
- import net.minecraft.world.phys.shapes.BooleanOp;
- import net.minecraft.world.phys.shapes.Shapes;
- import net.minecraft.world.phys.shapes.VoxelShape;
-+import org.apache.commons.lang.builder.ToStringBuilder;
- import org.apache.commons.lang3.StringUtils;
- import org.apache.logging.log4j.LogManager;
- import org.apache.logging.log4j.Logger;
-@@ -173,6 +174,7 @@ import net.minecraft.world.inventory.BeaconMenu;
- import net.minecraft.world.inventory.MerchantMenu;
- import net.minecraft.world.inventory.RecipeBookMenu;
- import net.minecraft.world.inventory.Slot;
-+import org.bukkit.Bukkit;
- import org.bukkit.Location;
- import org.bukkit.craftbukkit.entity.CraftPlayer;
- import org.bukkit.craftbukkit.event.CraftEventFactory;
-@@ -492,7 +494,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -550,7 +550,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
@@ -50,13 +34,13 @@ index 94c0fc4ad061e261e6cc4848557c61c7325d9f61..4b02833709a19ffecfd77ebf55ed3f61
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 40ed4f9a9174c2ab1e2d4c4c77497527c333f68c..3ede3ab1c3843ba54a9caf4e54601135e8046777 100644
+index 7401edbc64d7e97237cb08cdbf8cccfef6297ec4..c0d38cb44a8b1e8920effc2b9d1182af50644685 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1289,4 +1289,30 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
-         return !entity.valid && entity.level.addEntity(entity, reason);
+@@ -1407,4 +1407,30 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return !this.getHandle().level.noCollision(this.getHandle(), aabb);
      }
-     // Paper end
+     // Paper End - Collision API
 +    // KTP start
 +
 +    @Override
@@ -73,7 +57,7 @@ index 40ed4f9a9174c2ab1e2d4c4c77497527c333f68c..3ede3ab1c3843ba54a9caf4e54601135
 +    }
 +
 +    @Override
-+    public void physics(boolean physics) {
++    public void physics(final boolean physics) {
 +        this.entity.noPhysics = !physics;
 +    }
 +

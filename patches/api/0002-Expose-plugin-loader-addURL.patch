@@ -8,10 +8,10 @@ this commit exposes the URLClassLoader method addURL through the public
 keyword.
 
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index 8a39c48fce819d72a94d5309db8dfc42930989af..5e545ca2f171860150667dfd3c92b96957f5653d 100644
+index cb3c25ef46b279ffdde87f47f729eb8aa7549c1c..b7c65ec30b3bd5ccd154a59d0a8c9e969dc4a4c4 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-@@ -217,6 +217,13 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+@@ -243,6 +243,13 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
          }
      }
  

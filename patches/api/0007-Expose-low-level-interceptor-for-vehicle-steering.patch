@@ -269,13 +269,13 @@ index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ff
 +
 +}
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index bafad5764cc3933fcd9602d37bd2e68424cbd575..7accd466f79819e0b8739a3df89706040a9060b8 100644
+index cdbc7329cf5f67d66e31eb31e83b9e7997040f72..2c1393dd37f977ae67e73d592379f76c55d5f0c9 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -795,4 +795,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -970,4 +970,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
-     public boolean spawnAt(@NotNull Location location, @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason);
-     // Paper end
+     boolean wouldCollideUsing(@NotNull BoundingBox boundingBox);
+     // Paper End - Collision API
 +    // KTP start
 +
 +    /**
