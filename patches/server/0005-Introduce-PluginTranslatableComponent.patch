@@ -23,7 +23,7 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c118bb8af825083f2ea122aaddfca619812fa641
+index 0000000000000000000000000000000000000000..08f72331db803cb7f0138e5d4c669ddc0e1ecab3
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
 @@ -0,0 +1,67 @@
@@ -63,7 +63,7 @@ index 0000000000000000000000000000000000000000..c118bb8af825083f2ea122aaddfca619
 +                : format.format(null, new StringBuffer(), null).toString();
 +
 +            var rendered = super.render( // This call will take (at least on root level) a component the delegate will understand.
-+                pluginTranslatable.miniMessageInstance().deserialize(rawTranslation, pluginTranslatable.templateResolver()),
++                pluginTranslatable.miniMessageInstance().deserialize(rawTranslation, pluginTranslatable.tagResolver()),
 +                context
 +            );
 +
@@ -617,111 +617,101 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-index f763a3ea5796737304e0c1f41349622e1d7adadf..02fb6c638ac3286bb49401efa201975ada806494 100644
+index 01e424792f68bac73ec41726031ebbb53df13da7..20aa98f2f9f92745bfeb2e906307d3b28abd21a0 100644
 --- a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
 +++ b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-@@ -1,6 +1,7 @@
- package io.papermc.paper.adventure;
- 
- import com.mojang.brigadier.exceptions.CommandSyntaxException;
-+import dev.lynxplay.ktp.adventure.translation.KTPTranslator;
- import io.netty.util.AttributeKey;
- import java.io.IOException;
- import java.util.ArrayList;
-@@ -47,7 +48,7 @@ public final class PaperAdventure {
+@@ -52,7 +52,7 @@ public final class PaperAdventure {
              if (!Language.getInstance().has(translatable.key())) {
-                 for (final Translator source : GlobalTranslator.get().sources()) {
+                 for (final Translator source : GlobalTranslator.translator().sources()) {
                      if (source instanceof TranslationRegistry registry && registry.contains(translatable.key())) {
 -                        consumer.accept(GlobalTranslator.render(translatable, Locale.US));
-+                        consumer.accept(KTPTranslator.render(translatable, Locale.US)); // KTP
++                        consumer.accept(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(translatable, Locale.US)); // KTP
                          return;
                      }
                  }
-@@ -177,7 +178,7 @@ public final class PaperAdventure {
+@@ -189,8 +189,8 @@ public final class PaperAdventure {
+         return PlainTextComponentSerializer.plainText().serialize(translated(component, locale));
+     }
  
-     public static String asJsonString(final Component component, final Locale locale) {
-         return GSON.serialize(
--            GlobalTranslator.render(
-+            KTPTranslator.render( // KTP
-                 component,
-                 // play it safe
-                 locale != null
-@@ -196,7 +197,7 @@ public final class PaperAdventure {
- 
-     public static String asPlain(final Component component, final Locale locale) {
-         return PLAIN.serialize(
--            GlobalTranslator.render(
-+            KTPTranslator.render( // KTP
-                 component,
-                 // play it safe
-                 locale != null
+-    private static Component translated(final Component component, final Locale locale) {
+-        return GlobalTranslator.render(
++    public static Component translated(final Component component, final Locale locale) { // KTP - translatable components - private -> public
++        return dev.lynxplay.ktp.adventure.translation.KTPTranslator.render( // KTP - translatable components
+             component,
+             // play it safe
+             locale != null
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 621ec8e8a197323da6b423fee57c816ac9d7c875..94c0fc4ad061e261e6cc4848557c61c7325d9f61 100644
+index 08cb3db28f13c352a162009deeb28ee637e98d2a..1d4f596549dfcc064cda666047a991c63716aad9 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -1966,7 +1966,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+@@ -2118,7 +2118,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          // Paper start - Adventure
-         quitMessage = quitMessage == null ? this.server.getPlayerList().disconnect(this.player) : this.server.getPlayerList().disconnect(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
+         quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
          if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
--            this.server.getPlayerList().broadcastMessage(PaperAdventure.asVanilla(quitMessage), ChatType.SYSTEM, Util.NIL_UUID);
-+            this.server.getPlayerList().broadcastMessage(quitMessage, ChatType.SYSTEM, Util.NIL_UUID); // KTP - use adventure-compatible broadcast
+-            this.server.getPlayerList().broadcastSystemMessage(PaperAdventure.asVanilla(quitMessage), false);
++            this.server.getPlayerList().broadcastSystemMessage(quitMessage, Util.NIL_UUID); // KTP - use adventure-compatible broadcast
              // Paper end
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 46e6e68f78d07c04cd2f4d477dca7a06313c20e9..043e407bb4e35ddba366526713606f3a6d39b0b0 100644
+index c0b599b1835d28ddda3690b29f29bd8c6f03e215..a4ea597c7494f0a4dcc91b3e6b459784988a26d9 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -366,10 +366,9 @@ public abstract class PlayerList {
+@@ -29,6 +29,7 @@ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.FileUtil;
++import net.minecraft.Util;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.LayeredRegistryAccess;
+@@ -325,8 +326,8 @@ public abstract class PlayerList {
          final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
  
          if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
 -            joinMessage = PaperAdventure.asVanilla(jm); // Paper - Adventure
--            // Paper start - Removed sendAll for loop and broadcasted to console also
--            this.server.getPlayerList().broadcastMessage(joinMessage, ChatType.SYSTEM, Util.NIL_UUID); // Paper - Adventure
--            // Paper end
-+            // KTP start
-+            this.server.getPlayerList().broadcastMessage(jm, ChatType.SYSTEM, Util.NIL_UUID); // Perish, paper. Use adventure-compatible broadcast.
-+            // KTP end
+-            this.server.getPlayerList().broadcastSystemMessage(joinMessage, false); // Paper - Adventure
++            // joinMessage = PaperAdventure.asVanilla(jm); // Paper - Adventure // KTP - use adventure native broadcast
++            this.server.getPlayerList().broadcastSystemMessage(jm, Util.NIL_UUID); // Paper - Adventure // KTP - use adventure native broadcast
          }
          // CraftBukkit end
  
-@@ -1408,6 +1407,14 @@ public abstract class PlayerList {
- 
+@@ -1327,6 +1328,14 @@ public abstract class PlayerList {
      }
+     // CraftBukkit end
  
 +    // KTP start
-+    public void broadcastMessage(net.kyori.adventure.text.Component component, ChatType type, UUID sender) {
++    public void broadcastSystemMessage(final net.kyori.adventure.text.Component component,
++                                       final UUID sender) {
 +        final var identity = net.kyori.adventure.identity.Identity.identity(sender);
-+        final var messageType = type == ChatType.CHAT ? net.kyori.adventure.audience.MessageType.CHAT : net.kyori.adventure.audience.MessageType.SYSTEM;
-+        this.server.server.sendMessage(identity, component, messageType);
++        this.server.server.sendMessage(identity, component, net.kyori.adventure.audience.MessageType.SYSTEM);
 +    }
 +    // KTP end
 +
-     public void broadcastMessage(Component serverMessage, Function<ServerPlayer, Component> playerMessageFactory, ChatType playerMessageType, UUID sender) {
-         this.server.sendMessage(serverMessage, sender);
-         Iterator iterator = this.players.iterator();
+     public void broadcastSystemMessage(Component message, boolean overlay) {
+         this.broadcastSystemMessage(message, (entityplayer) -> {
+             return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2e032a4e564174571c4ff983e13600bc75fa9058..589bf52bb1ed2c14380e1a92028c4970fcbf9945 100644
+index a64d053b02d90df9d75223021f73818be99775d5..29766eb65e1a09a6fef91b2951d2daebaabc2695 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -292,6 +292,7 @@ public final class CraftServer implements Server {
-     private final io.papermc.paper.datapack.PaperDatapackManager datapackManager; // Paper
+@@ -299,6 +299,7 @@ public final class CraftServer implements Server {
      public static Exception excessiveVelEx; // Paper - Velocity warnings
-     private final SysoutCatcher sysoutCatcher = new SysoutCatcher(); // Paper
+     private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
+     private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper
 +    private final dev.lynxplay.ktp.adventure.translation.PluginTranslators pluginTranslators; // KTP - plugin translators - server instance
  
      static {
          ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-@@ -376,6 +377,7 @@ public final class CraftServer implements Server {
-         this.minimumAPI = this.configuration.getString("settings.minimum-api");
-         this.loadIcon();
+@@ -385,6 +386,7 @@ public final class CraftServer implements Server {
+             MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
+         }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
 +        this.pluginTranslators = new dev.lynxplay.ktp.adventure.translation.PluginTranslatorsImpl(); // KTP - plugin translators - server instance
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2720,4 +2722,14 @@ public final class CraftServer implements Server {
+@@ -2938,4 +2940,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end
@@ -737,14 +727,14 @@ index 2e032a4e564174571c4ff983e13600bc75fa9058..589bf52bb1ed2c14380e1a92028c4970
 +    // KTP end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-index dbff1eda25b02b16ec123515338d470489f3b3c4..76a3db453d6f8c86de78d63fc351904ce924bbe7 100644
+index 4e56018b64d11f76c8da43fd8f85c6de72204e36..0af310136ed7ac895afb839db81cb702d0f608ed 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
 @@ -91,7 +91,7 @@ public class CraftConsoleCommandSender extends ServerCommandSender implements Co
      // Paper start
      @Override
      public void sendMessage(final net.kyori.adventure.identity.Identity identity, final net.kyori.adventure.text.Component message, final net.kyori.adventure.audience.MessageType type) {
--        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.LEGACY_SECTION_UXRC.serialize(message));
+-        this.sendRawMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(message));
 +        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.asPlain(message, java.util.Locale.getDefault())); // KTP - render to prevent non-serializable component from being sent
      }
  

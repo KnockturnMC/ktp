@@ -3,8 +3,8 @@ import io.papermc.paperweight.util.constants.*
 plugins {
     java
     `maven-publish`
-    id("com.github.johnrengelman.shadow") version "7.1.0" apply false
-    id("io.papermc.paperweight.patcher") version "1.2.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2" apply false
+    id("io.papermc.paperweight.patcher") version "1.3.11"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
@@ -12,7 +12,7 @@ val spigotDecompiler: Configuration by configurations.creating
 
 repositories {
     mavenCentral()
-    maven("https://papermc.io/repo/repository/maven-public/") {
+    maven("$paperMavenPublicUrl") {
         content {
             onlyForConfigurations(PAPERCLIP_CONFIG, spigotDecompiler.name)
         }
@@ -20,9 +20,9 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.6.0:fat")
-    decompiler("net.minecraftforge:forgeflower:1.5.498.12")
-    paperclip("io.papermc:paperclip:2.0.1")
+    remapper("net.fabricmc:tiny-remapper:0.8.6:fat")
+    decompiler("net.minecraftforge:forgeflower:2.0.605.1")
+    paperclip("io.papermc:paperclip:3.0.2")
 }
 
 allprojects {

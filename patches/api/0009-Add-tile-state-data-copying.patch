@@ -9,13 +9,13 @@ plugins to load the tile state data of an already existing tile state
 into a second tile state, effectivly cloning the initial tile state.
 
 diff --git a/src/main/java/org/bukkit/block/TileState.java b/src/main/java/org/bukkit/block/TileState.java
-index 3b10fcc13893403b29f0260b8605144679e89b82..c043ab8c39838c57bfede1fd310edbb7255ddeea 100644
+index 5c8517c5bcae10161952c104b6a4ff7c713bcdbd..bdb3fd0bdd4eaa6f737d1c4457ac49002dc06711 100644
 --- a/src/main/java/org/bukkit/block/TileState.java
 +++ b/src/main/java/org/bukkit/block/TileState.java
-@@ -36,4 +36,22 @@ public interface TileState extends BlockState, PersistentDataHolder {
-     @NotNull
-     @Override
-     PersistentDataContainer getPersistentDataContainer();
+@@ -50,4 +50,22 @@ public interface TileState extends BlockState, PersistentDataHolder {
+      */
+     boolean isSnapshot();
+     // Paper end
 +
 +    // KTP start
 +

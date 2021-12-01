@@ -10,12 +10,12 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..689d7169c5ee897c16f51be55f8edec0df362702 100644
+index 854be548e5a645e7312e6e9390d5255f8b1d61e6..0bad57f184515734c49ee3030d167bd63d10ee0c 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -218,4 +218,7 @@ public interface UnsafeValues {
+@@ -271,4 +271,7 @@ public interface UnsafeValues {
       */
-     boolean isCollidable(@org.jetbrains.annotations.NotNull Material material);
+     void setBiomeKey(RegionAccessor accessor, int x, int y, int z, NamespacedKey biomeKey);
      // Paper end
 +    // KTP start
 +    String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack);

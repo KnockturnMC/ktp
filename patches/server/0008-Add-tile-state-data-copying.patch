@@ -9,14 +9,13 @@ plugins to load the tile state data of an already existing tile state
 into a second tile state, effectivly cloning the initial tile state.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
-index 658c1ef9a086f16495b3106dbf9358c74997e4e1..d10a1d969b1aad943a381abea54c6fbff49df9b7 100644
+index a2894f02ceb7c58f6eafe055e1ff47b197b100f2..57dc34388a0a405ee8b1bdc2e5da61f1db8a5bfc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
-@@ -125,4 +125,22 @@ public abstract class CraftBlockEntityState<T extends BlockEntity> extends Craft
-     public PersistentDataContainer getPersistentDataContainer() {
-         return this.getSnapshot().persistentDataContainer;
+@@ -132,4 +132,21 @@ public abstract class CraftBlockEntityState<T extends BlockEntity> extends Craft
+         return !this.snapshotDisabled;
      }
-+
+     // Paper end
 +    // KTP start
 +
 +    @Override

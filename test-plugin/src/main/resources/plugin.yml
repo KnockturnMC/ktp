@@ -3,5 +3,5 @@ version: ${version}
 main: dev.lynxplay.ktp.testplugin.TestPlugin
 description: KTP testing plugin
 author: KTP
-api-version: 1.17
+api-version: 1.18
 load: STARTUP

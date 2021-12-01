@@ -12,7 +12,7 @@ holds a key that is matched to a localized message when rendered. The
 difference between a translatable component and a plugin translatable
 component is the fact that the translation the plugin translatable
 component represents is parsed using the mini message parser and
-arguments are passed in as a single template resolver.
+arguments are passed in as a single tag resolver.
 
 Besides the addition of the plugin translatable component, this patch
 also introduces a basic layout to allow plugins to quickly load
@@ -352,7 +352,7 @@ index 0000000000000000000000000000000000000000..6af66024b8c8adf7aac86578581cff8e
 +}
 diff --git a/src/main/java/net/kyori/adventure/text/KTPComponents.java b/src/main/java/net/kyori/adventure/text/KTPComponents.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..577480bc6ca65b91f6f6ea0d793ad9237f99355a
+index 0000000000000000000000000000000000000000..4f89fe457d9f6ba02a0197973ac48ff14558c3cd
 --- /dev/null
 +++ b/src/main/java/net/kyori/adventure/text/KTPComponents.java
 @@ -0,0 +1,88 @@
@@ -367,10 +367,10 @@ index 0000000000000000000000000000000000000000..577480bc6ca65b91f6f6ea0d793ad923
 +public class KTPComponents {
 +
 +    /**
-+     * Creates a plugin translatable component fully configured with a key, template resolver and mini message instance.
++     * Creates a plugin translatable component fully configured with a key, tag resolver and mini message instance.
 +     *
 +     * @param key                 the translation key of the plugin translatable component.
-+     * @param templateResolver    the template resolver that resolves the templates in the translated message.
++     * @param tagResolver         the tag resolver that resolves the tags in the translated message.
 +     * @param miniMessageInstance the mini message instance that should be used to de-serialize the raw translation string message.
 +     *
 +     * @return a new immutable plugin translatable component.
@@ -378,42 +378,42 @@ index 0000000000000000000000000000000000000000..577480bc6ca65b91f6f6ea0d793ad923
 +     * @since 1.17.1
 +     */
 +    public static @NotNull PluginTranslatableComponent pluginTranslatable(@NotNull final String key,
-+                                                                          @NotNull final net.kyori.adventure.text.minimessage.template.TemplateResolver templateResolver,
++                                                                          @NotNull final net.kyori.adventure.text.minimessage.tag.resolver.TagResolver tagResolver,
 +                                                                          @NotNull final net.kyori.adventure.text.minimessage.MiniMessage miniMessageInstance) {
 +        return new PluginTranslatableComponentImpl(
 +            java.util.Collections.emptyList(),
 +            net.kyori.adventure.text.format.Style.empty(),
 +            key,
-+            templateResolver,
++            tagResolver,
 +            miniMessageInstance
 +        );
 +    }
 +
 +    /**
-+     * Creates a plugin translatable component configured with a key and a template resolver.
++     * Creates a plugin translatable component configured with a key and a tag resolver.
 +     * A default mini message instance will be used.
 +     *
-+     * @param key              the translation key of the plugin translatable component.
-+     * @param templateResolver the template resolver that resolves the templates in the translated message.
++     * @param key         the translation key of the plugin translatable component.
++     * @param tagResolver the tag resolver that resolves the tags in the translated message.
 +     *
 +     * @return a new immutable plugin translatable component.
 +     *
 +     * @since 1.17.1
 +     */
 +    public static @NotNull PluginTranslatableComponent pluginTranslatable(@NotNull final String key,
-+                                                                          @NotNull final net.kyori.adventure.text.minimessage.template.TemplateResolver templateResolver) {
++                                                                          @NotNull final net.kyori.adventure.text.minimessage.tag.resolver.TagResolver tagResolver) {
 +        return new PluginTranslatableComponentImpl(
 +            java.util.Collections.emptyList(),
 +            net.kyori.adventure.text.format.Style.empty(),
 +            key,
-+            templateResolver,
++            tagResolver,
 +            net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
 +        );
 +    }
 +
 +    /**
 +     * Creates a plugin translatable component configured with a key.
-+     * An empty template resolver will be used, meaning no templates will be resolved. Additionally, a default mini message instance will be used.
++     * An empty tag resolver will be used, meaning no tags will be resolved. Additionally, a default mini message instance will be used.
 +     *
 +     * @param key the translation key of the plugin translatable component.
 +     *
@@ -426,7 +426,7 @@ index 0000000000000000000000000000000000000000..577480bc6ca65b91f6f6ea0d793ad923
 +            java.util.Collections.emptyList(),
 +            net.kyori.adventure.text.format.Style.empty(),
 +            key,
-+            net.kyori.adventure.text.minimessage.template.TemplateResolver.empty(),
++            net.kyori.adventure.text.minimessage.tag.resolver.TagResolver.empty(),
 +            net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
 +        );
 +    }
@@ -446,14 +446,14 @@ index 0000000000000000000000000000000000000000..577480bc6ca65b91f6f6ea0d793ad923
 +}
 diff --git a/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c80dd262e902c8bca9ad7559e8a6980985482735
+index 0000000000000000000000000000000000000000..baa2c2f2b25bf99f887b10a6a4479a8c6032fed3
 --- /dev/null
 +++ b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,156 @@
 +package net.kyori.adventure.text;
 +
 +import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.template.TemplateResolver;
++import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 +import net.kyori.adventure.translation.Translatable;
 +import org.jetbrains.annotations.Contract;
 +import org.jetbrains.annotations.NotNull;
@@ -504,25 +504,25 @@ index 0000000000000000000000000000000000000000..c80dd262e902c8bca9ad7559e8a69809
 +    @NotNull PluginTranslatableComponent key(final @NotNull String key);
 +
 +    /**
-+     * Gets the unmodifiable instance of the template resolver that is currently used by the component to resolve the templates found inside.
++     * Gets the unmodifiable instance of the tag resolver that is currently used by the component to resolve the tags found inside.
 +     *
-+     * @return the unmodifiable template resolver instance.
++     * @return the unmodifiable tag resolver instance.
 +     *
 +     * @since 1.17.1
 +     */
-+    @NotNull TemplateResolver templateResolver();
++    @NotNull TagResolver tagResolver();
 +
 +    /**
-+     * Sets the template resolver that should be used to resolve templates found.
++     * Sets the tag resolver that should be used to resolve tags found.
 +     *
-+     * @param templateResolver the template resolver instance.
++     * @param tagResolver the tag resolver instance.
 +     *
 +     * @return a plugin translatable component
 +     *
 +     * @since 1.17.1
 +     */
 +    @Contract(pure = true)
-+    @NotNull PluginTranslatableComponent templateResolver(final @NotNull TemplateResolver templateResolver);
++    @NotNull PluginTranslatableComponent tagResolver(final @NotNull TagResolver tagResolver);
 +
 +    /**
 +     * Provides the mini message instance to use when rendering the translatable component.
@@ -550,6 +550,7 @@ index 0000000000000000000000000000000000000000..c80dd262e902c8bca9ad7559e8a69809
 +     *
 +     * @since 1.17.1
 +     */
++    @SuppressWarnings("NonExtendableApiUsage")
 +    interface Builder extends ComponentBuilder<PluginTranslatableComponent, PluginTranslatableComponent.Builder> {
 +
 +        /**
@@ -579,16 +580,16 @@ index 0000000000000000000000000000000000000000..c80dd262e902c8bca9ad7559e8a69809
 +        @NotNull PluginTranslatableComponent.Builder key(final @NotNull String key);
 +
 +        /**
-+         * Sets the template resolver that should be used to resolve templates found.
++         * Sets the tag resolver that should be used to resolve tags found.
 +         *
-+         * @param templateResolver the template resolver instance.
++         * @param tagResolver the tag resolver instance.
 +         *
 +         * @return this builder.
 +         *
 +         * @since 1.17.1
 +         */
 +        @Contract(pure = true)
-+        @NotNull PluginTranslatableComponent.Builder templateResolver(final @NotNull TemplateResolver templateResolver);
++        @NotNull PluginTranslatableComponent.Builder tagResolver(final @NotNull TagResolver tagResolver);
 +
 +        /**
 +         * Sets the mini message instance to use when rendering this translatable component.
@@ -607,37 +608,40 @@ index 0000000000000000000000000000000000000000..c80dd262e902c8bca9ad7559e8a69809
 +}
 diff --git a/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c919df67e4
+index 0000000000000000000000000000000000000000..3368a06f218c0632f7b32c40c9e3b5413ad4e243
 --- /dev/null
 +++ b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,154 @@
 +package net.kyori.adventure.text;
 +
 +import net.kyori.adventure.text.format.Style;
 +import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.template.TemplateResolver;
-+import net.kyori.examination.ExaminableProperty;
++import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
++import org.jetbrains.annotations.Unmodifiable;
 +
 +import java.util.List;
 +import java.util.Objects;
-+import java.util.stream.Stream;
 +
 +import static java.util.Objects.requireNonNull;
 +
-+final class PluginTranslatableComponentImpl extends AbstractComponent implements PluginTranslatableComponent {
++final class PluginTranslatableComponentImpl implements PluginTranslatableComponent {
 +
++    @NotNull private final List<Component> children;
++    @NotNull private final Style style;
 +    @NotNull private final String key;
 +    @NotNull private final MiniMessage miniMessageInstance;
-+    @NotNull private final TemplateResolver templateResolver;
++    @NotNull private final TagResolver tagResolver;
 +
 +    public PluginTranslatableComponentImpl(@NotNull List<? extends ComponentLike> children,
 +                                           @NotNull Style style,
-+                                           @NotNull String key, @NotNull TemplateResolver templateResolver, @NotNull MiniMessage miniMessageInstance) {
-+        super(children, style);
++                                           @NotNull String key, @NotNull TagResolver tagResolver,
++                                           @NotNull MiniMessage miniMessageInstance) {
++        this.children = ComponentLike.asComponents(children, IS_NOT_EMPTY);
++        this.style = requireNonNull(style, "style");
 +        this.key = requireNonNull(key, "key");
-+        this.templateResolver = requireNonNull(templateResolver, "templateResolver");
++        this.tagResolver = requireNonNull(tagResolver, "tagResolver");
 +        this.miniMessageInstance = requireNonNull(miniMessageInstance, "miniMessageInstance");
 +    }
 +
@@ -649,18 +653,18 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +    @Override
 +    public @NotNull PluginTranslatableComponent key(@NotNull String key) {
 +        requireNonNull(key, "key");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, key, this.templateResolver, this.miniMessageInstance);
++        return new PluginTranslatableComponentImpl(this.children, this.style, key, this.tagResolver, this.miniMessageInstance);
 +    }
 +
 +    @Override
-+    public @NotNull TemplateResolver templateResolver() {
-+        return this.templateResolver;
++    public @NotNull TagResolver tagResolver() {
++        return this.tagResolver;
 +    }
 +
 +    @Override
-+    public @NotNull PluginTranslatableComponent templateResolver(@NotNull TemplateResolver templateResolver) {
-+        requireNonNull(templateResolver, "templateResolver");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, templateResolver, this.miniMessageInstance);
++    public @NotNull PluginTranslatableComponent tagResolver(@NotNull TagResolver tagResolver) {
++        requireNonNull(tagResolver, "tagResolver");
++        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, tagResolver, this.miniMessageInstance);
 +    }
 +
 +    @Override
@@ -671,19 +675,29 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +    @Override
 +    public @NotNull PluginTranslatableComponent miniMessageInstance(@NotNull MiniMessage miniMessageInstance) {
 +        requireNonNull(miniMessageInstance, "miniMessageInstance");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, this.templateResolver, miniMessageInstance);
++        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, this.tagResolver, miniMessageInstance);
++    }
++
++    @Override
++    public @Unmodifiable @NotNull List<Component> children() {
++        return this.children;
 +    }
 +
 +    @Override
 +    public @NotNull PluginTranslatableComponent children(@NotNull List<? extends ComponentLike> children) {
 +        requireNonNull(children, "children");
-+        return new PluginTranslatableComponentImpl(children, this.style, this.key, this.templateResolver, this.miniMessageInstance);
++        return new PluginTranslatableComponentImpl(children, this.style, this.key, this.tagResolver, this.miniMessageInstance);
++    }
++
++    @Override
++    public @NotNull Style style() {
++        return this.style;
 +    }
 +
 +    @Override
 +    public @NotNull PluginTranslatableComponent style(@NotNull Style style) {
 +        requireNonNull(style, "style");
-+        return new PluginTranslatableComponentImpl(this.children, style, this.key, this.templateResolver, this.miniMessageInstance);
++        return new PluginTranslatableComponentImpl(this.children, style, this.key, this.tagResolver, this.miniMessageInstance);
 +    }
 +
 +    @Override
@@ -691,26 +705,17 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +        if (this == other) return true;
 +        if (!(other instanceof PluginTranslatableComponent that)) return false;
 +        if (!super.equals(other)) return false;
-+        return Objects.equals(this.key, that.key()) && Objects.equals(this.templateResolver, that.templateResolver());
++        return Objects.equals(this.key, that.key()) && Objects.equals(this.tagResolver, that.tagResolver());
 +    }
 +
 +    @Override
 +    public int hashCode() {
-+        int result = super.hashCode();
++        int result = this.children.hashCode();
++        result = (31 * result) + this.style.hashCode();
 +        result = (31 * result) + this.key.hashCode();
-+        result = (31 * result) + this.templateResolver.hashCode();
++        result = (31 * result) + this.tagResolver.hashCode();
 +        result = (31 * result) + this.miniMessageInstance.hashCode();
 +        return result;
-+    }
-+
-+    @Override
-+    protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
-+        return Stream.concat(
-+            Stream.of(
-+                ExaminableProperty.of("key", this.key)
-+            ),
-+            super.examinablePropertiesWithoutChildren()
-+        );
 +    }
 +
 +    @Override
@@ -721,7 +726,7 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +    static final class BuilderImpl extends AbstractComponentBuilder<PluginTranslatableComponent, PluginTranslatableComponent.Builder> implements PluginTranslatableComponent.Builder {
 +
 +        private @Nullable String key;
-+        private TemplateResolver templateResolver = TemplateResolver.empty();
++        private TagResolver tagResolver = TagResolver.empty();
 +        private MiniMessage miniMessageInstance = MiniMessage.miniMessage();
 +
 +        BuilderImpl() {
@@ -730,7 +735,7 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +        BuilderImpl(final @NotNull PluginTranslatableComponent component) {
 +            super(component);
 +            this.key = component.key();
-+            this.templateResolver = component.templateResolver();
++            this.tagResolver = component.tagResolver();
 +            this.miniMessageInstance = component.miniMessageInstance();
 +        }
 +
@@ -741,8 +746,8 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +        }
 +
 +        @Override
-+        public @NotNull PluginTranslatableComponent.Builder templateResolver(@NotNull TemplateResolver templateResolver) {
-+            this.templateResolver = templateResolver;
++        public @NotNull PluginTranslatableComponent.Builder tagResolver(@NotNull TagResolver tagResolver) {
++            this.tagResolver = tagResolver;
 +            return this;
 +        }
 +
@@ -755,18 +760,18 @@ index 0000000000000000000000000000000000000000..859b0cc515ace169ff2e3c2cd73a38c9
 +        @Override
 +        public @NotNull PluginTranslatableComponentImpl build() {
 +            if (this.key == null) throw new IllegalStateException("key must be set");
-+            return new PluginTranslatableComponentImpl(this.children, this.buildStyle(), this.key, this.templateResolver, this.miniMessageInstance);
++            return new PluginTranslatableComponentImpl(this.children, this.buildStyle(), this.key, this.tagResolver, this.miniMessageInstance);
 +        }
 +
 +    }
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index c551010f84ac5d3ebc626c253a8f8282924152c4..e28acdbfc326871837014b647aeedf9b7eb3078e 100644
+index ac9b690fcccb60b587e5345f12f1383afd0a73a1..8857eebca12148be0d75d5266e715b74cfffd35f 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2113,6 +2113,15 @@ public final class Bukkit {
-         return server.getDatapackManager();
+@@ -2459,6 +2459,15 @@ public final class Bukkit {
+         return server.getPotionBrewer();
      }
      // Paper end
 +    // KTP start
@@ -782,12 +787,12 @@ index c551010f84ac5d3ebc626c253a8f8282924152c4..e28acdbfc326871837014b647aeedf9b
      @NotNull
      public static Server.Spigot spigot() {
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..f76a9cc37b2e8c9d0bf63bc264531cbf55dc45f9 100644
+index 2204336d8800311b65e894739ab1b27273e7c6f2..a7d915a0cdb59cf39bd13892d772bee8977fc17d 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -1837,4 +1837,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
-     @NotNull
-     io.papermc.paper.datapack.DatapackManager getDatapackManager();
+@@ -2139,4 +2139,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+      */
+     @NotNull org.bukkit.potion.PotionBrewer getPotionBrewer();
      // Paper end
 +
 +    // KTP start
@@ -800,18 +805,17 @@ index c34cfba8f9ed7e9dbd0b6b8ffef9fba46abff046..f76a9cc37b2e8c9d0bf63bc264531cbf
  }
 diff --git a/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..2b1e0d65dcd0c9644f9576d9f71a95c31b16907e
+index 0000000000000000000000000000000000000000..c43ed43ef3678c30085d983b0bc459c764c7f337
 --- /dev/null
 +++ b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,47 @@
 +package net.kyori.adventure.text;
 +
 +import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.template.TemplateResolver;
++import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
++import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 +import org.junit.Assert;
 +import org.junit.Test;
-+
-+import java.util.HashMap;
 +
 +public class PluginTranslatableComponentImplTest {
 +
@@ -830,14 +834,14 @@ index 0000000000000000000000000000000000000000..2b1e0d65dcd0c9644f9576d9f71a95c3
 +    }
 +
 +    @Test
-+    public void templateResolver() {
-+        final var templateResolverOne = TemplateResolver.pairs(new HashMap<>());
-+        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").templateResolver(templateResolverOne).build();
-+        Assert.assertEquals(templateResolverOne, component.templateResolver());
++    public void tagResolver() {
++        final var tagResolverOne = TagResolver.resolver(Placeholder.component("test", Component.text("test")));
++        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").tagResolver(tagResolverOne).build();
++        Assert.assertEquals(tagResolverOne, component.tagResolver());
 +
-+        final var templateResolverTwo = TemplateResolver.templates();
-+        final var updateComponent = component.templateResolver(templateResolverTwo);
-+        Assert.assertEquals(templateResolverTwo, updateComponent.templateResolver());
++        final var tagResolverTwo = TagResolver.standard();
++        final var updateComponent = component.tagResolver(tagResolverTwo);
++        Assert.assertEquals(tagResolverTwo, updateComponent.tagResolver());
 +    }
 +
 +    @Test

@@ -30,7 +30,7 @@ jobs:
       - name: Build KTP
         run: |
           ./gradlew build --stacktrace --no-daemon
-          ./gradlew paperclipJar --stacktrace --no-daemon
+          ./gradlew createReobfPaperclipJar --stacktrace --no-daemon
       - name: Archive KTP Paperclip
         uses: actions/upload-artifact@v2
         with:

@@ -12,13 +12,13 @@ configuration section interface that returns a list of configuration
 sections by actively converting the parsed maps into memory sections.
 
 diff --git a/src/main/java/org/bukkit/configuration/ConfigurationSection.java b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
-index 715ef162dae2b538317d40b2a9f246db994d6b52..b4153fb9a190f9d1f9e559187b6ae763d3b42b34 100644
+index b6b00af08f12f838411845e4f4e29e62826dfc7f..fa3a7380984d298950d41a24f0a350842ad33b34 100644
 --- a/src/main/java/org/bukkit/configuration/ConfigurationSection.java
 +++ b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
-@@ -996,4 +996,22 @@ public interface ConfigurationSection {
-      * @throws IllegalArgumentException Thrown if path is null.
+@@ -1058,4 +1058,22 @@ public interface ConfigurationSection {
+      * one line.
       */
-     public void addDefault(@NotNull String path, @Nullable Object value);
+     public void setInlineComments(@NotNull String path, @Nullable List<String> comments);
 +
 +    // KTP start - expose lists of configuration sections
 +
@@ -39,13 +39,14 @@ index 715ef162dae2b538317d40b2a9f246db994d6b52..b4153fb9a190f9d1f9e559187b6ae763
 +    // KTP end - expose lists of configuration sections
  }
 diff --git a/src/main/java/org/bukkit/configuration/MemorySection.java b/src/main/java/org/bukkit/configuration/MemorySection.java
-index 90cc523f658f3632d4dbdec3a5d2ce7c3c02341f..398efc32ee3ee430c9f3c12bb8d33cac0042c90d 100644
+index 90751edd742d9b8d2171c4b16891aa009e4b8dfe..d405896662dd8676062884e5a8ee7d328b7dff1f 100644
 --- a/src/main/java/org/bukkit/configuration/MemorySection.java
 +++ b/src/main/java/org/bukkit/configuration/MemorySection.java
-@@ -971,4 +971,38 @@ public class MemorySection implements ConfigurationSection {
+@@ -1042,4 +1042,39 @@ public class MemorySection implements ConfigurationSection {
              .append("']")
              .toString();
      }
++
 +    // KTP start - expose lists of configuration sections
 +    /**
 +     * Gets the requested list of configuration sections by their poth.
@@ -60,7 +61,7 @@ index 90cc523f658f3632d4dbdec3a5d2ce7c3c02341f..398efc32ee3ee430c9f3c12bb8d33cac
 +     * @param path the fully qualified path to the list of configuration sections.
 +     * @return the requested list of configuration sections.
 +     */
-+    @SuppressWarnings("unchecked")
++    @SuppressWarnings({"rawtypes", "unchecked"})
 +    @Override
 +    public @NotNull List<@NotNull ConfigurationSection> getConfigurationSectionList(@NotNull final String path) {
 +        final var list = this.getList(path);
@@ -70,9 +71,9 @@ index 90cc523f658f3632d4dbdec3a5d2ce7c3c02341f..398efc32ee3ee430c9f3c12bb8d33cac
 +        for (final var object : list) {
 +            if (object instanceof ConfigurationSection configurationSection) {
 +                mappedList.add(configurationSection);
-+            } else if (object instanceof java.util.HashMap hashMap) {
++            } else if (object instanceof Map sectionMap) {
 +                final var mappedConfigurationSection = new MemorySection(this, path);
-+                org.bukkit.configuration.file.YamlConfiguration.convertMapsToSections(hashMap, mappedConfigurationSection);
++                sectionMap.forEach((key, value) -> mappedConfigurationSection.set(String.valueOf(key), value));
 +                mappedList.add(mappedConfigurationSection);
 +            }
 +        }
@@ -81,19 +82,6 @@ index 90cc523f658f3632d4dbdec3a5d2ce7c3c02341f..398efc32ee3ee430c9f3c12bb8d33cac
 +    }
 +    // KTP end - expose lists of configuration sections
  }
-diff --git a/src/main/java/org/bukkit/configuration/file/YamlConfiguration.java b/src/main/java/org/bukkit/configuration/file/YamlConfiguration.java
-index 6476f3794b0c3815486c87968a71d0c572f3a89a..83652af10a5e4682d23da252f235fd2873f84385 100644
---- a/src/main/java/org/bukkit/configuration/file/YamlConfiguration.java
-+++ b/src/main/java/org/bukkit/configuration/file/YamlConfiguration.java
-@@ -73,7 +73,7 @@ public class YamlConfiguration extends FileConfiguration {
-         }
-     }
- 
--    protected void convertMapsToSections(@NotNull Map<?, ?> input, @NotNull ConfigurationSection section) {
-+    public static void convertMapsToSections(@NotNull Map<?, ?> input, @NotNull ConfigurationSection section) { // KTP - expose globally as it is a pure method
-         for (Map.Entry<?, ?> entry : input.entrySet()) {
-             String key = entry.getKey().toString();
-             Object value = entry.getValue();
 diff --git a/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionListTest.java b/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionListTest.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..4a73a9fefd61fe22f70848e87ca395eeb238efd8

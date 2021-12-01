@@ -7,20 +7,19 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 72b8557d25b353936eb0f43fbf0bde388629b364..3704bd783e872359b7bc5b15a63bcdfe0b5add3a 100644
+index 9f5694204091e23c4771657127a06f98e27ad8f1..6d56448ca1757818932b94f11253ca6f83504e78 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -37,6 +37,8 @@ dependencies {
+@@ -38,6 +38,7 @@ dependencies {
      apiAndDocs("net.kyori:adventure-text-serializer-gson")
      apiAndDocs("net.kyori:adventure-text-serializer-legacy")
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
 +    apiAndDocs("net.kyori:adventure-nbt") // KTP - include adventure nbt
-+    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // KTP
-     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
-     api("org.slf4j:slf4j-api:1.7.30") // Paper
- 
+     apiAndDocs("net.kyori:adventure-text-logger-slf4j")
+     api("org.apache.logging.log4j:log4j-api:2.17.1")
+     api("org.slf4j:slf4j-api:1.8.0-beta4")
 diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index 39ce012fcf2b22471a2ace9218f4f696ec93f466..b97e7285cf9a6ac1d285839dc3e1f5dbf878e9a9 100644
+index f3cf27e075ea01d9d825aead3782db66cd4f2c3b..49f75bee896c62e7ccc35e8b98cbc6761225e81f 100644
 --- a/src/main/java/org/bukkit/command/CommandSender.java
 +++ b/src/main/java/org/bukkit/command/CommandSender.java
 @@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
@@ -44,7 +43,7 @@ index 39ce012fcf2b22471a2ace9218f4f696ec93f466..b97e7285cf9a6ac1d285839dc3e1f5db
  
      /**
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index f093f991f1fedd20fcef041b093398250b7fb286..7c1663fef636587e6f33179582637ae7e76250ce 100644
+index c6b0fd783675cd019048e445d8e959637d90be7a..f1a2ff3c950ff21bf04e5764380252ca25062736 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 @@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
@@ -66,7 +65,7 @@ index f093f991f1fedd20fcef041b093398250b7fb286..7c1663fef636587e6f33179582637ae7
      /**
       * Gets the display name that is set.
       * <p>
-@@ -146,6 +158,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -152,6 +164,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void lore(final @Nullable List<net.kyori.adventure.text.Component> lore);
      // Paper end
  
