@@ -53,3 +53,5 @@ run
 ktp-paperclip.jar
 
 !gradle/wrapper/gradle-wrapper.jar
+
+test-plugin.settings.gradle.kts

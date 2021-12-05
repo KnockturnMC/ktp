@@ -1,0 +1,7 @@
+name: ktp-test-plugin
+version: ${version}
+main: dev.lynxplay.ktp.testplugin.TestPlugin
+description: KTP testing plugin
+author: KTP
+api-version: 1.17
+load: STARTUP
