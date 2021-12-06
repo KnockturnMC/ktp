@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 6 Dec 2021 05:27:13 +0100
+Subject: [PATCH] Expose low level interceptor for vehicle steering
+
+To allow plugins to run their own steering logic when a player is
+steering an entity that, by vanilla's design choices, does not react to
+vehicle movement packets, this patch introduces new API plugins can use
+to handle these packets.
+
+To keep the API as fast and lightweight as possible, the spigot event
+bus was previously optimized and is now called off the main thread
+before the packet even begins processing. While this obviously prevents
+acceess to the world, it also allows intercepting events to prevent main
+thread sync for these packets.
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 94c0fc4ad061e261e6cc4848557c61c7325d9f61..9351464a67e98ebb5f4bf8c35f481bcfc8c52a26 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -491,6 +491,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+ 
+     @Override
+     public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
++        // KTP start - expose low level interceptor for vehicle steering
++        final var event = new dev.lynxplay.ktp.event.packet.PlayerPassengerInputEventEvent(
++            this.player.getBukkitEntity(), packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown()
++        );
++        if (!event.callEvent()) return;
++        packet = new ServerboundPlayerInputPacket(event.forwardsMovement(), event.forwardsMovement(), event.jumping(), event.sneaking());
++        // KTP end - expose low level interceptor for vehicle steering
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
+         this.player.setPlayerInput(packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown());
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 40ed4f9a9174c2ab1e2d4c4c77497527c333f68c..c4c89c5b4ef79dca9b9e8ce543e0ff04409c2373 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -1289,4 +1289,20 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return !entity.valid && entity.level.addEntity(entity, reason);
+     }
+     // Paper end
++    // KTP start
++
++    @Override
++    public void move(@org.jetbrains.annotations.NotNull final dev.lynxplay.ktp.entity.MovementCause movementCause,
++                     @org.jetbrains.annotations.NotNull final Vector vector) {
++        final var internalMovementCause = switch (movementCause) {
++            case SELF -> net.minecraft.world.entity.MoverType.SELF;
++            case PLAYER -> net.minecraft.world.entity.MoverType.PLAYER;
++            case PISTON -> net.minecraft.world.entity.MoverType.PISTON;
++            case SHULKER -> net.minecraft.world.entity.MoverType.SHULKER;
++            case SHULKER_BOX -> net.minecraft.world.entity.MoverType.SHULKER_BOX;
++        };
++        this.entity.move(internalMovementCause, new net.minecraft.world.phys.Vec3(vector.getX(), vector.getY(), vector.getZ()));
++    }
++    // KTP end
++
+ }
