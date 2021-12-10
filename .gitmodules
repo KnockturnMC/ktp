@@ -1,0 +1,4 @@
+[submodule "Paper"]
+	path = Paper
+	url = git@github.com:papermc/paper.git
+	branch = master

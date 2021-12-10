@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Tue, 21 Sep 2021 15:35:07 +0200
+Subject: [PATCH] Expose plugin loader addURL
+
+To enable plugins to inject new jars into their class loader at runtime,
+this commit exposes the URLClassLoader method addURL through the public
+keyword.
+
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index 62f7a6817da079513f471e36cd79739d36a36d86..6ab16215884f06628aef4d951e26267f61745335 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -191,6 +191,13 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+         }
+     }
+ 
++    // KTP start - expose plugin loader addURL
++    @Override
++    public void addURL(URL url) {
++        super.addURL(url);
++    }
++    // KTP end
++
+     @NotNull
+     Set<String> getClasses() {
+         return classes.keySet();

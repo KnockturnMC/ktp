@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 14 Dec 2018 21:52:29 -0800
+Subject: [PATCH] KTP POM Changes
+
+
+diff --git a/pom.xml b/pom.xml
+index 20c473f521e50df57065d3644398f9db777c1a24..0a202b7a22970354c9c56260b0c707bdee0422e3 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -3,18 +3,18 @@
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+     <parent>
+-        <groupId>com.destroystokyo.paper</groupId>
+-        <artifactId>paper-parent</artifactId>
++        <groupId>dev.lynxplay</groupId>
++        <artifactId>KTP-parent</artifactId>
+         <version>dev-SNAPSHOT</version>
++        <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>com.destroystokyo.paper</groupId>
+-    <artifactId>paper-api</artifactId>
++    <artifactId>ktp-api</artifactId>
+     <version>1.15.2-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+ 
+-    <name>Paper-API</name>
+-    <url>https://github.com/PaperMC/Paper</url>
++    <name>KTP-API</name>
++    <url>https://github.com/Spottedleaf/KTP</url>
+     <description>An enhanced plugin API for Minecraft servers.</description>
+ 
+     <properties>
