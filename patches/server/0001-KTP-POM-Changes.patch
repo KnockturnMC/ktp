@@ -5,7 +5,7 @@ Subject: [PATCH] KTP POM Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index e4c63bb76cb598545f9d215a8859724d6e7f8b81..ccad058e9f408427fa0c8d6caf553a4397fdecce 100644
+index e4c63bb76cb598545f9d215a8859724d6e7f8b81..e0e13816df945d45d625313f9146ec7ab4d96f8f 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,12 +1,11 @@
@@ -46,36 +46,6 @@ index e4c63bb76cb598545f9d215a8859724d6e7f8b81..ccad058e9f408427fa0c8d6caf553a43
              <version>${project.version}</version>
              <scope>compile</scope>
          </dependency>
-@@ -63,25 +62,25 @@
-         <dependency>
-             <groupId>org.apache.logging.log4j</groupId>
-             <artifactId>log4j-core</artifactId>
--            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
-             <scope>compile</scope>
-         </dependency>
-         <dependency>
-             <groupId>org.apache.logging.log4j</groupId>
-             <artifactId>log4j-slf4j-impl</artifactId>
--            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
-             <scope>runtime</scope>
-         </dependency>
-         <dependency>
-             <groupId>org.apache.logging.log4j</groupId>
-             <artifactId>log4j-iostreams</artifactId>
--            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
-         </dependency>
-         <!-- Paper - Async loggers -->
-         <dependency>
-             <groupId>com.lmax</groupId>
-             <artifactId>disruptor</artifactId>
--            <version>3.4.2</version>
-+            <version>3.4.4</version>
-             <scope>runtime</scope>
-         </dependency>
-         <dependency>
 @@ -164,15 +163,15 @@
  
      <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
@@ -95,33 +65,6 @@ index e4c63bb76cb598545f9d215a8859724d6e7f8b81..ccad058e9f408427fa0c8d6caf553a43
                      <scmDirectory>..</scmDirectory>
                  </configuration>
                  <executions>
-@@ -230,7 +229,7 @@
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-shade-plugin</artifactId>
--                <version>3.2.3</version>
-+                <version>3.2.4</version>
-                 <executions>
-                     <execution>
-                         <phase>package</phase>
-@@ -254,7 +253,7 @@
-                                         <exclude>META-INF/MANIFEST.MF</exclude>
-                                         <exclude>com.mojang.authlib.yggdrasil.YggdrasilGameProfileRepository</exclude>
-                                         <exclude>com.mojang.datafixers.util.Either</exclude>
--                                        <exclude>org.apache.logging.log4j/**</exclude>
-+                                        <exclude>org/apache/logging/log4j/**</exclude>
-                                     </excludes>
-                                 </filter>
-                             </filters>
-@@ -316,7 +315,7 @@
-                     <dependency>
-                         <groupId>com.github.edwgiz</groupId>
-                         <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
--                        <version>2.13.1</version>
-+                        <version>2.14.1</version>
-                     </dependency>
-                 </dependencies>
-             </plugin>
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 index 674096cab190d62622f9947853b056f57d43a2a5..7dbcd4cf07eee935c36921178d9a8a987928c039 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
