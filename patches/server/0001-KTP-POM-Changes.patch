@@ -123,7 +123,7 @@ index e4c63bb76cb598545f9d215a8859724d6e7f8b81..ccad058e9f408427fa0c8d6caf553a43
                  </dependencies>
              </plugin>
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index 674096cab190d62622f9947853b056f57d43a2a5..a4484e3ae0e0e411b7d5855c9d6c6db28929758a 100644
+index 674096cab190d62622f9947853b056f57d43a2a5..7dbcd4cf07eee935c36921178d9a8a987928c039 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -11,7 +11,7 @@ public final class Versioning {
@@ -131,7 +131,7 @@ index 674096cab190d62622f9947853b056f57d43a2a5..a4484e3ae0e0e411b7d5855c9d6c6db2
          String result = "Unknown-Version";
  
 -        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/com.destroystokyo.paper/paper-api/pom.properties");
-+        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.lynxplay/kpt-api/pom.properties"); // KTP
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.lynxplay/ktp-api/pom.properties"); // KTP
          Properties properties = new Properties();
  
          if (stream != null) {
