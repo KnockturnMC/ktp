@@ -5,7 +5,7 @@ Subject: [PATCH] KTP POM Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index e4c63bb76cb598545f9d215a8859724d6e7f8b81..eafcd05139566f501b01c1dcab90ebed0730d620 100644
+index e4c63bb76cb598545f9d215a8859724d6e7f8b81..ccad058e9f408427fa0c8d6caf553a4397fdecce 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,12 +1,11 @@
@@ -95,6 +95,33 @@ index e4c63bb76cb598545f9d215a8859724d6e7f8b81..eafcd05139566f501b01c1dcab90ebed
                      <scmDirectory>..</scmDirectory>
                  </configuration>
                  <executions>
+@@ -230,7 +229,7 @@
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-shade-plugin</artifactId>
+-                <version>3.2.3</version>
++                <version>3.2.4</version>
+                 <executions>
+                     <execution>
+                         <phase>package</phase>
+@@ -254,7 +253,7 @@
+                                         <exclude>META-INF/MANIFEST.MF</exclude>
+                                         <exclude>com.mojang.authlib.yggdrasil.YggdrasilGameProfileRepository</exclude>
+                                         <exclude>com.mojang.datafixers.util.Either</exclude>
+-                                        <exclude>org.apache.logging.log4j/**</exclude>
++                                        <exclude>org/apache/logging/log4j/**</exclude>
+                                     </excludes>
+                                 </filter>
+                             </filters>
+@@ -316,7 +315,7 @@
+                     <dependency>
+                         <groupId>com.github.edwgiz</groupId>
+                         <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
+-                        <version>2.13.1</version>
++                        <version>2.14.1</version>
+                     </dependency>
+                 </dependencies>
+             </plugin>
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 index 674096cab190d62622f9947853b056f57d43a2a5..a4484e3ae0e0e411b7d5855c9d6c6db28929758a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java

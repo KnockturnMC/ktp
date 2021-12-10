@@ -8,7 +8,7 @@ set -e
 basedir="$(cd "$1" && pwd -P)"
 workdir="$basedir/Paper/work"
 mcver=$(cat "$workdir/BuildData/info.json" | grep minecraftVersion | cut -d '"' -f 4)
-paperjar="$basedir/KTP-Server/target/KTP-$mcver.jar"
+paperjar="$basedir/KTP-Server/target/ktp-$mcver.jar"
 vanillajar="$workdir/Minecraft/$mcver/$mcver.jar"
 
 (
