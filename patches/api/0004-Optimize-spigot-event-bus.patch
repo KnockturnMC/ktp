@@ -9,7 +9,7 @@ events to be published by the server without impacting the overall
 performance too much.
 
 diff --git a/src/main/java/org/bukkit/plugin/RegisteredListener.java b/src/main/java/org/bukkit/plugin/RegisteredListener.java
-index 419aec56b0e3fa8bcec2ea7f340caa3456b57d00..8530d926931a54ed1300c40cd1e0908b2d9b594d 100644
+index 419aec56b0e3fa8bcec2ea7f340caa3456b57d00..76c6101da1f800210bcca2e7be737d3a6c6884d6 100644
 --- a/src/main/java/org/bukkit/plugin/RegisteredListener.java
 +++ b/src/main/java/org/bukkit/plugin/RegisteredListener.java
 @@ -62,8 +62,10 @@ public class RegisteredListener {
@@ -20,7 +20,7 @@ index 419aec56b0e3fa8bcec2ea7f340caa3456b57d00..8530d926931a54ed1300c40cd1e0908b
 -            if (((Cancellable) event).isCancelled() && isIgnoringCancelled()) {
 +        // KTP start - optimize spigot event bus
 +        if (isIgnoringCancelled()) {
-+            if (event instanceof Cancellable cancellable && cancellable.isCancelled()) {
++            if (event instanceof Cancellable && ((Cancellable) event).isCancelled()) {
 +        // KTP end - optimize spigot event bus
                  return;
              }
