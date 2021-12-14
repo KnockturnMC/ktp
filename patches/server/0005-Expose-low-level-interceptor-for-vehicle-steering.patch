@@ -1,0 +1,86 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 6 Dec 2021 05:27:13 +0100
+Subject: [PATCH] Expose low level interceptor for vehicle steering
+
+To allow plugins to run their own steering logic when a player is
+steering an entity that, by vanilla's design choices, does not react to
+vehicle movement packets, this patch introduces new API plugins can use
+to handle these packets.
+
+To keep the API as fast and lightweight as possible, the spigot event
+bus was previously optimized and is now called off the main thread
+before the packet even begins processing. While this obviously prevents
+acceess to the world, it also allows intercepting events to prevent main
+thread sync for these packets.
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 94c0fc4ad061e261e6cc4848557c61c7325d9f61..4b02833709a19ffecfd77ebf55ed3f615100e94a 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -158,6 +158,7 @@ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.phys.shapes.BooleanOp;
+ import net.minecraft.world.phys.shapes.Shapes;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.apache.commons.lang.builder.ToStringBuilder;
+ import org.apache.commons.lang3.StringUtils;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+@@ -173,6 +174,7 @@ import net.minecraft.world.inventory.BeaconMenu;
+ import net.minecraft.world.inventory.MerchantMenu;
+ import net.minecraft.world.inventory.RecipeBookMenu;
+ import net.minecraft.world.inventory.Slot;
++import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+@@ -492,7 +494,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+     @Override
+     public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
+-        this.player.setPlayerInput(packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown());
++        // KTP start - expose low level interceptor for vehicle steering
++        final var event = new dev.lynxplay.ktp.event.packet.PlayerPassengerInputEventEvent(
++            this.player.getBukkitEntity(), packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown()
++        );
++        if (!event.callEvent()) return;
++        this.player.setPlayerInput(event.sidewaysMovement(), event.forwardsMovement(), event.jumping(), event.sneaking());
++        // KTP end - expose low level interceptor for vehicle steering
+     }
+ 
+     private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index 40ed4f9a9174c2ab1e2d4c4c77497527c333f68c..3ede3ab1c3843ba54a9caf4e54601135e8046777 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -1289,4 +1289,30 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return !entity.valid && entity.level.addEntity(entity, reason);
+     }
+     // Paper end
++    // KTP start
++
++    @Override
++    public void move(@org.jetbrains.annotations.NotNull final dev.lynxplay.ktp.entity.MovementCause movementCause,
++                     @org.jetbrains.annotations.NotNull final Vector vector) {
++        final var internalMovementCause = switch (movementCause) {
++            case SELF -> net.minecraft.world.entity.MoverType.SELF;
++            case PLAYER -> net.minecraft.world.entity.MoverType.PLAYER;
++            case PISTON -> net.minecraft.world.entity.MoverType.PISTON;
++            case SHULKER -> net.minecraft.world.entity.MoverType.SHULKER;
++            case SHULKER_BOX -> net.minecraft.world.entity.MoverType.SHULKER_BOX;
++        };
++        this.entity.move(internalMovementCause, new net.minecraft.world.phys.Vec3(vector.getX(), vector.getY(), vector.getZ()));
++    }
++
++    @Override
++    public void physics(boolean physics) {
++        this.entity.noPhysics = !physics;
++    }
++
++    @Override
++    public boolean physics() {
++        return !this.entity.noPhysics;
++    }
++    // KTP end
++
+ }

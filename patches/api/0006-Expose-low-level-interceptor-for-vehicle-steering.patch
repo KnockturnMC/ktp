@@ -1,0 +1,295 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 6 Dec 2021 05:23:42 +0100
+Subject: [PATCH] Expose low level interceptor for vehicle steering
+
+To allow plugins to run their own steering logic when a player is
+steering an entity that, by vanilla's design choices, does not react to
+vehicle movement packets, this patch introduces new API plugins can use
+to handle these packets.
+
+To keep the API as fast and lightweight as possible, the spigot event
+bus was previously optimized and is now called off the main thread
+before the packet even begins processing. While this obviously prevents
+acceess to the world, it also allows intercepting events to prevent main
+thread sync for these packets.
+
+diff --git a/src/main/java/dev/lynxplay/ktp/entity/MovementCause.java b/src/main/java/dev/lynxplay/ktp/entity/MovementCause.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae99703e33bda
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/entity/MovementCause.java
+@@ -0,0 +1,31 @@
++package dev.lynxplay.ktp.entity;
++
++/**
++ * Represents the existing types of causes as to why an entity may move in the world.
++ */
++public enum MovementCause {
++    /**
++     * Indicates that the entity moved on its own behalf.
++     */
++    SELF,
++
++    /**
++     * Indicates that the entity was moved by a player, such as the player client moving its own player entity.
++     */
++    PLAYER,
++
++    /**
++     * Indicates that the entity was moved by a piston extending in the world.
++     */
++    PISTON,
++
++    /**
++     * Indicates that the entity was moved by a shulker box block entity opening.
++     */
++    SHULKER_BOX,
++
++    /**
++     * Indicates that the entity was moved by a shulker entity opening.
++     */
++    SHULKER;
++}
+diff --git a/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java b/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aedfe7834d9
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java
+@@ -0,0 +1,197 @@
++package dev.lynxplay.ktp.event.packet;
++
++import org.bukkit.entity.Player;
++import org.bukkit.event.Cancellable;
++import org.bukkit.event.HandlerList;
++import org.bukkit.event.player.PlayerEvent;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * A packet-level event that will be submitted to the spigot event bus whenever a player sends a player input packet to the server as a result of
++ * them being a passenger and inputting movements.
++ * This event however does *not* correlate to the actual movement of a vehicle. Cancelling this event will *not* prevent vehicle movement. For this
++ * the {@link org.bukkit.event.vehicle.VehicleMoveEvent} may be used.
++ * <p>
++ * This event is executed off the main thread before any processing of the packet, allowing plugins to mutate the data as much as they like.
++ * <p>
++ * To ensure the fastest possible speed when modifying this event, all values are fully mutable by consumers.
++ */
++public class PlayerPassengerInputEventEvent extends PlayerEvent implements Cancellable {
++
++    private float sidewaysMovement;
++    private float forwardsMovement;
++    private boolean jumping;
++    private boolean sneaking;
++    private boolean cancelled;
++
++    /**
++     * Constructs a new player send steer entity event.
++     *
++     * @param player           the player instance that attempts to steer a vehicle.
++     * @param sidewaysMovement the floating number representing the sideways movement the player inputted to the server. The sideways movement can be
++     *                         expected to be between -1.0 and 1.0 when send by a vanilla client. Modified clients may send values exceeding the
++     *                         previously mentioned range, hence plugins will should be careful about taking the value as fact without checking
++     *                         whether the value lives in the -1.0 to 1.0 boundary.
++     *                         The value will be positive for any movement to the relative left, while negative values indicate movement to the
++     *                         relative left.
++     * @param forwardsMovement the floating number representing the forwards movement the player inputted to the server. The forwards movement can be
++     *                         expected to be between -1.0 and 1.0 when send by a vanilla client. Modified clients may send values exceeding the
++     *                         previously mentioned range, hence plugins will should be careful about taking the value as fact without checking
++     *                         whether the value lives in the -1.0 to 1.0 boundary.
++     *                         The value will be positive for any movement in the relative forwards direction, while negative values indicate movement
++     *                         in the relative backwards direction.
++     * @param jumping          a boolean indicating whether the player is attempting to jump while being a passenger.
++     * @param sneaking         a boolean indicating whether the player is attempting to sneak while being a passenger.
++     */
++    public PlayerPassengerInputEventEvent(@NotNull Player player, float sidewaysMovement, float forwardsMovement, boolean jumping,
++                                          boolean sneaking) {
++        super(player, true);
++        this.sidewaysMovement = sidewaysMovement;
++        this.forwardsMovement = forwardsMovement;
++        this.jumping = jumping;
++        this.sneaking = sneaking;
++    }
++
++    /**
++     * Provides the floating number representing the sideways movement the player inputted to the server.
++     * <p>
++     * The sideways movement can be expected to be between -1.0 and 1.0 when send by a vanilla client. Modified clients may send values exceeding the
++     * previously mentioned range, hence plugins will should be careful about taking the value as fact without checking whether the value lives in the
++     * -1.0 to 1.0 boundary.
++     * <p>
++     * The value will be positive for any movement to the relative left, while negative values indicate movement to the relative left.
++     *
++     * @return the floating point representation of the sideways movement.
++     */
++    public float sidewaysMovement() {
++        return sidewaysMovement;
++    }
++
++    /**
++     * Overwrites the current {@link #sidewaysMovement()} value with a new custom value.
++     * <p>
++     * By server implementation detail, positive values indicate a movement to the relative left while negative movements indicate movement to the
++     * relative right.
++     * <p>
++     * The server however will not accept any values outside the vanilla value range of -1.0 to 1.0 so plugins will have to respect these boundaries
++     * to effectively mutate the packet as the server otherwise will just discard the sideways movement changes proposed by the packet.
++     *
++     * @param sidewaysMovement the new sideways movement floating point that, if it should be respected by the server, lies in the range of -1.0
++     *                         to 1.0.
++     */
++    public void sidewaysMovement(float sidewaysMovement) {
++        this.sidewaysMovement = sidewaysMovement;
++    }
++
++    /**
++     * Provides the floating number representing the forwards movement the player inputted to the server.
++     * <p>
++     * The forwards movement can be expected to be between -1.0 and 1.0 when send by a vanilla client. Modified clients may send values exceeding the
++     * previously mentioned range, hence plugins will should be careful about taking the value as fact without checking whether the value lives in
++     * the
++     * -1.0 to 1.0 boundary.
++     * <p>
++     * The value will be positive for any movement in the relative forwards direction, while negative values indicate movement in the relative
++     * backwards direction.
++     *
++     * @return the floating point representation of the sideways movement.
++     */
++    public float forwardsMovement() {
++        return forwardsMovement;
++    }
++
++    /**
++     * Overwrites the current {@link #forwardsMovement()} value with a new custom value.
++     * <p>
++     * By server implementation detail, positive values indicate a movement in the relative forwards direction while negative movements indicate
++     * movement in the relative backwards direction.
++     * <p>
++     * The server however will not accept any values outside the vanilla value range of -1.0 to 1.0 so plugins will have to respect these boundaries
++     * to effectively mutate the packet as the server otherwise will just discard the forwards movement changes proposed by the packet.
++     *
++     * @param forwardsMovement the new forwards movement floating point that, if it should be respected by the server, lies in the range of -1.0
++     *                         to 1.0.
++     */
++    public void forwardsMovement(float forwardsMovement) {
++        this.forwardsMovement = forwardsMovement;
++    }
++
++    /**
++     * Provides a boolean representing whether the player is inputting a jump movement to the server during this packet.
++     *
++     * @return a boolean indicating whether the player is jumping, returning {@code true} if the player inputs a jump, {@code false} otherwise.
++     */
++    public boolean jumping() {
++        return jumping;
++    }
++
++    /**
++     * Overwrites the current {@link #jumping()} value with a new custom value.
++     * <p>
++     * The server performs no further validation on the jumping boolean.
++     *
++     * @param jumping the new boolean representing whether the player is jumping.
++     */
++    public void jumping(boolean jumping) {
++        this.jumping = jumping;
++    }
++
++    /**
++     * Provides a boolean representing whether the player is inputting a sneak movement to the server during this packet.
++     * Sneak inputs are used to dismounting the vehicle, hence this boolean is a pre-indicating of whether the player will dismount or not.
++     *
++     * @return a boolean indicating whether the player is sneaking, returning {@code true} if the player inputs sneaking, {@code false} otherwise.
++     */
++    public boolean sneaking() {
++        return sneaking;
++    }
++
++    /**
++     * Overwrites the current {@link #sneaking()} value with a new custom value.
++     * <p>
++     * The server performs no further validation on the sneaking boolean but will attempt to dismount the player in the next tick if they inputted
++     * sneaking to the server.
++     *
++     * @param sneaking the new boolean representing whether the player is sneaking.
++     */
++    public void sneaking(boolean sneaking) {
++        this.sneaking = sneaking;
++    }
++
++    private static final @NotNull HandlerList HANDLERS = new HandlerList();
++
++    @NotNull
++    @Override
++    public HandlerList getHandlers() {
++        return HANDLERS;
++    }
++
++    @NotNull
++    public static HandlerList getHandlerList() {
++        return HANDLERS;
++    }
++
++
++    /**
++     * Gets the cancellation state of this event. A cancelled event will not
++     * be executed in the server, but will still pass to other plugins
++     *
++     * @return true if this event is cancelled
++     */
++    @Override
++    public boolean isCancelled() {
++        return this.cancelled;
++    }
++
++    /**
++     * Sets the cancellation state of this event. A cancelled event will not
++     * be executed in the server, but will still pass to other plugins.
++     *
++     * @param cancel true if you wish to cancel this event
++     */
++    @Override
++    public void setCancelled(boolean cancel) {
++        this.cancelled = cancel;
++    }
++
++}
+diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
+index bafad5764cc3933fcd9602d37bd2e68424cbd575..7accd466f79819e0b8739a3df89706040a9060b8 100644
+--- a/src/main/java/org/bukkit/entity/Entity.java
++++ b/src/main/java/org/bukkit/entity/Entity.java
+@@ -795,4 +795,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+      */
+     public boolean spawnAt(@NotNull Location location, @NotNull org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason);
+     // Paper end
++    // KTP start
++
++    /**
++     * Moves the entity by a given vector in its world as if it moved itself.
++     * This method will respect blocks in the world during movement and validate further movement associated checks.
++     * The logic is hence *not* safe to be run off the servers main thread.
++     *
++     * @param movementCause the cause for was responsible for the movement of the entity.
++     * @param vector        the vector the entity should move by.
++     */
++    void move(@NotNull dev.lynxplay.ktp.entity.MovementCause movementCause, @NotNull Vector vector);
++
++    /**
++     * Updates whether this entity should properly tick its physics when moving in the world.
++     * If an entity has physics disabled, its movement will simply change its location in the world without checking collisions or blocks around it.
++     * <p>
++     * Physics are not persisted in the entities data, causing this value to be reset to its default when the entity is loaded again from file.
++     *
++     * @param physics the new boolean value indicating whether the entity should process its physics.
++     */
++    void physics(boolean physics);
++
++    /**
++     * Provides whether this entity is properly ticking its physics when moving in the world.
++     * If an entity has physics disabled, its movement will simply change its location in the world without checking collisions or blocks around it.
++     *
++     * @return the boolean value indicating whether the entity is processing its physics.
++     */
++    boolean physics();
++    // KTP end
+ }
