@@ -92,7 +92,7 @@ index 0000000000000000000000000000000000000000..271fe9f1b0c7f5ae7681abae2c05ba86
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..37dde18abf6b1d6efcda889d2933baba87769586
+index 0000000000000000000000000000000000000000..34d02d803357e3b53d9ba70e1b57e30a971f3ae2
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
 @@ -0,0 +1,18 @@
@@ -107,7 +107,7 @@ index 0000000000000000000000000000000000000000..37dde18abf6b1d6efcda889d2933baba
 +
 +public final class KTPTranslator {
 +
-+    private static final PluginTranslatableComponentRenderer RENDERER = new PluginTranslatableComponentRenderer(GlobalTranslator.get());
++    public static final PluginTranslatableComponentRenderer RENDERER = new PluginTranslatableComponentRenderer(GlobalTranslator.get());
 +
 +    public static @NotNull Component render(final @NotNull Component component, final @NotNull Locale locale) {
 +        return RENDERER.render(component, locale);
@@ -252,15 +252,16 @@ index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..a1108ffaf0d9de816b849d888f5af813e99fd6f5
+index 0000000000000000000000000000000000000000..dfe63c5116c836b84b18e414d1928aaeb21063be
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,77 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
 +import dev.lynxplay.ktp.adventure.translation.parser.*;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
++import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 +import net.kyori.adventure.translation.Translator;
 +import org.jetbrains.annotations.NotNull;
 +
@@ -304,6 +305,11 @@ index 0000000000000000000000000000000000000000..a1108ffaf0d9de816b849d888f5af813
 +    @Override
 +    public @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle) {
 +        return new SinglePluginTranslator(namespace, pluginTranslationBundle);
++    }
++
++    @Override
++    public @NotNull TranslatableComponentRenderer<Locale> renderer() {
++        return KTPTranslator.RENDERER;
 +    }
 +
 +    @Override

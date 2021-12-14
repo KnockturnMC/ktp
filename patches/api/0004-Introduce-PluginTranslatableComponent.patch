@@ -69,10 +69,10 @@ index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..56cdf378ec8a7ba2fc8f1b4cdacc0c70a2cea175
+index 0000000000000000000000000000000000000000..098d92cc3474642f2d546eae0969031f59aa120c
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
-@@ -0,0 +1,137 @@
+@@ -0,0 +1,152 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import com.google.common.base.Preconditions;
@@ -80,6 +80,8 @@ index 0000000000000000000000000000000000000000..56cdf378ec8a7ba2fc8f1b4cdacc0c70
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
 +import net.kyori.adventure.text.PluginTranslatableComponent;
++import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
++import net.kyori.adventure.translation.GlobalTranslator;
 +import net.kyori.adventure.translation.Translator;
 +import org.bukkit.plugin.Plugin;
 +import org.jetbrains.annotations.NotNull;
@@ -133,9 +135,6 @@ index 0000000000000000000000000000000000000000..56cdf378ec8a7ba2fc8f1b4cdacc0c70
 +    /**
 +     * Creates a new adventure translator that may be registered on the {@link net.kyori.adventure.translation.GlobalTranslator} to take effect.
 +     * <p>
-+     * This method is a direct delegate to the {@link #createPluginTranslator(String, PluginTranslationBundle)} method by using the plugins name
-+     * as a namespace. More specifically {@link Plugin#getName()} converted to lowercase.
-+     * <p>
 +     * The namespace is prefixed and joined using a plain '.'.
 +     * An example would be the translation key 'message.player.join' and the plugin named 'Example' which would produced a final effective translation
 +     * key of 'example.message.player.join'
@@ -146,6 +145,22 @@ index 0000000000000000000000000000000000000000..56cdf378ec8a7ba2fc8f1b4cdacc0c70
 +     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
 +     */
 +    @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle);
++
++    /**
++     * Provides the plugin translator renderer that will be used to render {@link PluginTranslatableComponent} on the server.
++     * The translator is exposed as using the {@link net.kyori.adventure.translation.GlobalTranslator}'s {@link GlobalTranslator#renderer()} will
++     * not properly render {@link PluginTranslatableComponent}.
++     * <p>
++     * <b>
++     * The renderer should only be used when passing {@link PluginTranslatableComponent} to non packet methods, e.g. the modification of an
++     * items or block entities.
++     * <p>
++     * The render is automatically used for any form of direct text communication with the player.
++     * </b>
++     *
++     * @return the renderer the plugin translator uses to render {@link PluginTranslatableComponent}s.
++     */
++    @NotNull TranslatableComponentRenderer<Locale> renderer();
 +
 +    /**
 +     * Provides a static immutable implementation of the translation file parser that is capable of parsing yaml files.
