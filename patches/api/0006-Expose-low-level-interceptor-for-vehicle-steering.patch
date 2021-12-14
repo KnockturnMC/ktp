@@ -53,16 +53,17 @@ index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae997
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java b/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aedfe7834d9
+index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ffa66f0291
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/event/packet/PlayerPassengerInputEventEvent.java
-@@ -0,0 +1,197 @@
+@@ -0,0 +1,211 @@
 +package dev.lynxplay.ktp.event.packet;
 +
++import net.kyori.adventure.util.TriState;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.Cancellable;
++import org.bukkit.event.Event;
 +import org.bukkit.event.HandlerList;
-+import org.bukkit.event.player.PlayerEvent;
 +import org.jetbrains.annotations.NotNull;
 +
 +/**
@@ -71,12 +72,14 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 + * This event however does *not* correlate to the actual movement of a vehicle. Cancelling this event will *not* prevent vehicle movement. For this
 + * the {@link org.bukkit.event.vehicle.VehicleMoveEvent} may be used.
 + * <p>
-+ * This event is executed off the main thread before any processing of the packet, allowing plugins to mutate the data as much as they like.
++ * This event may or may not be executed on the servers main thread, depending on the current packet processing decisions made internally.
++ * Hence, the caller will need to verify that they are running on the main thread when making modifications through the bukkit api.
 + * <p>
 + * To ensure the fastest possible speed when modifying this event, all values are fully mutable by consumers.
 + */
-+public class PlayerPassengerInputEventEvent extends PlayerEvent implements Cancellable {
++public class PlayerPassengerInputEventEvent extends Event implements Cancellable {
 +
++    private final Player player;
 +    private float sidewaysMovement;
 +    private float forwardsMovement;
 +    private boolean jumping;
@@ -104,11 +107,22 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     */
 +    public PlayerPassengerInputEventEvent(@NotNull Player player, float sidewaysMovement, float forwardsMovement, boolean jumping,
 +                                          boolean sneaking) {
-+        super(player, true);
++        super(TriState.NOT_SET);
++        this.player = player;
 +        this.sidewaysMovement = sidewaysMovement;
 +        this.forwardsMovement = forwardsMovement;
 +        this.jumping = jumping;
 +        this.sneaking = sneaking;
++    }
++
++    /**
++     * Provides the player instance that send the inputs this event represents to the server.
++     * The player may not be mutated without validating that this event was called on the main thread first.
++     *
++     * @return the player instance.
++     */
++    public final @NotNull Player player() {
++        return this.player;
 +    }
 +
 +    /**
@@ -122,7 +136,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @return the floating point representation of the sideways movement.
 +     */
-+    public float sidewaysMovement() {
++    public final float sidewaysMovement() {
 +        return sidewaysMovement;
 +    }
 +
@@ -138,7 +152,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     * @param sidewaysMovement the new sideways movement floating point that, if it should be respected by the server, lies in the range of -1.0
 +     *                         to 1.0.
 +     */
-+    public void sidewaysMovement(float sidewaysMovement) {
++    public final void sidewaysMovement(float sidewaysMovement) {
 +        this.sidewaysMovement = sidewaysMovement;
 +    }
 +
@@ -155,7 +169,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @return the floating point representation of the sideways movement.
 +     */
-+    public float forwardsMovement() {
++    public final float forwardsMovement() {
 +        return forwardsMovement;
 +    }
 +
@@ -171,7 +185,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     * @param forwardsMovement the new forwards movement floating point that, if it should be respected by the server, lies in the range of -1.0
 +     *                         to 1.0.
 +     */
-+    public void forwardsMovement(float forwardsMovement) {
++    public final void forwardsMovement(float forwardsMovement) {
 +        this.forwardsMovement = forwardsMovement;
 +    }
 +
@@ -180,7 +194,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @return a boolean indicating whether the player is jumping, returning {@code true} if the player inputs a jump, {@code false} otherwise.
 +     */
-+    public boolean jumping() {
++    public final boolean jumping() {
 +        return jumping;
 +    }
 +
@@ -191,7 +205,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @param jumping the new boolean representing whether the player is jumping.
 +     */
-+    public void jumping(boolean jumping) {
++    public final void jumping(boolean jumping) {
 +        this.jumping = jumping;
 +    }
 +
@@ -201,7 +215,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @return a boolean indicating whether the player is sneaking, returning {@code true} if the player inputs sneaking, {@code false} otherwise.
 +     */
-+    public boolean sneaking() {
++    public final boolean sneaking() {
 +        return sneaking;
 +    }
 +
@@ -213,7 +227,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     *
 +     * @param sneaking the new boolean representing whether the player is sneaking.
 +     */
-+    public void sneaking(boolean sneaking) {
++    public final void sneaking(boolean sneaking) {
 +        this.sneaking = sneaking;
 +    }
 +
@@ -221,7 +235,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +
 +    @NotNull
 +    @Override
-+    public HandlerList getHandlers() {
++    public final HandlerList getHandlers() {
 +        return HANDLERS;
 +    }
 +
@@ -238,7 +252,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     * @return true if this event is cancelled
 +     */
 +    @Override
-+    public boolean isCancelled() {
++    public final boolean isCancelled() {
 +        return this.cancelled;
 +    }
 +
@@ -249,7 +263,7 @@ index 0000000000000000000000000000000000000000..73ecd1b548153cdf85fb32abb21e0aed
 +     * @param cancel true if you wish to cancel this event
 +     */
 +    @Override
-+    public void setCancelled(boolean cancel) {
++    public final void setCancelled(boolean cancel) {
 +        this.cancelled = cancel;
 +    }
 +
