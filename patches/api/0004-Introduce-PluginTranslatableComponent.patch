@@ -69,7 +69,7 @@ index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..098d92cc3474642f2d546eae0969031f59aa120c
+index 0000000000000000000000000000000000000000..a2e9113b92ca283a602192436446d6942699d84a
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 @@ -0,0 +1,152 @@
@@ -154,9 +154,9 @@ index 0000000000000000000000000000000000000000..098d92cc3474642f2d546eae0969031f
 +     * <b>
 +     * The renderer should only be used when passing {@link PluginTranslatableComponent} to non packet methods, e.g. the modification of an
 +     * items or block entities.
-+     * <p>
-+     * The render is automatically used for any form of direct text communication with the player.
 +     * </b>
++     * <p>
++     * <b>The render is automatically used for any form of direct text communication with the player.</b>
 +     *
 +     * @return the renderer the plugin translator uses to render {@link PluginTranslatableComponent}s.
 +     */
