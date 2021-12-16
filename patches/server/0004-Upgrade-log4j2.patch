@@ -5,7 +5,7 @@ Subject: [PATCH] Upgrade log4j2
 
 
 diff --git a/pom.xml b/pom.xml
-index e0e13816df945d45d625313f9146ec7ab4d96f8f..ccad058e9f408427fa0c8d6caf553a4397fdecce 100644
+index e0e13816df945d45d625313f9146ec7ab4d96f8f..54477039c254dd9b19777b5935c7ca32cb74a567 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -62,25 +62,25 @@
@@ -13,21 +13,21 @@ index e0e13816df945d45d625313f9146ec7ab4d96f8f..ccad058e9f408427fa0c8d6caf553a43
              <groupId>org.apache.logging.log4j</groupId>
              <artifactId>log4j-core</artifactId>
 -            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
++            <version>2.16.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
              <scope>compile</scope>
          </dependency>
          <dependency>
              <groupId>org.apache.logging.log4j</groupId>
              <artifactId>log4j-slf4j-impl</artifactId>
 -            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
++            <version>2.16.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
              <scope>runtime</scope>
          </dependency>
          <dependency>
              <groupId>org.apache.logging.log4j</groupId>
              <artifactId>log4j-iostreams</artifactId>
 -            <version>2.8.1</version>
-+            <version>2.15.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
++            <version>2.16.0</version> <!--KTP upgrade log4j to avoid https://github.com/advisories/GHSA-jfh8-c2jp-5v3q-->
          </dependency>
          <!-- Paper - Async loggers -->
          <dependency>
