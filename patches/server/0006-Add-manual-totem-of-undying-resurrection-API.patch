@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 19 Jan 2022 23:33:51 +0100
+Subject: [PATCH] Add manual totem of undying resurrection API
+
+This patch introduces new API methods to the living entity that allow
+plugins to manually trigger a totem of undying resurrection on any given
+living entity.
+
+This is specifically useful for plugins that use the #setHealth methods
+to manipulate the entities health.
+
+The API is a full representation of the server internal and fully
+simulates a resurrection including bukkit event calls and potion
+effects.
+
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 465dab588e770bf4d1e645e1f451a066f388014a..bbb7100bf58a89ab6680cf7d2f06831b9b111f7d 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -1490,6 +1490,7 @@ public abstract class LivingEntity extends Entity {
+         target.knockback(0.5D, target.getX() - this.getX(), target.getZ() - this.getZ(), this);
+     }
+ 
++    public boolean checkTotemDeathProtectionPublic(DamageSource source) { return this.checkTotemDeathProtection(source); } // KTP - manual totem resurrection - obf helper as we are missing at
+     private boolean checkTotemDeathProtection(DamageSource source) {
+         if (source.isBypassInvul()) {
+             return false;
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index 4cdc80b31ac56b63df80fefec87e4ba8b4dcf455..d107b93547e544308e2446db177fba1842e02536 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -920,4 +920,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+         throw new IllegalArgumentException(entityCategory + " is an unrecognized entity category");
+     }
+     // Paper end
++
++    // KTP start
++
++    @Override
++    public boolean attemptTotemOfUndyingResurrection() {
++        return this.getHandle().checkTotemDeathProtectionPublic(net.minecraft.world.damagesource.DamageSource.GENERIC);
++    }
++
++    // KTP end
+ }

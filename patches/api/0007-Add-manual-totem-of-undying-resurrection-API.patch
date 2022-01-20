@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 19 Jan 2022 23:29:55 +0100
+Subject: [PATCH] Add manual totem of undying resurrection API
+
+This patch introduces new API methods to the living entity that allow
+plugins to manually trigger a totem of undying resurrection on any given
+living entity.
+
+This is specifically useful for plugins that use the #setHealth methods
+to manipulate the entities health.
+
+The API is a full representation of the server internal and fully
+simulates a resurrection including bukkit event calls and potion
+effects.
+
+diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
+index 31353bd20404a8c2acf6bf0df524dc3cae324272..67100a9b8ae757e23c09e2503b2f0c518b8a52dc 100644
+--- a/src/main/java/org/bukkit/entity/LivingEntity.java
++++ b/src/main/java/org/bukkit/entity/LivingEntity.java
+@@ -910,4 +910,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+      */
+     void setHurtDirection(float hurtDirection);
+     // Paper end
++
++    // KTP start
++    /**
++     * Attempts to resurrect this living entity with a totem of undying, regardless of current health.
++     * This method may hence be used to simulate an entity being on the verge of death.
++     *
++     * <p>
++     * This method simulates the equivalent logic that is executed if this entity would receive damage that lowers its health to 0 or less.
++     * Follow this fact, a few more pieces of logic are part of this method call:
++     * <ul>
++     *   <li>
++     *     This method will call the {@link org.bukkit.event.entity.EntityResurrectEvent} (which is called whether the entity has a totem or not in
++     *     their inventory. The event however will be pre-cancelled if the entity does not have an applicable totem).
++     *     The event itself is respected, hence a cancelled event will cancel all of the following side effects.
++     *   </li>
++     *   <li>
++     *     This method will set the entity's health to 1F (as if it just escaped death, no matter the current health)
++     *   </li>
++     *   <li>
++     *     This method will cleanse all potion effects currently on the entity and add the ones expected from a successful usage of the totem of
++     *     undying, if one was found.
++     *   </li>
++     *   <li>
++     *     This method will remove the totem of undying used if the entity had one that could be used.
++     *   </li>
++     * </ul>
++     *
++     * @return whether the entity was successfully resurrected using a totem of undying.
++     */
++    boolean attemptTotemOfUndyingResurrection();
++    // KTP end
+ }
