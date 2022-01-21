@@ -69,16 +69,17 @@ index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..a2e9113b92ca283a602192436446d6942699d84a
+index 0000000000000000000000000000000000000000..ae1a67086cd6974596d538ed987c81c69199b7d0
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
-@@ -0,0 +1,152 @@
+@@ -0,0 +1,165 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import com.google.common.base.Preconditions;
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
++import net.kyori.adventure.text.Component;
 +import net.kyori.adventure.text.PluginTranslatableComponent;
 +import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 +import net.kyori.adventure.translation.GlobalTranslator;
@@ -161,6 +162,18 @@ index 0000000000000000000000000000000000000000..a2e9113b92ca283a602192436446d694
 +     * @return the renderer the plugin translator uses to render {@link PluginTranslatableComponent}s.
 +     */
 +    @NotNull TranslatableComponentRenderer<Locale> renderer();
++
++    /**
++     * Renders a component using the {@link #renderer()} provided.
++     *
++     * @param component the component that should be rendered.
++     * @param context   the context, or more specifically, the locale in which this component should be rendered.
++     *
++     * @return the rendered component
++     */
++    default @NotNull Component render(final @NotNull Component component, final @NotNull Locale context) {
++        return this.renderer().render(component, context);
++    }
 +
 +    /**
 +     * Provides a static immutable implementation of the translation file parser that is capable of parsing yaml files.
