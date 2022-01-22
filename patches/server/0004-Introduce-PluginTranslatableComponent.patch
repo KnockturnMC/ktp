@@ -665,7 +665,7 @@ index 621ec8e8a197323da6b423fee57c816ac9d7c875..94c0fc4ad061e261e6cc4848557c61c7
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index eaa005c1c9b4386bcdbe1d6eb28c3eca7635066c..ef89dac350cc4543da1adebf4771418a7843bfb3 100644
+index 46e6e68f78d07c04cd2f4d477dca7a06313c20e9..043e407bb4e35ddba366526713606f3a6d39b0b0 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -366,10 +366,9 @@ public abstract class PlayerList {
@@ -733,16 +733,15 @@ index 2e032a4e564174571c4ff983e13600bc75fa9058..589bf52bb1ed2c14380e1a92028c4970
 +    // KTP end
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-index dbff1eda25b02b16ec123515338d470489f3b3c4..6fa10a9fc11d17516a582594131623027fa5a0c9 100644
+index dbff1eda25b02b16ec123515338d470489f3b3c4..76a3db453d6f8c86de78d63fc351904ce924bbe7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
 +++ b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-@@ -91,7 +91,8 @@ public class CraftConsoleCommandSender extends ServerCommandSender implements Co
+@@ -91,7 +91,7 @@ public class CraftConsoleCommandSender extends ServerCommandSender implements Co
      // Paper start
      @Override
      public void sendMessage(final net.kyori.adventure.identity.Identity identity, final net.kyori.adventure.text.Component message, final net.kyori.adventure.audience.MessageType type) {
 -        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.LEGACY_SECTION_UXRC.serialize(message));
-+        final var textComponent = net.kyori.adventure.translation.GlobalTranslator.render(message, java.util.Locale.getDefault()); // KTP - render to prevent non-serializable component from being sent
-+        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.LEGACY_SECTION_UXRC.serialize(textComponent));
++        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.asPlain(message, java.util.Locale.getDefault())); // KTP - render to prevent non-serializable component from being sent
      }
  
      @Override
