@@ -34,23 +34,11 @@ body:
 
   - type: textarea
     attributes:
-      label: Paper version
+      label: KTP version
       description: |
         Run `/version` on your server and **paste** the full, unmodified output here.
         "latest" is *not* a version; we require the output of `/version` so we can adequately track down the issue.
         Additionally, do NOT provide a screenshot, you MUST paste the entire output.
-        <details>
-        <summary>Example</summary>
-
-        ```
-        > version
-        [20:34:42 INFO]: This server is running Paper version git-Paper-540 (MC: 1.16.5) (Implementing API version 1.16.5-R0.1-SNAPSHOT)
-        [20:34:42 INFO]: Checking version, please wait...
-        [20:34:42 INFO]: Previous version: git-Paper-538 (MC: 1.16.5)
-        [20:34:42 INFO]: You are running the latest version
-        ```
-
-        </details>
     validations:
       required: true
 
@@ -68,10 +56,6 @@ body:
       value: |
         Before submitting this issue, please ensure the following:
 
-        1. You are running the latest version of Paper from [our downloads page](https://papermc.io/downloads).
+        1. You are running the latest version of KTP from [the release section](https://github.com/lynxplay/ktp).
         2. You searched for and ensured there isn't already an open issue regarding this.
-        3. Your version of Minecraft is supported by Paper.
-
-        If you think you have a bug but are not sure, feel free to ask the `#paper-help` channel of our
-        [Discord](https://discord.gg/papermc).
-
+        3. Your version of Minecraft is supported by KTP.

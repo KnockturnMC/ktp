@@ -1,13 +1,13 @@
 name: Feature Request
-description: Suggest an idea for Paper
+description: Suggest an idea for KTP
 labels: [ "status: needs triage", "type: feature" ]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for filling out a feature request for Paper! Please be as detailed as possible so that we may consider and review the request easier.
+        Thank you for filling out a feature request for KTP! Please be as detailed as possible so that we may consider and review the request easier.
         We ask that you search all the issues to avoid a duplicate feature request. If one exists, please reply if you have anything to add.
-        Before requesting a new feature, please make sure you are using the latest version and that the feature you are requesting is not already in Paper.
+        Before requesting a new feature, please make sure you are using the latest version and that the feature you are requesting is not already in KTP.
 
   - type: textarea
     attributes:
