@@ -21,18 +21,6 @@ for the added plugin translatable components.
 
 Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
-diff --git a/build.gradle.kts b/build.gradle.kts
-index 92b612126a6bac0b89198a92bbb73b742ec9d064..628b75507c12d66cb45917e9f62b2eca7383ae6a 100644
---- a/build.gradle.kts
-+++ b/build.gradle.kts
-@@ -37,6 +37,7 @@ dependencies {
-     apiAndDocs("net.kyori:adventure-text-serializer-gson")
-     apiAndDocs("net.kyori:adventure-text-serializer-legacy")
-     apiAndDocs("net.kyori:adventure-text-serializer-plain")
-+    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // KTP
-     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
-     api("org.slf4j:slf4j-api:1.7.30") // Paper
- 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846289daa4c
