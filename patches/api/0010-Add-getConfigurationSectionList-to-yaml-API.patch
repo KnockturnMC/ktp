@@ -96,7 +96,7 @@ index 6476f3794b0c3815486c87968a71d0c572f3a89a..83652af10a5e4682d23da252f235fd28
              Object value = entry.getValue();
 diff --git a/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionListTest.java b/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionListTest.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..76b766048110cdf41fdeb120a3ee7ca2cda79f5b
+index 0000000000000000000000000000000000000000..4a73a9fefd61fe22f70848e87ca395eeb238efd8
 --- /dev/null
 +++ b/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionListTest.java
 @@ -0,0 +1,35 @@
@@ -131,7 +131,7 @@ index 0000000000000000000000000000000000000000..76b766048110cdf41fdeb120a3ee7ca2
 +
 +        final var carter = configSectionList.get(1);
 +        Assert.assertEquals("carter", carter.getString("name"));
-+        Assert.assertEquals("private", carter.getString("role"));
++        Assert.assertEquals("admiral", carter.getString("role"));
 +    }
 +
 +}
