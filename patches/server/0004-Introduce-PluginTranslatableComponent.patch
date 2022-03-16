@@ -23,10 +23,10 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..271fe9f1b0c7f5ae7681abae2c05ba864d71f6e9
+index 0000000000000000000000000000000000000000..c118bb8af825083f2ea122aaddfca619812fa641
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,67 @@
 +package dev.lynxplay.ktp.adventure.text;
 +
 +import dev.lynxplay.ktp.adventure.translation.PluginShortcutMessageFormat;
@@ -76,6 +76,10 @@ index 0000000000000000000000000000000000000000..271fe9f1b0c7f5ae7681abae2c05ba86
 +                }
 +
 +                rendered = rendered.children(renderedChildren);
++            }
++
++            if (component.hasStyling()) {
++                rendered =  rendered.mergeStyle(component);
 +            }
 +
 +            return rendered;
