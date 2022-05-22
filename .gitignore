@@ -44,8 +44,8 @@ out/
 *~
 
 # other stuff
-KTP-Server
-KTP-API
+ktp-server
+ktp-api
 mc-dev
 .idea
 testserver

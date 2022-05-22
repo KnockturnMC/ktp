@@ -1,13 +1,13 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://papermc.io/repo/repository/maven-public/")
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 }
 
 rootProject.name = "ktp"
 
-include("KTP-API", "KTP-Server")
+include("ktp-api", "ktp-server")
 
 val testPlugin = file("test-plugin.settings.gradle.kts")
 if (testPlugin.exists()) {

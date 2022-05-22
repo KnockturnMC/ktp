@@ -7,10 +7,15 @@ plugins {
     id("io.papermc.paperweight.patcher") version "1.2.0"
 }
 
+val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
+val spigotDecompiler: Configuration by configurations.creating
+
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/") {
-        content { onlyForConfigurations(PAPERCLIP_CONFIG) }
+        content {
+            onlyForConfigurations(PAPERCLIP_CONFIG, spigotDecompiler.name)
+        }
     }
 }
 
@@ -45,7 +50,7 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven("https://papermc.io/repo/repository/maven-public/")
+        maven("paperMavenPublicUrl")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
             name = "sonatype-oss-snapshots"
         }
@@ -53,18 +58,18 @@ subprojects {
 }
 
 paperweight {
-    serverProject.set(project(":KTP-Server"))
+    serverProject.set(project(":ktp-server"))
 
-    remapRepo.set("https://maven.fabricmc.net/")
-    decompileRepo.set("https://files.minecraftforge.net/maven/")
+    remapRepo.set(paperMavenPublicUrl)
+    decompileRepo.set(paperMavenPublicUrl)
 
     usePaperUpstream(providers.gradleProperty("paperRef")) {
         withPaperPatcher {
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("KTP-API"))
+            apiOutputDir.set(layout.projectDirectory.dir("ktp-api"))
 
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("KTP-Server"))
+            serverOutputDir.set(layout.projectDirectory.dir("ktp-server"))
         }
     }
 }
@@ -79,10 +84,7 @@ tasks.generateDevelopmentBundle {
     libraryRepositories.set(
         listOf(
             "https://repo.maven.apache.org/maven2/",
-            "https://libraries.minecraft.net/",
-            "https://papermc.io/repo/repository/maven-public/",
-            "https://maven.quiltmc.org/repository/release/",
-            "https://repo.knockturnmc.com/content/repositories/knockturn-public/"
+            paperMavenPublicUrl
         )
     )
 }

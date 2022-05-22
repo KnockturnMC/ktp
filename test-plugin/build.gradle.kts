@@ -6,12 +6,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":KTP-API"))
+    compileOnly(project(":ktp-api"))
     compileOnly("io.papermc.paper:paper-mojangapi:1.17.1-R0.1-SNAPSHOT") {
         exclude("io.papermc.paper", "paper-api")
     }
 
-    testImplementation(project(":KTP-API"))
+    testImplementation(project(":ktp-api"))
     testImplementation("io.papermc.paper:paper-mojangapi:1.17.1-R0.1-SNAPSHOT") {
         exclude("io.papermc.paper", "paper-api")
     }
