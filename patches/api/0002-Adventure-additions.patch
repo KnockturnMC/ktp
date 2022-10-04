@@ -7,13 +7,14 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 72b8557d25b353936eb0f43fbf0bde388629b364..fbecc449da83d3294878debb1ac7a4771012e8f5 100644
+index 72b8557d25b353936eb0f43fbf0bde388629b364..3704bd783e872359b7bc5b15a63bcdfe0b5add3a 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -37,6 +37,7 @@ dependencies {
+@@ -37,6 +37,8 @@ dependencies {
      apiAndDocs("net.kyori:adventure-text-serializer-gson")
      apiAndDocs("net.kyori:adventure-text-serializer-legacy")
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
++    apiAndDocs("net.kyori:adventure-nbt") // KTP - include adventure nbt
 +    api("net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT") // KTP
      api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
      api("org.slf4j:slf4j-api:1.7.30") // Paper
