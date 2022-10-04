@@ -50,7 +50,7 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven("$paperMavenPublicUrl")
+        maven(paperMavenPublicUrl)
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
             name = "sonatype-oss-snapshots"
         }

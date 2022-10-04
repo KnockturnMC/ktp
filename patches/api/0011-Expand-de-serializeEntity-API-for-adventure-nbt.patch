@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Tue, 4 Oct 2022 19:20:06 +0200
+Subject: [PATCH] Expand de/serializeEntity API for adventure-nbt
+
+With the addition of adventure-nbt, an API level representation of nbt
+compounds are available to plugins.
+While they are not widely used, entity storage is a perfect place for
+them.
+
+This commit adds a new de- and serialization method for entities that
+returns the adventure-nbt representation of the compound tag.
+
+diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
+index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..21f48c8cc839c29a32d2b0db91c20ef97a05da2a 100644
+--- a/src/main/java/org/bukkit/UnsafeValues.java
++++ b/src/main/java/org/bukkit/UnsafeValues.java
+@@ -218,4 +218,45 @@ public interface UnsafeValues {
+      */
+     boolean isCollidable(@org.jetbrains.annotations.NotNull Material material);
+     // Paper end
++    // KTP start
++
++    /**
++     * Serializes the entity passed into an adventure compound binary tag.
++     *
++     * @param entity the entity to serialize.
++     *
++     * @return the compound binary tag containing all required information to reconstruct the entity later on.
++     */
++    default net.kyori.adventure.nbt.CompoundBinaryTag serializeEntityToTag(final org.bukkit.entity.Entity entity) {
++        try (
++            final var inputStream = new java.io.ByteArrayInputStream(serializeEntity(entity));
++        ) {
++            return net.kyori.adventure.nbt.BinaryTagIO.reader().read(inputStream, net.kyori.adventure.nbt.BinaryTagIO.Compression.GZIP);
++        } catch (final java.io.IOException exception) {
++            throw new java.lang.IllegalArgumentException("The passed entity could not be serialized", exception);
++        }
++    }
++
++    /**
++     * Deserializes an entity given an adventure compound binary tag.
++     *
++     * @param data         the data tag that contains all information required to reconstruct the entity.
++     * @param world        the world into which the entity should be placed.
++     * @param preserveUUID a simple flag indicating if the uuid of the entity should be preserved.
++     *
++     * @return the deserialized entity instance.
++     */
++    default org.bukkit.entity.Entity deserializeEntity(final net.kyori.adventure.nbt.CompoundBinaryTag data,
++                                                       final World world,
++                                                       final boolean preserveUUID) {
++        try (
++            final var outputStream = new java.io.ByteArrayOutputStream();
++        ) {
++            net.kyori.adventure.nbt.BinaryTagIO.writer().write(data, outputStream, net.kyori.adventure.nbt.BinaryTagIO.Compression.GZIP);
++            return this.deserializeEntity(outputStream.toByteArray(), world, preserveUUID);
++        } catch (final java.io.IOException exception) {
++            throw new java.lang.IllegalArgumentException("The passed entity could not be deserialized", exception);
++        }
++    }
++    // KTP end
+ }
