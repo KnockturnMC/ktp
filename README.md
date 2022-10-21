@@ -1,3 +1,3 @@
 # KTP
 
-A tunity fork for the knockturmc project.
+A papermc fork for the knockturmc project, focused on providing more API.
