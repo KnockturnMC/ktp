@@ -1,3 +1,4 @@
 # KTP
 
-A papermc fork for the knockturmc project, focused on providing more API.
+A [papermc](https://github.com/PaperMC/Paper) fork for the knockturmc project, focused on providing more API.
+The project uses [paperweight-patcher](https://github.com/PaperMC/paperweight) to fork paper.
