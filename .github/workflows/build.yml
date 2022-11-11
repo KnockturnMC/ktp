@@ -1,0 +1,28 @@
+name: Build Paper
+on: [push, pull_request]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                java: [8]
+            fail-fast: true
+        steps:
+            - uses: actions/checkout@v3
+            - name: JDK ${{ matrix.java }}
+              uses: actions/setup-java@v3.6.0
+              with:
+                  java-version: ${{ matrix.java }}
+                  distribution: 'temurin'
+            - name: Patch and build
+              run: |
+                  git config --global user.email "no-reply@github.com"
+                  git config --global user.name "Github Actions"
+                  git submodule update --init --recursive
+                  ./ktp jar
+            - name: Publish artifact
+              uses: actions/upload-artifact@v3
+              with:
+                name: ktp-paperclip
+                path: KTP-paperclip.jar

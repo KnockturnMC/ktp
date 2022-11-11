@@ -64,7 +64,9 @@ case "$1" in
         cd ../Paper/Paper-MojangAPI && mvn -e clean install
         cd ../../${FORK_NAME}-Server && mvn -e clean install
         cd "$basedir"
+        sed -i 's#http://clojars#https://clojars#g' Paper/work/Paperclip/java8/pom.xml
         ./scripts/paperclip.sh
+        sed -i 's#https://clojars#http://clojars#g' Paper/work/Paperclip/java8/pom.xml
     )
     ;;
     "d" | "de" | "deploy")
