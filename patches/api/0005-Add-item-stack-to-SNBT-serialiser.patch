@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 21 Dec 2022 01:04:50 +0100
+Subject: [PATCH] Add item stack to SNBT serialiser
+
+Adds a new method to the UnsafeValues interface that allows developers
+to convert an API item stack into the SNBT required to create it.
+This method allows for a complete string representation that is human
+readable compared to the existing ItemStack#toString() method that does
+only expose metadata known to the ItemMeta.
+
+diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
+index 014c9984018ad5e51a26228a137e1ba4eb3e80c8..689d7169c5ee897c16f51be55f8edec0df362702 100644
+--- a/src/main/java/org/bukkit/UnsafeValues.java
++++ b/src/main/java/org/bukkit/UnsafeValues.java
+@@ -218,4 +218,7 @@ public interface UnsafeValues {
+      */
+     boolean isCollidable(@org.jetbrains.annotations.NotNull Material material);
+     // Paper end
++    // KTP start
++    String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack);
++    // KTP stop
+ }

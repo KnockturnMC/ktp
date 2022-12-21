@@ -15,7 +15,7 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 465dab588e770bf4d1e645e1f451a066f388014a..bbb7100bf58a89ab6680cf7d2f06831b9b111f7d 100644
+index 99a5074adbe2a254ae6115b3548f1fcd30ba2489..aaf304277a6410d4e944c3b26afce59e8c317b58 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1490,6 +1490,7 @@ public abstract class LivingEntity extends Entity {
