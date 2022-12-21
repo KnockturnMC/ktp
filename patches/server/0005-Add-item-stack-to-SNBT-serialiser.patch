@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 21 Dec 2022 01:08:23 +0100
+Subject: [PATCH] Add item stack to SNBT serialiser
+
+Adds a new method to the UnsafeValues interface that allows developers
+to convert an API item stack into the SNBT required to create it.
+This method allows for a complete string representation that is human
+readable compared to the existing ItemStack#toString() method that does
+only expose metadata known to the ItemMeta.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index 004b6ce132f8a686116b2a03a0a57461c8e164cf..477906e601b3e88db78120429c25128ee72d6303 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -360,6 +360,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
+         }
+     }
+     // Paper end
++    // KTP start
++    public String itemStackAsString(ItemStack itemStack) {
++        final net.minecraft.server.ItemStack nmsStack = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(itemStack);
++        final net.minecraft.server.NBTTagCompound saveCompound = new net.minecraft.server.NBTTagCompound();
++        nmsStack.save(saveCompound);
++        return saveCompound.toString();
++    }
++    // KTP stop
+ 
+     /**
+      * This helper class represents the different NBT Tags.
