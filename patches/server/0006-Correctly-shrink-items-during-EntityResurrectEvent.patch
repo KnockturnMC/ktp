@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Tue, 10 Jan 2023 21:06:42 +0100
+Subject: [PATCH] Correctly shrink items during EntityResurrectEvent
+
+The EntityResurrectEvent logic is supposed to locate a totem of undying
+in any of the interaction slots of the player inventory and then, if the
+called EntityResurrectEvent is not cancelled, shrink that item by 1,
+usually reducing it to zero.
+
+For this, the logic iterates over the items in the interaction slots and
+breaks out the loop if a totem of undying was found.
+However, even if no totem of undying was found, the iteration item stack
+variable remains as a refernce to the last interaction slot probed.
+
+Plugins uncancelling a EntityResurrectEvent, which is published
+pre-cancelled to listeners if no totem of undying could be found,
+would hence cause the server logic to shrink completely unrelated items
+found in, at the writing of this patch, the players off hand slot.
+
+This patch corrects this behaviour by only shrinking the item if a totem
+of undying was found and the event was called uncancelled.
+
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index ab6576f36e7682d5100f4e9358e76426e4a1c525..581ce8684b9bbe50c482abf5bc3d1db21be42c0c 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -1212,7 +1212,7 @@ public abstract class EntityLiving extends Entity {
+             this.world.getServer().getPluginManager().callEvent(event);
+ 
+             if (!event.isCancelled()) {
+-                if (!itemstack1.isEmpty()) {
++                if (!itemstack1.isEmpty() && itemstack != null) { // Paper - only reduce item if actual totem was found
+                     itemstack1.subtract(1);
+                 }
+                 if (itemstack != null && this instanceof EntityPlayer) {
