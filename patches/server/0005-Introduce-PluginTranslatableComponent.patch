@@ -641,7 +641,7 @@ index 01e424792f68bac73ec41726031ebbb53df13da7..20aa98f2f9f92745bfeb2e906307d3b2
              // play it safe
              locale != null
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 08cb3db28f13c352a162009deeb28ee637e98d2a..1d4f596549dfcc064cda666047a991c63716aad9 100644
+index 9b0b42add71172bd154226e51d62cebd8de3542e..7ec96f6f6f2de7959bc208b4d3503fe049db500a 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -2118,7 +2118,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
@@ -654,7 +654,7 @@ index 08cb3db28f13c352a162009deeb28ee637e98d2a..1d4f596549dfcc064cda666047a991c6
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index c0b599b1835d28ddda3690b29f29bd8c6f03e215..a4ea597c7494f0a4dcc91b3e6b459784988a26d9 100644
+index 4b754f6eae683248d7fe11d6d6cb168d5dd696a2..12aaafd9693ec0c325972deb3078929f30da94b3 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -29,6 +29,7 @@ import java.util.function.Predicate;
@@ -676,7 +676,7 @@ index c0b599b1835d28ddda3690b29f29bd8c6f03e215..a4ea597c7494f0a4dcc91b3e6b459784
          }
          // CraftBukkit end
  
-@@ -1327,6 +1328,14 @@ public abstract class PlayerList {
+@@ -1334,6 +1335,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  

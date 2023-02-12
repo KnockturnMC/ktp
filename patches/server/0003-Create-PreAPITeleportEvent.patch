@@ -28,10 +28,10 @@ index 78f53ee557276de85f0431ebcb146445b1f4fb92..7401edbc64d7e97237cb08cdbf8cccfe
          // Don't allow teleporting between worlds while keeping passengers
          if (ignorePassengers && this.entity.isVehicle() && location.getWorld() != this.getWorld()) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 99bf1485ddecb5fc88850242e9c32850781c4b36..335e6dc0b52d17cb87e92eda30dc39f8ddf77e59 100644
+index 03430916a8107c1b0f04d84e1dce494e2da06e7a..851180ecd07e3f1b4e4f550ec2cb8571c3ae1e2a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1257,6 +1257,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1293,6 +1293,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          if (this.getHealth() == 0 || entity.isRemoved()) {
              return false;
          }
