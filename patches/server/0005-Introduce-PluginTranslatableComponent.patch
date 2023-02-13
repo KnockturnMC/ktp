@@ -96,7 +96,7 @@ index 0000000000000000000000000000000000000000..08f72331db803cb7f0138e5d4c669ddc
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..34d02d803357e3b53d9ba70e1b57e30a971f3ae2
+index 0000000000000000000000000000000000000000..9f559c8a285dc15e8c74b0e90b190b2f14599bff
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
 @@ -0,0 +1,18 @@
@@ -111,7 +111,7 @@ index 0000000000000000000000000000000000000000..34d02d803357e3b53d9ba70e1b57e30a
 +
 +public final class KTPTranslator {
 +
-+    public static final PluginTranslatableComponentRenderer RENDERER = new PluginTranslatableComponentRenderer(GlobalTranslator.get());
++    public static final PluginTranslatableComponentRenderer RENDERER = new PluginTranslatableComponentRenderer(GlobalTranslator.translator());
 +
 +    public static @NotNull Component render(final @NotNull Component component, final @NotNull Locale locale) {
 +        return RENDERER.render(component, locale);
@@ -256,14 +256,19 @@ index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..dfe63c5116c836b84b18e414d1928aaeb21063be
+index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e8580d9a8
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,84 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
-+import dev.lynxplay.ktp.adventure.translation.parser.*;
++import dev.lynxplay.ktp.adventure.translation.parser.FilenameTranslationLocaleParser;
++import dev.lynxplay.ktp.adventure.translation.parser.JsonTranslationFileParser;
++import dev.lynxplay.ktp.adventure.translation.parser.PropertiesTranslationFileParser;
++import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
++import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
++import dev.lynxplay.ktp.adventure.translation.parser.YamlTranslationFileParser;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 +import net.kyori.adventure.translation.Translator;
@@ -275,6 +280,7 @@ index 0000000000000000000000000000000000000000..dfe63c5116c836b84b18e414d1928aae
 +import java.util.List;
 +import java.util.Locale;
 +import java.util.Map;
++import java.util.stream.Stream;
 +
 +/**
 + * The server specific implementation of the plugin translators interface.
@@ -290,8 +296,9 @@ index 0000000000000000000000000000000000000000..dfe63c5116c836b84b18e414d1928aae
 +    public @NotNull PluginTranslationBundle parseTranslationBundle(@NotNull Path translationRoot,
 +                                                                   @NotNull TranslationLocaleParser translationLocaleParser,
 +                                                                   @NotNull TranslationFileParser translationFileParser) throws TranslationParseException {
-+        try {
-+            final List<Path> translationFiles = Files.walk(translationRoot).filter(Files::isRegularFile).toList();
++        try (final Stream<Path> translationFileStream = Files.walk(translationRoot)) {
++            final List<Path> translationFiles = translationFileStream.filter(Files::isRegularFile).toList();
++
 +            final Map<Locale, Map<String, String>> localeTranslationMappings = new Reference2ObjectOpenHashMap<>();
 +            for (final var translationFile : translationFiles) {
 +                final Locale locale = translationLocaleParser.parseLocale(translationFile);
