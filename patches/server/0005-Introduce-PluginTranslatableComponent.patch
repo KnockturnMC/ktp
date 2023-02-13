@@ -647,6 +647,18 @@ index 01e424792f68bac73ec41726031ebbb53df13da7..20aa98f2f9f92745bfeb2e906307d3b2
              component,
              // play it safe
              locale != null
+diff --git a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
+index 9a3c1314d5a0aa20380662595359580b1a97be89..434de455cf8261fddaf5ddf230f8e0cd5fb39afa 100644
+--- a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
++++ b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
+@@ -16,6 +16,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
+     }
+ 
+     private String serialize(final Component message) {
+-        return HexFormattingConverter.SERIALIZER.serialize(GlobalTranslator.render(message, Locale.getDefault()));
++        return HexFormattingConverter.SERIALIZER.serialize(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(message, Locale.getDefault())); // KTP - translator
+     }
+ }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 index 9b0b42add71172bd154226e51d62cebd8de3542e..7ec96f6f6f2de7959bc208b4d3503fe049db500a 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
