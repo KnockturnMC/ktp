@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 13 Feb 2023 23:40:25 +0100
+Subject: [PATCH] Show server as enforceSecureProfile behind proxy
+
+When a server is behind a proxy server, its online-mode setting locally
+is set to false as authentication is left to the proxy server.
+While modern forwarding under velocity allows for an online-moder
+server, bungee does not.
+
+To prevent the popup under a bungee system that requires a full
+system-message chat setup, this patch defines a server as
+enforceSecureProfile if it is configured to be in a proxy-online mode.
+
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index a7e133f3495e9132a5fdae2c24f225e7b026295a..0039413e7b3c41b013c665b005210071e02bb320 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -637,7 +637,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+     @Override
+     public boolean enforceSecureProfile() {
+-        return this.getProperties().enforceSecureProfile && this.getProperties().onlineMode;
++        return this.getProperties().enforceSecureProfile && io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode(); // KTP - properly support secure profile verification when in proxy online mode
+     }
+ 
+     protected boolean convertOldUsers() {
