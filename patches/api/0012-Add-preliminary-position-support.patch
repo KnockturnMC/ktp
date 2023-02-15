@@ -1,0 +1,124 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 15 Feb 2023 20:31:26 +0100
+Subject: [PATCH] Add preliminary position support
+
+The paper introduced position type is currently highly experimental
+however, ktp and its consuming plugins aim to use this API.
+For this, this patch adds fundamental support to the API for position
+usage.
+
+diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
+index 39fa4c65e0f61450901662ff5c08d54a5d9841b2..41613d534da34f87ef12ced0d99f47fa19e622af 100644
+--- a/src/main/java/org/bukkit/RegionAccessor.java
++++ b/src/main/java/org/bukkit/RegionAccessor.java
+@@ -435,4 +435,109 @@ public interface RegionAccessor extends Keyed { // Paper
+      */
+     boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
+     // Paper end
++
++    // KTP start - preliminary position support
++    /**
++     * Gets the {@link Biome} at the given coordinates.
++     *
++     * @param position the position of the block at which to sample the biome
++     * @return Biome at the given coordinates
++     * @see #getComputedBiome(int, int, int)
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Biome getBiome(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBiome(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the computed {@link Biome} at the given coordinates.
++     *
++     * <p>The computed Biome is the Biome as seen by clients for rendering
++     * purposes and in the "F3" debug menu. This is computed by looking at the noise biome
++     * at this and surrounding quarts and applying complex.paper.math operations.</p>
++     *
++     * <p>Most other Biome-related methods named getBiome, setBiome, and similar
++     * operate on the "noise biome", which is stored per-quart, or in other words,
++     * 1 Biome per 4x4x4 block region. This is how Biomes are currently generated and
++     * stored on disk.</p>
++     *
++     * @param position the position of the block at which to sample the computed biome
++     * @return Biome at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Biome getComputedBiome(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getComputedBiome(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Sets the {@link Biome} for the given block coordinates
++     *
++     * @param position the position of the block
++     * @param biome New Biome type for this block
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setBiome(@NotNull final io.papermc.paper.math.Position position, @NotNull final Biome biome) {
++        this.setBiome(position.blockX(), position.blockY(), position.blockZ(), biome);
++    }
++
++    /**
++     * Gets the {@link BlockState} at the given coordinates.
++     *
++     * @param position the position of the block state
++     * @return Block state at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default BlockState getBlockState(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBlockState(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the {@link BlockData} at the given coordinates.
++     *
++     * @param position the position of the block data
++     * @return Block data at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default BlockData getBlockData(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBlockData(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the type of the block at the given coordinates.
++     *
++     * @param position the position of the block
++     * @return Material at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Material getType(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getType(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Sets the {@link BlockData} at the given coordinates.
++     *
++     * @param position the position of the block
++     * @param blockData The block data to set the block to
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setBlockData(@NotNull final io.papermc.paper.math.Position position, @NotNull final BlockData blockData) {
++        this.setBlockData(position.blockX(), position.blockY(), position.blockZ(), blockData);
++    }
++
++    /**
++     * Sets the {@link Material} at the given coordinates.
++     *
++     * @param position the position of the block.
++     * @param material The type to set the block to
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setType(@NotNull final io.papermc.paper.math.Position position, @NotNull final Material material) {
++        this.setType(position.blockX(), position.blockY(), position.blockZ(), material);
++    }
++    // KTP end - preliminary position support
+ }
