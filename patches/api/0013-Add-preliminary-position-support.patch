@@ -123,10 +123,10 @@ index 39fa4c65e0f61450901662ff5c08d54a5d9841b2..41613d534da34f87ef12ced0d99f47fa
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c7884756bc2 100644
+index aa04d7df70d99402c91e920fd693d7d4fb655786..584752fc89b2ce28baf44b555ed5f14631225cf8 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4069,4 +4069,108 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4069,4 +4069,115 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -138,6 +138,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param position the position of the block.
 +     * @return Block at the given coordinates
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    @NotNull
 +    default Block getBlockAt(@NotNull final io.papermc.paper.math.Position position) {
 +        return this.getBlockAt(position.blockX(), position.blockY(), position.blockZ());
@@ -149,6 +150,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param position Coordinates to get the highest block
 +     * @return Highest non-empty block
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    @NotNull
 +    default Block getHighestBlockAt(@NotNull final io.papermc.paper.math.Position position) {
 +        return this.getHighestBlockAt(position.blockX(), position.blockZ());
@@ -160,6 +162,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param position Location of the chunk
 +     * @return Chunk at the given location
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    @NotNull
 +    default Chunk getChunkAt(@NotNull final io.papermc.paper.math.Position position) {
 +        return this.getChunkAt(position.blockX() >> 4, position.blockZ() >> 4);
@@ -171,6 +174,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param position the position of a block in the chunk.
 +     * @return true if the chunk is loaded, otherwise false
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    default boolean isChunkLoaded(@NotNull final io.papermc.paper.math.Position position) {
 +        return this.isChunkLoaded(position.blockX() >> 4, position.blockZ() >> 4);
 +    }
@@ -183,6 +187,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param save Whether or not to save the chunk
 +     * @return true if the chunk has unloaded successfully, otherwise false
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    default boolean unloadChunk(@NotNull final io.papermc.paper.math.Position position, boolean save) {
 +        return this.unloadChunk(position.blockX() >> 4, position.blockZ() >> 4, save);
 +    }
@@ -202,6 +207,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @param position position to load the corresponding chunk from
 +     * @return Future that will resolve when the chunk is loaded
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    @NotNull
 +    default java.util.concurrent.CompletableFuture<Chunk> getChunkAtAsync(@NotNull final io.papermc.paper.math.Position position) {
 +        return getChunkAtAsync((int)Math.floor(position.x()) >> 4, (int)Math.floor(position.z()) >> 4, true);
@@ -224,6 +230,7 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..076d2465e2436934454f9959f0f92c78
 +     * @return the collection of entities near location. This will always be a
 +     *     non-null collection.
 +     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
 +    @NotNull
 +    default Collection<Entity> getNearbyEntities(@NotNull final io.papermc.paper.math.Position position,
 +                                                 final double x, final double y, final double z,
