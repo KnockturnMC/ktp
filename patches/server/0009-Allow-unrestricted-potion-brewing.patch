@@ -1,0 +1,101 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Mon, 6 Feb 2023 23:21:29 -0800
+Subject: [PATCH] Allow unrestricted potion brewing
+
+Recent upstream changes allow custom potion recipes to be easily registered, however it does not satisfy a use case where the possible ingredient combinations and resulting potions are not easily defined.
+This commit adds the ability to unrestrict potion brewing, so that any combination of ingredients is permitted.
+
+diff --git a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
+index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf177f7148a 100644
+--- a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
++++ b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
+@@ -26,8 +26,26 @@ public class PotionBrewing {
+         return false;
+     };
+ 
++    // KTP start - Allow unrestricted potion brewing
++    public static java.util.EnumSet<org.bukkit.potion.PotionBrewer.PotionBrewingRestriction> brewingRestrictions =
++        java.util.EnumSet.allOf(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.class);
++
++    private static boolean unrestrictedBrewing() {
++        return brewingRestrictions.isEmpty();
++    }
++
++    private static boolean unrestrictedIngredient() {
++        return !brewingRestrictions.contains(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.INGREDIENT);
++    }
++
++    private static boolean unrestrictedInputs() {
++        return !brewingRestrictions.contains(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.INPUTS);
++    }
++
++    // KTP end
++
+     public static boolean isIngredient(ItemStack stack) {
+-        return isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper
++        return unrestrictedIngredient() || isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper, KTP - Allow unrestricted brewing
+     }
+ 
+     protected static boolean isContainerIngredient(ItemStack stack) {
+@@ -67,6 +85,8 @@ public class PotionBrewing {
+     }
+ 
+     public static boolean hasMix(ItemStack input, ItemStack ingredient) {
++        if (unrestrictedBrewing()) return true; // KTP - allow unrestricted potion brewing
++
+         // Paper start
+         if (hasCustomMix(input, ingredient)) {
+             return true;
+@@ -151,6 +171,7 @@ public class PotionBrewing {
+     }
+ 
+     public static boolean isCustomInput(ItemStack stack) {
++        if (unrestrictedInputs()) return true; // KTP - allow unrestricted potion brewing
+         for (var mix : CUSTOM_MIXES.values()) {
+             if (mix.input().test(stack)) {
+                 return true;
+@@ -160,8 +181,10 @@ public class PotionBrewing {
+     }
+ 
+     private static boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
++        if (unrestrictedBrewing()) return true; // KTP - Allow unrestricted potion brewing.
++
+         for (var mix : CUSTOM_MIXES.values()) {
+-            if (mix.input().test(input) && mix.ingredient().test(ingredient)) {
++            if ((unrestrictedInputs() || mix.input().test(input)) && (unrestrictedIngredient() || mix.ingredient().test(ingredient))) { // KTP - Allow unrestricted potion brewing.
+                 return true;
+             }
+         }
+@@ -180,6 +203,7 @@ public class PotionBrewing {
+     }
+ 
+     public static void reload() {
++        brewingRestrictions = java.util.EnumSet.allOf(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.class); // KTP - Allow unrestricted potion brewing
+         POTION_MIXES.clear();
+         CONTAINER_MIXES.clear();
+         ALLOWED_CONTAINERS.clear();
+diff --git a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
+index a0b0c64b819b8f713eeea78210e276664e30e66e..1a96a9f114986c746c516be2ef1f1c7e56530bce 100644
+--- a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
++++ b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
+@@ -66,4 +66,19 @@ public class CraftPotionBrewer implements PotionBrewer {
+         net.minecraft.world.item.alchemy.PotionBrewing.reload();
+     }
+     // Paper end
++
++    //KTP start - Allow unrestricted potion brewing
++    @Override
++    public Collection<PotionBrewingRestriction> activePotionBrewingRestrictions() {
++        return java.util.Collections.unmodifiableCollection(net.minecraft.world.item.alchemy.PotionBrewing.brewingRestrictions);
++    }
++
++    @Override
++    public void configurePotionBrewingRestrictions(Collection<PotionBrewingRestriction> restrictions) {
++        var configuredRestrictions = java.util.EnumSet.noneOf(PotionBrewingRestriction.class);
++        configuredRestrictions.addAll(restrictions);
++        net.minecraft.world.item.alchemy.PotionBrewing.brewingRestrictions = configuredRestrictions;
++    }
++
++    // KTP end
+ }
