@@ -7,7 +7,7 @@ Recent upstream changes allow custom potion recipes to be easily registered, how
 This commit adds the ability to unrestrict potion brewing, so that any combination of ingredients is permitted.
 
 diff --git a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
-index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..7215f004d3fcd5171b93e6b21a12b343852dc590 100644
+index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf177f7148a 100644
 --- a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 +++ b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 @@ -26,8 +26,26 @@ public class PotionBrewing {
@@ -47,7 +47,15 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..7215f004d3fcd5171b93e6b21a12b343
          // Paper start
          if (hasCustomMix(input, ingredient)) {
              return true;
-@@ -160,8 +180,10 @@ public class PotionBrewing {
+@@ -151,6 +171,7 @@ public class PotionBrewing {
+     }
+ 
+     public static boolean isCustomInput(ItemStack stack) {
++        if (unrestrictedInputs()) return true; // KTP - allow unrestricted potion brewing
+         for (var mix : CUSTOM_MIXES.values()) {
+             if (mix.input().test(stack)) {
+                 return true;
+@@ -160,8 +181,10 @@ public class PotionBrewing {
      }
  
      private static boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
@@ -59,7 +67,7 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..7215f004d3fcd5171b93e6b21a12b343
                  return true;
              }
          }
-@@ -180,6 +202,7 @@ public class PotionBrewing {
+@@ -180,6 +203,7 @@ public class PotionBrewing {
      }
  
      public static void reload() {
