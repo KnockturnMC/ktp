@@ -96,7 +96,7 @@ allprojects {
         repositories {
             maven {
                 name = "knockturnPublic"
-                url = uri("https://repo.knockturnmc.com/content/repositories/knockturn-public/")
+                url = uri("https://repo.knockturnmc.com/content/repositories/knockturn-public-snapshot/")
                 credentials(PasswordCredentials::class)
             }
         }
