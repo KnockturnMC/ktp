@@ -711,7 +711,7 @@ index 4b754f6eae683248d7fe11d6d6cb168d5dd696a2..12aaafd9693ec0c325972deb3078929f
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a64d053b02d90df9d75223021f73818be99775d5..29766eb65e1a09a6fef91b2951d2daebaabc2695 100644
+index b1ce22d8325dcf2e686c75d6f69b37bbea2e5a90..8c1168f34873dd62d815948e2ceed6f453ef6171 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -299,6 +299,7 @@ public final class CraftServer implements Server {
@@ -722,7 +722,7 @@ index a64d053b02d90df9d75223021f73818be99775d5..29766eb65e1a09a6fef91b2951d2daeb
  
      static {
          ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-@@ -385,6 +386,7 @@ public final class CraftServer implements Server {
+@@ -386,6 +387,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -730,7 +730,7 @@ index a64d053b02d90df9d75223021f73818be99775d5..29766eb65e1a09a6fef91b2951d2daeb
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2938,4 +2940,14 @@ public final class CraftServer implements Server {
+@@ -2940,4 +2942,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end

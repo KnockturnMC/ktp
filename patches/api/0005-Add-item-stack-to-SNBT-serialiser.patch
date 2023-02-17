@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 854be548e5a645e7312e6e9390d5255f8b1d61e6..0bad57f184515734c49ee3030d167bd63d10ee0c 100644
+index 0f4a642a851eace1f3694b9bc0027c2ffdff3695..e1f3ecdb92dbbc0c46b2f01e65751200763d63e5 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -271,4 +271,7 @@ public interface UnsafeValues {
+@@ -251,4 +251,7 @@ public interface UnsafeValues {
       */
      void setBiomeKey(RegionAccessor accessor, int x, int y, int z, NamespacedKey biomeKey);
      // Paper end
