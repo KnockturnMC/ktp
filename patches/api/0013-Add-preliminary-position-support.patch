@@ -1,0 +1,244 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 15 Feb 2023 20:31:26 +0100
+Subject: [PATCH] Add preliminary position support
+
+The paper introduced position type is currently highly experimental
+however, ktp and its consuming plugins aim to use this API.
+For this, this patch adds fundamental support to the API for position
+usage.
+
+diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
+index 39fa4c65e0f61450901662ff5c08d54a5d9841b2..41613d534da34f87ef12ced0d99f47fa19e622af 100644
+--- a/src/main/java/org/bukkit/RegionAccessor.java
++++ b/src/main/java/org/bukkit/RegionAccessor.java
+@@ -435,4 +435,109 @@ public interface RegionAccessor extends Keyed { // Paper
+      */
+     boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
+     // Paper end
++
++    // KTP start - preliminary position support
++    /**
++     * Gets the {@link Biome} at the given coordinates.
++     *
++     * @param position the position of the block at which to sample the biome
++     * @return Biome at the given coordinates
++     * @see #getComputedBiome(int, int, int)
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Biome getBiome(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBiome(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the computed {@link Biome} at the given coordinates.
++     *
++     * <p>The computed Biome is the Biome as seen by clients for rendering
++     * purposes and in the "F3" debug menu. This is computed by looking at the noise biome
++     * at this and surrounding quarts and applying complex.paper.math operations.</p>
++     *
++     * <p>Most other Biome-related methods named getBiome, setBiome, and similar
++     * operate on the "noise biome", which is stored per-quart, or in other words,
++     * 1 Biome per 4x4x4 block region. This is how Biomes are currently generated and
++     * stored on disk.</p>
++     *
++     * @param position the position of the block at which to sample the computed biome
++     * @return Biome at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Biome getComputedBiome(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getComputedBiome(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Sets the {@link Biome} for the given block coordinates
++     *
++     * @param position the position of the block
++     * @param biome New Biome type for this block
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setBiome(@NotNull final io.papermc.paper.math.Position position, @NotNull final Biome biome) {
++        this.setBiome(position.blockX(), position.blockY(), position.blockZ(), biome);
++    }
++
++    /**
++     * Gets the {@link BlockState} at the given coordinates.
++     *
++     * @param position the position of the block state
++     * @return Block state at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default BlockState getBlockState(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBlockState(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the {@link BlockData} at the given coordinates.
++     *
++     * @param position the position of the block data
++     * @return Block data at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default BlockData getBlockData(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBlockData(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the type of the block at the given coordinates.
++     *
++     * @param position the position of the block
++     * @return Material at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Material getType(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getType(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Sets the {@link BlockData} at the given coordinates.
++     *
++     * @param position the position of the block
++     * @param blockData The block data to set the block to
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setBlockData(@NotNull final io.papermc.paper.math.Position position, @NotNull final BlockData blockData) {
++        this.setBlockData(position.blockX(), position.blockY(), position.blockZ(), blockData);
++    }
++
++    /**
++     * Sets the {@link Material} at the given coordinates.
++     *
++     * @param position the position of the block.
++     * @param material The type to set the block to
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default void setType(@NotNull final io.papermc.paper.math.Position position, @NotNull final Material material) {
++        this.setType(position.blockX(), position.blockY(), position.blockZ(), material);
++    }
++    // KTP end - preliminary position support
+ }
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index aa04d7df70d99402c91e920fd693d7d4fb655786..584752fc89b2ce28baf44b555ed5f14631225cf8 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -4069,4 +4069,115 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+             }
+         }
+     }
++
++    // KTP start - preliminary position support
++    /**
++     * Gets the {@link Block} at the given coordinates
++     *
++     * @param position the position of the block.
++     * @return Block at the given coordinates
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Block getBlockAt(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getBlockAt(position.blockX(), position.blockY(), position.blockZ());
++    }
++
++    /**
++     * Gets the highest non-empty (impassable) block at the given coordinates.
++     *
++     * @param position Coordinates to get the highest block
++     * @return Highest non-empty block
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Block getHighestBlockAt(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getHighestBlockAt(position.blockX(), position.blockZ());
++    }
++
++    /**
++     * Gets the {@link Chunk} at the given {@link io.papermc.paper.math.Position}
++     *
++     * @param position Location of the chunk
++     * @return Chunk at the given location
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Chunk getChunkAt(@NotNull final io.papermc.paper.math.Position position) {
++        return this.getChunkAt(position.blockX() >> 4, position.blockZ() >> 4);
++    }
++
++    /**
++     * Checks if the {@link Chunk} at the specified coordinates is loaded
++     *
++     * @param position the position of a block in the chunk.
++     * @return true if the chunk is loaded, otherwise false
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default boolean isChunkLoaded(@NotNull final io.papermc.paper.math.Position position) {
++        return this.isChunkLoaded(position.blockX() >> 4, position.blockZ() >> 4);
++    }
++
++    /**
++     * Safely unloads and optionally saves the {@link Chunk} at the specified
++     * coordinates.
++     *
++     * @param position the position of a block in the chunk.
++     * @param save Whether or not to save the chunk
++     * @return true if the chunk has unloaded successfully, otherwise false
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    default boolean unloadChunk(@NotNull final io.papermc.paper.math.Position position, boolean save) {
++        return this.unloadChunk(position.blockX() >> 4, position.blockZ() >> 4, save);
++    }
++
++    /**
++     * Requests a {@link Chunk} to be loaded at the given coordinates
++     *
++     * This method makes no guarantee on how fast the chunk will load,
++     * and will return the chunk to the callback at a later time.
++     *
++     * You should use this method if you need a chunk but do not need it
++     * immediately, and you wish to let the server control the speed
++     * of chunk loads, keeping performance in mind.
++     *
++     * The future will always be executed synchronously
++     * on the main Server Thread.
++     * @param position position to load the corresponding chunk from
++     * @return Future that will resolve when the chunk is loaded
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default java.util.concurrent.CompletableFuture<Chunk> getChunkAtAsync(@NotNull final io.papermc.paper.math.Position position) {
++        return getChunkAtAsync((int)Math.floor(position.x()) >> 4, (int)Math.floor(position.z()) >> 4, true);
++    }
++
++    /**
++     * Returns a list of entities within a bounding box centered around a
++     * Location.
++     * <p>
++     * This may not consider entities in currently unloaded chunks. Some
++     * implementations may impose artificial restrictions on the size of the
++     * search bounding box.
++     *
++     * @param position The center of the bounding box
++     * @param x 1/2 the size of the box along x axis
++     * @param y 1/2 the size of the box along y axis
++     * @param z 1/2 the size of the box along z axis
++     * @param filter only entities that fulfill this predicate are considered,
++     *     or <code>null</code> to consider all entities
++     * @return the collection of entities near location. This will always be a
++     *     non-null collection.
++     */
++    @org.jetbrains.annotations.ApiStatus.Experimental
++    @NotNull
++    default Collection<Entity> getNearbyEntities(@NotNull final io.papermc.paper.math.Position position,
++                                                 final double x, final double y, final double z,
++                                                 @Nullable final Predicate<Entity> filter) {
++        return this.getNearbyEntities(new BoundingBox(
++            position.x() - x, position.y() - y, position.z() - z,
++            position.x() + x, position.y() + y, position.z() + z
++        ), filter);
++    }
++    // KTP end - preliminary position support
+ }
