@@ -7,6 +7,10 @@ insert_final_newline = true
 max_line_length = 150
 tab_width = 4
 
+[{*.yml, *.yaml, *.json, *.sh}]
+indent_size = 2
+ij_continuation_indent_size = 2
+
 [*.java]
 # java docs
 ij_java_doc_enable_formatting = true

@@ -1,38 +1,33 @@
 name: Build KTP
-on: [ push, pull_request ]
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
 jobs:
   build:
-    # Only run on PRs if the source branch is on someone else's repo
-    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java: [ 17 ]
       fail-fast: true
     steps:
-      - name: Checkout Git Repository
-        uses: actions/checkout@v2.3.5
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v2.3.1
+      - uses: actions/checkout@v3
+      - name: JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3.6.0
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
-          cache: 'gradle'
-      - name: Configure Git
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Apply Patches
         run: |
           git config --global user.email "no-reply@github.com"
           git config --global user.name "Github Actions"
-      - name: Patch KTP
-        run: |
-          ./gradlew applyPatches --stacktrace --no-daemon
-      - name: Build KTP
-        run: |
-          ./gradlew build --stacktrace --no-daemon
-          ./gradlew createReobfPaperclipJar --stacktrace --no-daemon
-      - name: Archive KTP Paperclip
-        uses: actions/upload-artifact@v2
-        with:
-          name: KTP
-          path: ktp-paperclip.jar
+          ./gradlew applyPatches --stacktrace
+      - name: Build
+        run: ./gradlew build --stacktrace
