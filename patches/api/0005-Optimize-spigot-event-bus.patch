@@ -83,29 +83,3 @@ index 3b3d9642a8d63798dc28f2f8df77f0466451cbff..8d3605f25e97a375971705c737bc7bac
                  return;
              }
          }
-diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index b012ce40d82389c29d1b841ff685425ac10a7f9e..f3c5a5f6640b7fbc94e15b3e5e917ec9ecef1064 100644
---- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-+++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-@@ -654,11 +654,17 @@ public final class SimplePluginManager implements PluginManager {
-     @Override
-     public void callEvent(@NotNull Event event) {
-         // Paper - replace callEvent by merging to below method
--        if (event.isAsynchronous() && server.isPrimaryThread()) {
--            throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
--        } else if (!event.isAsynchronous() && !server.isPrimaryThread() && !server.isStopping() ) {
--            throw new IllegalStateException(event.getEventName() + " may only be triggered synchronously.");
-+        // KTP start - optimize spigot event bus
-+        final var isAsync = event.isAsynchronous();
-+        if (event.asynchronous() != net.kyori.adventure.util.TriState.NOT_SET) { // Skip any thread validation if not required
-+            final boolean isPrimary = server.isPrimaryThread(); // Cache to prevent multiple thread object comparisons.
-+            if (isAsync && isPrimary) {
-+                throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
-+            } else if (!isAsync && !isPrimary && !server.isStopping() ) {
-+                throw new IllegalStateException(event.getEventName() + " may only be triggered synchronously.");
-+            }
-         }
-+        // KTP end - optimize spigot event bus
- 
-         HandlerList handlers = event.getHandlers();
-         RegisteredListener[] listeners = handlers.getRegisteredListeners();

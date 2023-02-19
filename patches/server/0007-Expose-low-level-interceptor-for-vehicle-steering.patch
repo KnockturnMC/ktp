@@ -15,7 +15,7 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 1d4f596549dfcc064cda666047a991c63716aad9..9b3e177be7bfc127d4505e72e1282d91b6f708be 100644
+index 7ec96f6f6f2de7959bc208b4d3503fe049db500a..002a34e2816dcb4d7335346af1c4936c052d801d 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -550,7 +550,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
