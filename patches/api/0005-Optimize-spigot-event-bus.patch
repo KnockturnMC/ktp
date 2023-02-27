@@ -84,10 +84,10 @@ index 3b3d9642a8d63798dc28f2f8df77f0466451cbff..8d3605f25e97a375971705c737bc7bac
              }
          }
 diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-index 4b3380a42b4be54ef4df806c5db0d3a1be5909a6..355d912686d5d3c1d9db34fc97d9b35556cd1322 100644
+index 7d300a539ac2ef1c773cfa90cecc8655490a8686..6942852eddfdaf234a3b507a1592f77fcb195f40 100644
 --- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
 +++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
-@@ -315,4 +315,12 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+@@ -297,4 +297,12 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
          }
      }
      // Paper end

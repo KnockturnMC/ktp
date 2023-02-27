@@ -673,7 +673,7 @@ index 9b0b42add71172bd154226e51d62cebd8de3542e..7ec96f6f6f2de7959bc208b4d3503fe0
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 4b754f6eae683248d7fe11d6d6cb168d5dd696a2..12aaafd9693ec0c325972deb3078929f30da94b3 100644
+index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf152859076a43 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -29,6 +29,7 @@ import java.util.function.Predicate;
@@ -695,7 +695,7 @@ index 4b754f6eae683248d7fe11d6d6cb168d5dd696a2..12aaafd9693ec0c325972deb3078929f
          }
          // CraftBukkit end
  
-@@ -1334,6 +1335,14 @@ public abstract class PlayerList {
+@@ -1336,6 +1337,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  
@@ -711,7 +711,7 @@ index 4b754f6eae683248d7fe11d6d6cb168d5dd696a2..12aaafd9693ec0c325972deb3078929f
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index b85648e936690f5d26c26e386fde0249d46a5c93..f23403afc3ac0a846a7a877c22b5863a34ab0792 100644
+index 3d9328a3115525433cb0e14b90f053e766ff3256..1417a1e96c5bb2dff12a60ffd7a42ac9b623c48c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -300,6 +300,7 @@ public final class CraftServer implements Server {
@@ -730,7 +730,7 @@ index b85648e936690f5d26c26e386fde0249d46a5c93..f23403afc3ac0a846a7a877c22b5863a
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2921,4 +2923,14 @@ public final class CraftServer implements Server {
+@@ -2922,4 +2924,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end
