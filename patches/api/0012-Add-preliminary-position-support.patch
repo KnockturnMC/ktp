@@ -123,10 +123,10 @@ index 39fa4c65e0f61450901662ff5c08d54a5d9841b2..41613d534da34f87ef12ced0d99f47fa
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index aa04d7df70d99402c91e920fd693d7d4fb655786..584752fc89b2ce28baf44b555ed5f14631225cf8 100644
+index aa04d7df70d99402c91e920fd693d7d4fb655786..12e4e7003c4a66388492e532ff956ccb4aceed3d 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4069,4 +4069,115 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4069,4 +4069,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -240,5 +240,39 @@ index aa04d7df70d99402c91e920fd693d7d4fb655786..584752fc89b2ce28baf44b555ed5f146
 +            position.x() + x, position.y() + y, position.z() + z
 +        ), filter);
 +    }
++
++    /**
++     * Play a Sound at the provided Location in the World.
++     * <p>
++     * This function will fail silently if Location or Sound are null.
++     *
++     * @param position The location to play the sound
++     * @param sound    The sound to play
++     * @param volume   The volume of the sound
++     * @param pitch    The pitch of the sound
++     */
++    default void playSound(@NotNull final io.papermc.paper.math.Position position,
++                           @NotNull final Sound sound,
++                           final float volume,
++                           final float pitch) {
++        this.playSound(position, sound, SoundCategory.MASTER, volume, pitch);
++    }
++
++    /**
++     * Play a Sound at the provided Location in the World.
++     * <p>
++     * This function will fail silently if Location or Sound are null.
++     *
++     * @param position      The location to play the sound
++     * @param sound         The sound to play
++     * @param soundCategory the sound category
++     * @param volume        The volume of the sound
++     * @param pitch         The pitch of the sound
++     */
++    void playSound(@NotNull io.papermc.paper.math.Position position,
++                   @NotNull Sound sound,
++                   @NotNull SoundCategory soundCategory,
++                   float volume,
++                   float pitch);
 +    // KTP end - preliminary position support
  }
