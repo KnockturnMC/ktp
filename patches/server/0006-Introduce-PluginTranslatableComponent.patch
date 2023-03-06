@@ -660,7 +660,7 @@ index 9a3c1314d5a0aa20380662595359580b1a97be89..434de455cf8261fddaf5ddf230f8e0cd
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 9b0b42add71172bd154226e51d62cebd8de3542e..7ec96f6f6f2de7959bc208b4d3503fe049db500a 100644
+index d9c29725e015cb4684ff2d547352505d2ad8a2fe..91aa31cd9066857eca27834964a638271d10d61a 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -2118,7 +2118,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
@@ -711,7 +711,7 @@ index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf1528
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 3d9328a3115525433cb0e14b90f053e766ff3256..1417a1e96c5bb2dff12a60ffd7a42ac9b623c48c 100644
+index a81d560940e721f2141352da4a06c95252a1ed4f..068e2c18e0ce3538e95922f8a8a128396d08e130 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -300,6 +300,7 @@ public final class CraftServer implements Server {
@@ -722,7 +722,7 @@ index 3d9328a3115525433cb0e14b90f053e766ff3256..1417a1e96c5bb2dff12a60ffd7a42ac9
  
      static {
          ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-@@ -387,6 +388,7 @@ public final class CraftServer implements Server {
+@@ -386,6 +387,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -730,7 +730,7 @@ index 3d9328a3115525433cb0e14b90f053e766ff3256..1417a1e96c5bb2dff12a60ffd7a42ac9
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2922,4 +2924,14 @@ public final class CraftServer implements Server {
+@@ -2921,4 +2923,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end

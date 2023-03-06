@@ -8,6 +8,46 @@ however, ktp and its consuming plugins aim to use this API.
 For this, this patch adds fundamental support to the API for position
 usage.
 
+diff --git a/src/main/java/io/papermc/paper/math/Position.java b/src/main/java/io/papermc/paper/math/Position.java
+index 300da713dcc303b340efad70efe57facf5422964..47d24985e450205da262c94fe06e060bd9a03bac 100644
+--- a/src/main/java/io/papermc/paper/math/Position.java
++++ b/src/main/java/io/papermc/paper/math/Position.java
+@@ -181,4 +181,35 @@ public interface Position {
+     static @NotNull FinePosition fine(@NotNull Location location) {
+         return new FinePositionImpl(location.getX(), location.getY(), location.getZ());
+     }
++
++    // KTP start - preliminary position support
++    /**
++     * Computes the squared euclidean distance between this position and the passed one.
++     * <p>
++     * This method is expected to be cheaper than {@link #distance(Position)} as it avoids a call to {@link Math#sqrt(double)}.
++     * For very heavy and hot code, this method should hence be preferred.
++     *
++     * @param position the other position between which the squared euclidean distance should be computed.
++     *
++     * @return the squared euclidean distance.
++     */
++    default double distanceSquared(@NotNull final Position position) {
++        // Math.pow is optimised for the exponent 2.0: https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/FdLibm.java#L2122
++        return Math.pow(x() - position.x(), 2) + Math.pow(y() - position.y(), 2) + Math.pow(z() - position.z(), 2);
++    }
++
++    /**
++     * Computes the euclidean distance between this position and the passed one.
++     * <p>
++     * This method is expected to be more expensive than {@link #distanceSquared(Position)} as it contains a call to {@link Math#sqrt(double)}.
++     * For very heavy and hot code, {@link #distanceSquared(Position)} should be used, if possible, over this method.
++     *
++     * @param position the other position between which the euclidean distance should be computed.
++     *
++     * @return the euclidean distance.
++     */
++    default double distance(@NotNull final Position position) {
++        return Math.sqrt(distanceSquared(position));
++    }
++    // KTP end - preliminary position support
+ }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
 index 39fa4c65e0f61450901662ff5c08d54a5d9841b2..41613d534da34f87ef12ced0d99f47fa19e622af 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
