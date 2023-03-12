@@ -28,10 +28,10 @@ index 750ac80eed6ba03e138dd4c03f57ddfe4a123276..c79818452d8d51ca74ceb86aa45b73cf
          Set<io.papermc.paper.entity.TeleportFlag> flagSet = Set.of(flags);
          boolean dismount = !flagSet.contains(io.papermc.paper.entity.TeleportFlag.EntityState.RETAIN_VEHICLE);
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index c33e92cee1291c0ca1863fa8f33cd3b1c5449e92..c3f9b4f6d643eea1e59293ce30e7bd6fdd86c36d 100644
+index c546a465a2f85e1b0e785074af15546637619e8f..03474dd2a803852da6ea24ec91eb16881a23f49c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1301,6 +1301,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1307,6 +1307,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          if (this.getHealth() == 0 || entity.isRemoved()) {
              return false;
          }
