@@ -7,10 +7,10 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 9f5694204091e23c4771657127a06f98e27ad8f1..6d56448ca1757818932b94f11253ca6f83504e78 100644
+index cad12a2632b9ebb569280441c42869685db1f31a..0109bddefa6c49f7fd9db2f14754666d9160f867 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -38,6 +38,7 @@ dependencies {
+@@ -39,6 +39,7 @@ dependencies {
      apiAndDocs("net.kyori:adventure-text-serializer-gson")
      apiAndDocs("net.kyori:adventure-text-serializer-legacy")
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
@@ -19,7 +19,7 @@ index 9f5694204091e23c4771657127a06f98e27ad8f1..6d56448ca1757818932b94f11253ca6f
      api("org.apache.logging.log4j:log4j-api:2.17.1")
      api("org.slf4j:slf4j-api:1.8.0-beta4")
 diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index f3cf27e075ea01d9d825aead3782db66cd4f2c3b..49f75bee896c62e7ccc35e8b98cbc6761225e81f 100644
+index d0e1fbb58c5ce71bf2b8d9db9aa3c1b4ca797435..e933cf94b22bf994119bce043f3243094a576638 100644
 --- a/src/main/java/org/bukkit/command/CommandSender.java
 +++ b/src/main/java/org/bukkit/command/CommandSender.java
 @@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe

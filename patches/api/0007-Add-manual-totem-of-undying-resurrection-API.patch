@@ -15,10 +15,10 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index d045f41d929c6101060caf3a9fb48c8ffc036f16..35b7000c0060e22ee0331679038d9d3fc2ef7d1f 100644
+index 059dfc40edc6c52f95a30e9ac72f45b6aaf5f9a8..0d844ff244a6d5b71075e442d0ae5c6f513d562d 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -1146,4 +1146,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+@@ -1148,4 +1148,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
       */
      void setBodyYaw(float bodyYaw);
      // Paper end
