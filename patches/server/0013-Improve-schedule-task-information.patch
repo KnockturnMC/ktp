@@ -13,7 +13,7 @@ fetch the implementation class type of overdue tasks from BukkitWorker
 instances which are displayed in the nag message on shutdown.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 068e2c18e0ce3538e95922f8a8a128396d08e130..71091c41ce43f7218de77a3ccd5e1e6ebc22dd81 100644
+index 068e2c18e0ce3538e95922f8a8a128396d08e130..47478b4d2989a17b38bc33e2e167cf0de1dfc494 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1010,9 +1010,10 @@ public final class CraftServer implements Server {
@@ -28,6 +28,18 @@ index 068e2c18e0ce3538e95922f8a8a128396d08e130..71091c41ce43f7218de77a3ccd5e1e6e
                  "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
              ));
              if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper
+@@ -1045,9 +1046,10 @@ public final class CraftServer implements Server {
+                 author = plugin.getDescription().getAuthors().get(0);
+             }
+             getLogger().log(Level.SEVERE, String.format(
+-                "Nag author: '%s' of '%s' about the following: %s",
++                "Nag author: '%s' of '%s (%s)' about the following: %s", // KTP - improved task information
+                 author,
+                 plugin.getDescription().getName(),
++                worker.getTaskClass().getName(), // KTP - improved task information
+                 "This plugin is not properly shutting down its async tasks when it is being shut down. This task may throw errors during the final shutdown logs and might not complete before process dies."
+             ));
+         }
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
 index 6d66f83afbeb650b10669fd7eeb24a315951fa86..9e8710639b965ca111cc8a0a31000784ca0b660f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
