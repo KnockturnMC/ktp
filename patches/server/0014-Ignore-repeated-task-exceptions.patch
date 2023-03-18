@@ -1,0 +1,134 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Sat, 18 Mar 2023 12:16:57 -0700
+Subject: [PATCH] Ignore repeated task exceptions
+
+
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+index 8d442c5a498ecf288a0cc0c54889c6e2fda849ce..ca8cc8208c39896bde4b0a77dc2b15b5753f1ac6 100644
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
++++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+@@ -159,6 +159,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+         public boolean logPlayerIpAddresses = true;
+         public boolean deobfuscateStacktraces = true;
+         public boolean useRgbForNamedTextColors = true;
++        public boolean ignoreRepeatTaskExceptions = true; // KTP - Ignore repeat task exceptions
+     }
+ 
+     public Scoreboards scoreboards;
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
+index 9e8710639b965ca111cc8a0a31000784ca0b660f..1d5ba3a76bef3f45570d2109fc04c9568dc920bd 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
+@@ -64,13 +64,26 @@ class CraftAsyncTask extends CraftTask {
+             super.run();
+         } catch (final Throwable t) {
+             thrown = t;
+-            getOwner().getLogger().log(
++
++            // KTP start - Ignore repeated task exceptions
++            var logException = true;
++
++            if (io.papermc.paper.configuration.GlobalConfiguration.get().logging.ignoreRepeatTaskExceptions) {
++                if (this.repeatedException(t)) logException = false;
++            }
++
++            if (logException) {
++                getOwner().getLogger().log(
+                     Level.WARNING,
+                     String.format(
+                         "Plugin %s generated an exception while executing task %s",
+                         getOwner().getDescription().getFullName(),
+                         getTaskId()),
+                     thrown);
++            }
++            // KTP end
++
++
+         } finally {
+             // Cleanup is important for any async task, otherwise ghost tasks are everywhere
+             synchronized (this.workers) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index cdefb2025eedea7e204d70d568adaf1c1ec4c03c..e7b7d59831348dd33357f21536b7d152a8f45683 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -482,22 +482,32 @@ public class CraftScheduler implements BukkitScheduler {
+                 try {
+                     task.run();
+                 } catch (final Throwable throwable) {
+-                    // Paper start
+-                    String msg = String.format(
+-                        "Task #%s for %s generated an exception",
+-                        task.getTaskId(),
+-                        task.getOwner().getDescription().getFullName());
+-                    if (task.getOwner() == MINECRAFT) {
+-                        net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
+-                    } else {
+-                        task.getOwner().getLogger().log(
+-                            Level.WARNING,
+-                            msg,
+-                            throwable);
++                    // KTP start - Ignore repeated task exceptions
++                    var ignoreException = false;
++
++                    if (io.papermc.paper.configuration.GlobalConfiguration.get().logging.ignoreRepeatTaskExceptions) {
++                        if (task.repeatedException(throwable)) ignoreException = true;
++                    }
++
++                    if (!ignoreException) {
++                        // Paper start
++                        String msg = String.format(
++                            "Task #%s for %s generated an exception",
++                            task.getTaskId(),
++                            task.getOwner().getDescription().getFullName());
++                        if (task.getOwner() == MINECRAFT) {
++                            net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
++                        } else {
++                            task.getOwner().getLogger().log(
++                                Level.WARNING,
++                                msg,
++                                throwable);
++                        }
++                        org.bukkit.Bukkit.getServer().getPluginManager().callEvent(
++                            new ServerExceptionEvent(new ServerSchedulerException(msg, throwable, task)));
++                        // Paper end
+                     }
+-                    org.bukkit.Bukkit.getServer().getPluginManager().callEvent(
+-                        new ServerExceptionEvent(new ServerSchedulerException(msg, throwable, task)));
+-                    // Paper end
++                    // KTP end
+                 } finally {
+                     this.currentTask = null;
+                 }
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
+index 3f45bab0e9f7b3697e6d9d1092a1e6e579f7066f..1b1bccc0bfff0ce4c6c85233a8090434dd372eae 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
+@@ -35,6 +35,7 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+     private final Plugin plugin;
+     private final int id;
+     private final long createdAt = System.nanoTime();
++    private Throwable previousException = null; // KTP - Ignore repeat task exceptions
+ 
+     CraftTask() {
+         this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
+@@ -157,4 +158,19 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+         return true;
+     }
+ 
++    // KTP start - Ignore repeated task exceptions
++    boolean repeatedException(Throwable exception) {
++        var repeated = false;
++
++        if (previousException != null) {
++            var previousStackTrace = previousException.getStackTrace();
++            var newStackTrace = exception.getStackTrace();
++            repeated = java.util.Arrays.equals(previousStackTrace, newStackTrace);
++        }
++
++        this.previousException = exception;
++        return repeated;
++    }
++    // KTP end
++
+ }
