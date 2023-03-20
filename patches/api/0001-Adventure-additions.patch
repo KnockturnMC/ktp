@@ -43,7 +43,7 @@ index d0e1fbb58c5ce71bf2b8d9db9aa3c1b4ca797435..e933cf94b22bf994119bce043f324309
  
      /**
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index c6b0fd783675cd019048e445d8e959637d90be7a..f1a2ff3c950ff21bf04e5764380252ca25062736 100644
+index 41bd7f74a236446f911bae28b44d86ea6eb62add..f43daa9d3df653f3fcb6bd3d1c34e22b86845ef9 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 @@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
@@ -66,7 +66,7 @@ index c6b0fd783675cd019048e445d8e959637d90be7a..f1a2ff3c950ff21bf04e5764380252ca
       * Gets the display name that is set.
       * <p>
 @@ -152,6 +164,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
-     void lore(final @Nullable List<net.kyori.adventure.text.Component> lore);
+     void lore(final @Nullable List<? extends net.kyori.adventure.text.Component> lore);
      // Paper end
  
 +    // KTP start
@@ -77,7 +77,7 @@ index c6b0fd783675cd019048e445d8e959637d90be7a..f1a2ff3c950ff21bf04e5764380252ca
 +     *
 +     * @param lore the lore to set.
 +     */
-+    default void loreNonItalic(final @Nullable List<net.kyori.adventure.text.Component> lore) {
++    default void loreNonItalic(final @Nullable List<? extends net.kyori.adventure.text.Component> lore) {
 +        if (lore == null) {
 +            this.lore(null);
 +            return;
