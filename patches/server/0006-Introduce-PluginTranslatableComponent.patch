@@ -660,10 +660,10 @@ index 9a3c1314d5a0aa20380662595359580b1a97be89..434de455cf8261fddaf5ddf230f8e0cd
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index d9c29725e015cb4684ff2d547352505d2ad8a2fe..91aa31cd9066857eca27834964a638271d10d61a 100644
+index 2d8488b9aa088b6d5f0c7e557b8ad0b29bc4cd88..82ffbbe9a7f7a9a63ef26fa76e4a1797d399376b 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2118,7 +2118,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2110,7 +2110,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          // Paper start - Adventure
          quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
          if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
@@ -673,7 +673,7 @@ index d9c29725e015cb4684ff2d547352505d2ad8a2fe..91aa31cd9066857eca27834964a63827
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf152859076a43 100644
+index c0c14766adaac855112f85a203a6163b8adfdded..9706e73a9c9f7f740c440c896bdd536b7c18770b 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -29,6 +29,7 @@ import java.util.function.Predicate;
@@ -684,7 +684,7 @@ index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf1528
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.LayeredRegistryAccess;
-@@ -325,8 +326,8 @@ public abstract class PlayerList {
+@@ -331,8 +332,8 @@ public abstract class PlayerList {
          final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
  
          if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
@@ -695,7 +695,7 @@ index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf1528
          }
          // CraftBukkit end
  
-@@ -1336,6 +1337,14 @@ public abstract class PlayerList {
+@@ -1343,6 +1344,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  
@@ -711,10 +711,10 @@ index 835e439a1af327c67558653ef79ef7e59692a976..567b1ad8f83d990dd526546b37cf1528
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a81d560940e721f2141352da4a06c95252a1ed4f..068e2c18e0ce3538e95922f8a8a128396d08e130 100644
+index f6a73a701947a5191dbbc1d353848823f2f5ee4d..f9d38189632f8c54abae98ef7e5ddf25498fd2ae 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -300,6 +300,7 @@ public final class CraftServer implements Server {
+@@ -295,6 +295,7 @@ public final class CraftServer implements Server {
      public static Exception excessiveVelEx; // Paper - Velocity warnings
      private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
      private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper
@@ -722,7 +722,7 @@ index a81d560940e721f2141352da4a06c95252a1ed4f..068e2c18e0ce3538e95922f8a8a12839
  
      static {
          ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-@@ -386,6 +387,7 @@ public final class CraftServer implements Server {
+@@ -381,6 +382,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -730,7 +730,7 @@ index a81d560940e721f2141352da4a06c95252a1ed4f..068e2c18e0ce3538e95922f8a8a12839
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2921,4 +2923,14 @@ public final class CraftServer implements Server {
+@@ -2919,4 +2921,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end
