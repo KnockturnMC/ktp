@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Fri, 24 Mar 2023 15:01:58 -0700
+Subject: [PATCH] Handle plugin exceptions during onEnable
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+index c0e896343c22badd97c774c4ed1daa4e274f5d44..7aee68734582e0a3f45b93643ee5b58b271d28a5 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+@@ -191,7 +191,7 @@ class PaperPluginInstanceManager {
+             try {
+                 jPlugin.setEnabled(true);
+             } catch (Throwable ex) {
+-                this.server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getPluginMeta().getDisplayName() + " (Is it up to date?)", ex);
++                handlePluginException("Error occurred while enabling " + plugin.getPluginMeta().getDisplayName() + " (Is it up to date?)", ex, jPlugin); // KTP - Handle plugin exceptions during onEnable
+                 // Paper start - Disable plugins that fail to load
+                 this.server.getPluginManager().disablePlugin(jPlugin);
+                 return;
