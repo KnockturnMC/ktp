@@ -1,8 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jatyn Stacy <jlee0964@gmail.com>
 Date: Fri, 24 Mar 2023 15:01:58 -0700
-Subject: [PATCH] Handle plugin exceptions during onEnable
+Subject: [PATCH] Throw ServerExceptionEvent during Plugin#onEnable
 
+This patch allows the server's plugin manager to properly throw a
+ServerExceptionEvent when a plugin throws an Exception/Throwable during
+its onEnable logic.
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
 index c0e896343c22badd97c774c4ed1daa4e274f5d44..7aee68734582e0a3f45b93643ee5b58b271d28a5 100644
