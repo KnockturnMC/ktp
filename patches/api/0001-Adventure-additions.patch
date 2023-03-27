@@ -19,7 +19,7 @@ index cad12a2632b9ebb569280441c42869685db1f31a..0109bddefa6c49f7fd9db2f14754666d
      api("org.apache.logging.log4j:log4j-api:2.17.1")
      api("org.slf4j:slf4j-api:1.8.0-beta4")
 diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index d0e1fbb58c5ce71bf2b8d9db9aa3c1b4ca797435..e933cf94b22bf994119bce043f3243094a576638 100644
+index 1e38d8a70e49adb5c035f52acddba892ea6a19ec..fb6eaa5f241a9b402b306cd90a2fa4f46f1c9148 100644
 --- a/src/main/java/org/bukkit/command/CommandSender.java
 +++ b/src/main/java/org/bukkit/command/CommandSender.java
 @@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
@@ -43,11 +43,11 @@ index d0e1fbb58c5ce71bf2b8d9db9aa3c1b4ca797435..e933cf94b22bf994119bce043f324309
  
      /**
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index 41bd7f74a236446f911bae28b44d86ea6eb62add..f43daa9d3df653f3fcb6bd3d1c34e22b86845ef9 100644
+index 54879172374c61361a8efbf4d3ca8d551452e5ad..9462f37bb4f0c9b88289be0f9bd198ba56407b30 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 @@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
-     void displayName(final @Nullable net.kyori.adventure.text.Component displayName);
+     void displayName(final net.kyori.adventure.text.@Nullable Component displayName);
      // Paper end
  
 +    // KTP start
