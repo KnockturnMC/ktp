@@ -7,7 +7,7 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index cad12a2632b9ebb569280441c42869685db1f31a..0109bddefa6c49f7fd9db2f14754666d9160f867 100644
+index fd58c2c8c444943ace942d0e686edbd83aff055f..e44b34982e9c49f5d9803b04f41aa65cf2658762 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -39,6 +39,7 @@ dependencies {
@@ -18,32 +18,8 @@ index cad12a2632b9ebb569280441c42869685db1f31a..0109bddefa6c49f7fd9db2f14754666d
      apiAndDocs("net.kyori:adventure-text-logger-slf4j")
      api("org.apache.logging.log4j:log4j-api:2.17.1")
      api("org.slf4j:slf4j-api:1.8.0-beta4")
-diff --git a/src/main/java/org/bukkit/command/CommandSender.java b/src/main/java/org/bukkit/command/CommandSender.java
-index 1e38d8a70e49adb5c035f52acddba892ea6a19ec..fb6eaa5f241a9b402b306cd90a2fa4f46f1c9148 100644
---- a/src/main/java/org/bukkit/command/CommandSender.java
-+++ b/src/main/java/org/bukkit/command/CommandSender.java
-@@ -16,7 +16,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
-      *
-      * @param message Message to be displayed
-      * @see #sendMessage(net.kyori.adventure.text.Component)
-+     * @deprecated use {@link #sendMessage(Component)}
-      */
-+    @Deprecated // KTP - more adventure deprecations
-     public void sendMessage(@NotNull String message);
- 
-     /**
-@@ -24,7 +26,9 @@ public interface CommandSender extends net.kyori.adventure.audience.Audience, Pe
-      *
-      * @param messages An array of messages to be displayed
-      * @see #sendMessage(net.kyori.adventure.text.Component)
-+     * @deprecated use {@link #sendMessage(Component)}
-      */
-+    @Deprecated // KTP - more adventure deprecations
-     public void sendMessage(@NotNull String... messages);
- 
-     /**
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index 54879172374c61361a8efbf4d3ca8d551452e5ad..9462f37bb4f0c9b88289be0f9bd198ba56407b30 100644
+index e33ec3eaa1cd520db8224250e886e6240fefe76f..05b1ee955f1727c5ead308dafe303e305ec7543d 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 @@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
