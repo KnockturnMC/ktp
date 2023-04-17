@@ -15,7 +15,7 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index e9d3e34520b706627205e0d5b17b25e09f198e7e..a8d8801d2d0ab9a8d60623cbafdd94acfe901c21 100644
+index 95a27d28f73039693ca64601954af62028413634..d590ccb49ede5b8892b268011b5a11aa2a577305 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1514,6 +1514,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -27,10 +27,10 @@ index e9d3e34520b706627205e0d5b17b25e09f198e7e..a8d8801d2d0ab9a8d60623cbafdd94ac
          if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
              return false;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index aec588b41f19b2147a4e7267bafa417fbcf7abc0..b5bf4cd6a18648980a37bf3d127bd0d08a4292ae 100644
+index d43859f8aa7beed82dd3a146bb1086982cd0cda7..ade85e4c10afcb6f55e4b1963e9188c9860506b6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -1070,4 +1070,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -1071,4 +1071,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
          getHandle().knockback(strength, directionX, directionZ);
      };
      // Paper end

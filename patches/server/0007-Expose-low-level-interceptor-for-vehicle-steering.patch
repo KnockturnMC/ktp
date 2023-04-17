@@ -15,10 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 5e863a2cad5a96b02fd9502ac16e2452e98f75e4..fdac79610838883486725d2be78f4b667f62ff4e 100644
+index be5e7c2345a9ad30c554bc7ae8d9713326c6b10e..00cf0299a782f269b1222d648c7617e08c245125 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -560,7 +560,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -561,7 +561,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
