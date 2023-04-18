@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Mon, 17 Apr 2023 16:56:04 -0700
+Subject: [PATCH] Add render convenience method
+
+
+diff --git a/src/main/java/net/kyori/adventure/text/KTPComponents.java b/src/main/java/net/kyori/adventure/text/KTPComponents.java
+index 4f89fe457d9f6ba02a0197973ac48ff14558c3cd..e3e962d34552cc2f069a1468dfe43e0fdbc580da 100644
+--- a/src/main/java/net/kyori/adventure/text/KTPComponents.java
++++ b/src/main/java/net/kyori/adventure/text/KTPComponents.java
+@@ -85,4 +85,18 @@ public class KTPComponents {
+         return new PluginTranslatableComponentImpl.BuilderImpl();
+     }
+ 
++    /**
++     * Renders the provided component, translating to the given locale if possible.
++     *
++     * @param component the component to render
++     * @param locale the locale to translate the text to
++     *
++     * @return the rendered component
++     *
++     * @since 1.19.4
++     */
++    public static @NotNull Component render(@NotNull Component component, @NotNull java.util.Locale locale) {
++        return org.bukkit.Bukkit.pluginTranslators().renderer().render(component, locale);
++    }
++
+ }
