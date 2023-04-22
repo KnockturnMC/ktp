@@ -21,109 +21,87 @@ for the added plugin translatable components.
 
 Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
-diff --git a/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
+diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..08f72331db803cb7f0138e5d4c669ddc0e1ecab3
+index 0000000000000000000000000000000000000000..d1cd9b5e9139985b02216c741f07b09d773bfe90
 --- /dev/null
-+++ b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
-@@ -0,0 +1,67 @@
-+package dev.lynxplay.ktp.adventure.text;
-+
-+import dev.lynxplay.ktp.adventure.translation.PluginShortcutMessageFormat;
-+import net.kyori.adventure.text.Component;
-+import net.kyori.adventure.text.PluginTranslatableComponent;
-+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
-+import net.kyori.adventure.translation.Translator;
-+import org.jetbrains.annotations.NotNull;
-+import org.jetbrains.annotations.Nullable;
-+
-+import java.text.MessageFormat;
-+import java.util.ArrayList;
-+import java.util.Locale;
-+
-+public final class PluginTranslatableComponentRenderer extends TranslatableComponentRenderer<Locale> {
-+
-+    private final Translator translator;
-+
-+    public PluginTranslatableComponentRenderer(Translator translator) {
-+        this.translator = translator;
-+    }
-+
-+    @Override
-+    public @NotNull Component render(@NotNull Component component, @NotNull Locale context) {
-+        if (component instanceof PluginTranslatableComponent pluginTranslatable) {
-+            final var format = this.translate(pluginTranslatable.key(), context);
-+
-+            if (format == null) { // Translation not found, but arguments/children components need rendering
-+                final var builder = Component.text(pluginTranslatable.key()).toBuilder();
-+                return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
-+            }
-+
-+            final var rawTranslation = (format instanceof PluginShortcutMessageFormat shortcutFormat) ? shortcutFormat.toPattern()
-+                : format.format(null, new StringBuffer(), null).toString();
-+
-+            var rendered = super.render( // This call will take (at least on root level) a component the delegate will understand.
-+                pluginTranslatable.miniMessageInstance().deserialize(rawTranslation, pluginTranslatable.tagResolver()),
-+                context
-+            );
-+
-+            if (!component.children().isEmpty()) {
-+                final var renderedChildren = new ArrayList<Component>(rendered.children().size() + component.children().size());
-+                renderedChildren.addAll(rendered.children()); // Prepend mini message parsed children.
-+
-+                for (final var child : component.children()) {
-+                    renderedChildren.add(this.render(child, context)); // Add added children afterwards.
-+                }
-+
-+                rendered = rendered.children(renderedChildren);
-+            }
-+
-+            if (component.hasStyling()) {
-+                rendered =  rendered.mergeStyle(component);
-+            }
-+
-+            return rendered;
-+        }
-+
-+        return super.render(component, context);
-+    }
-+
-+    @Override
-+    protected @Nullable MessageFormat translate(@NotNull String key, @NotNull Locale context) {
-+        return translator.translate(key, context);
-+    }
-+
-+}
-diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..9f559c8a285dc15e8c74b0e90b190b2f14599bff
---- /dev/null
-+++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslator.java
-@@ -0,0 +1,18 @@
++++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImpl.java
+@@ -0,0 +1,69 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
-+import dev.lynxplay.ktp.adventure.text.PluginTranslatableComponentRenderer;
++import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 +import net.kyori.adventure.text.Component;
-+import net.kyori.adventure.translation.GlobalTranslator;
++import net.kyori.adventure.text.ComponentLike;
++import net.kyori.adventure.text.TranslatableComponent;
++import net.kyori.adventure.text.minimessage.MiniMessage;
++import net.kyori.adventure.text.minimessage.tag.Tag;
++import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
++import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 +import org.jetbrains.annotations.NotNull;
 +
 +import java.util.Locale;
++import java.util.Map;
 +
-+public final class KTPTranslator {
++/**
++ * Straight forward implementation of the {@link KTPTranslatableComponentFactory} that is based on {@link PluginTranslationBundle}s for resolving
++ * the fallback.
++ */
++public class KTPTranslatableComponentFactoryImpl implements KTPTranslatableComponentFactory {
 +
-+    public static final PluginTranslatableComponentRenderer RENDERER = new PluginTranslatableComponentRenderer(GlobalTranslator.translator());
++    private final PluginTranslationBundle[] bundles;
++    private final Map<String, String> fallbackCache = new Object2ObjectOpenHashMap<>();
++    private final TagResolver tagToVanillaPlaceholder = TagResolver.resolver("arg", (argumentQueue, context) -> {
++        final String argIndex = argumentQueue.popOr(() -> "").value();
++        return Tag.inserting(Component.text("%" + argIndex + "$s"));
++    });
 +
-+    public static @NotNull Component render(final @NotNull Component component, final @NotNull Locale locale) {
-+        return RENDERER.render(component, locale);
++    public KTPTranslatableComponentFactoryImpl(final PluginTranslationBundle[] bundles) {
++        this.bundles = bundles;
++    }
++
++    /**
++     * Constructs a translatable component for a given key.
++     * The translatable component will hold the {@link TranslatableComponent#key()} and {@link TranslatableComponent#args()} passed to this method.
++     * <p>
++     * Furthermore, this translatable component will have a {@link TranslatableComponent#fallback()} configured that matches the english translation
++     * of the passed key.
++     * If no translation for the key can be found at the time of this method's invocation, the fallback is not set.
++     *
++     * @param key       the key of the translatable component.
++     * @param arguments the arguments of the translatable components.
++     *
++     * @return the created translatable component.
++     */
++    @Override
++    public @NotNull TranslatableComponent translatable(@NotNull final String key, @NotNull final ComponentLike... arguments) {
++        // Check for a fallback already in the cache
++        final String cachedFallback = fallbackCache.get(key);
++        if (cachedFallback != null) return Component.translatable(key, cachedFallback, arguments);
++
++        // Search for the english translation
++        String englishTranslation = null;
++        for (final PluginTranslationBundle bundle : this.bundles) {
++            englishTranslation = bundle.findTranslation(Locale.ENGLISH, key);
++            if (englishTranslation != null) break;
++        }
++
++        // No translation
++        if (englishTranslation == null) return Component.translatable(key, arguments);
++
++        final Component fallback = MiniMessage.miniMessage().deserialize(englishTranslation, tagToVanillaPlaceholder);
++        final String serializedFallback = PlainTextComponentSerializer.plainText().serialize(fallback);
++        this.fallbackCache.put(key, serializedFallback);
++
++        return Component.translatable(key, serializedFallback, arguments);
 +    }
 +
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginShortcutMessageFormat.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginShortcutMessageFormat.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e633b85f9
+index 0000000000000000000000000000000000000000..3d1b54ec05c7cec3c848b0f66644c4ed9b97c513
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginShortcutMessageFormat.java
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,82 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import org.jetbrains.annotations.NotNull;
@@ -134,7 +112,6 @@ index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e
 +import java.text.MessageFormat;
 +import java.text.ParseException;
 +import java.text.ParsePosition;
-+import java.util.Locale;
 +
 +/**
 + * A MessageFormat for when you don't want to format the message :)
@@ -143,13 +120,13 @@ index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e
 +
 +    private String unformattedString;
 +
-+    public PluginShortcutMessageFormat(@NotNull String unformattedString) {
++    public PluginShortcutMessageFormat(@NotNull final String unformattedString) {
 +        super("");
 +        this.unformattedString = unformattedString;
 +    }
 +
 +    @Override
-+    public void applyPattern(@NotNull String pattern) {
++    public void applyPattern(@NotNull final String pattern) {
 +        this.unformattedString = pattern;
 +    }
 +
@@ -159,19 +136,19 @@ index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e
 +    }
 +
 +    @Override
-+    public void setFormatsByArgumentIndex(@NotNull Format @NotNull [] newFormats) {
++    public void setFormatsByArgumentIndex(@NotNull final Format @NotNull [] newFormats) {
 +    }
 +
 +    @Override
-+    public void setFormats(@NotNull Format @NotNull [] newFormats) {
++    public void setFormats(@NotNull final Format @NotNull [] newFormats) {
 +    }
 +
 +    @Override
-+    public void setFormatByArgumentIndex(int argumentIndex, Format newFormat) {
++    public void setFormatByArgumentIndex(final int argumentIndex, final Format newFormat) {
 +    }
 +
 +    @Override
-+    public void setFormat(int formatElementIndex, Format newFormat) {
++    public void setFormat(final int formatElementIndex, final Format newFormat) {
 +    }
 +
 +    @NotNull
@@ -187,22 +164,22 @@ index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e
 +    }
 +
 +    @Override
-+    public AttributedCharacterIterator formatToCharacterIterator(Object arguments) {
++    public AttributedCharacterIterator formatToCharacterIterator(final Object arguments) {
 +        return new AttributedString("").getIterator();
 +    }
 +
 +    @Override
-+    public Object[] parse(String source, ParsePosition pos) {
++    public Object[] parse(final String source, final ParsePosition pos) {
 +        return new Object[0];
 +    }
 +
 +    @Override
-+    public Object[] parse(String source) throws ParseException {
++    public Object[] parse(final String source) throws ParseException {
 +        return parse(source, null);
 +    }
 +
 +    @Override
-+    public Object parseObject(String source, ParsePosition pos) {
++    public Object parseObject(final String source, final ParsePosition pos) {
 +        return source;
 +    }
 +
@@ -256,10 +233,10 @@ index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e8580d9a8
+index 0000000000000000000000000000000000000000..61017343d02828b85f18311c50df5fcce1662b4e
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,87 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
@@ -293,9 +270,16 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +    private final TranslationLocaleParser FILENAME_TRANSLATION_LOCALE_PARSER = new FilenameTranslationLocaleParser();
 +
 +    @Override
-+    public @NotNull PluginTranslationBundle parseTranslationBundle(@NotNull Path translationRoot,
-+                                                                   @NotNull TranslationLocaleParser translationLocaleParser,
-+                                                                   @NotNull TranslationFileParser translationFileParser) throws TranslationParseException {
++    public @NotNull KTPTranslatableComponentFactory newComponentFactory(@NotNull final PluginTranslationBundle... bundles) {
++        return new KTPTranslatableComponentFactoryImpl(bundles);
++    }
++
++    @Override
++    public @NotNull PluginTranslationBundle parseTranslationBundle(
++        @NotNull final Path translationRoot,
++        @NotNull final TranslationLocaleParser translationLocaleParser,
++        @NotNull final TranslationFileParser translationFileParser
++    ) throws TranslationParseException {
 +        try (final Stream<Path> translationFileStream = Files.walk(translationRoot)) {
 +            final List<Path> translationFiles = translationFileStream.filter(Files::isRegularFile).toList();
 +
@@ -314,13 +298,9 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +    }
 +
 +    @Override
-+    public @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle) {
++    public @NotNull Translator createPluginTranslator(@NotNull final String namespace,
++                                                      @NotNull final PluginTranslationBundle pluginTranslationBundle) {
 +        return new SinglePluginTranslator(namespace, pluginTranslationBundle);
-+    }
-+
-+    @Override
-+    public @NotNull TranslatableComponentRenderer<Locale> renderer() {
-+        return KTPTranslator.RENDERER;
 +    }
 +
 +    @Override
@@ -346,18 +326,24 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..02b2519f21b46a587a28a1b98ef75e3729aeeff2
+index 0000000000000000000000000000000000000000..4c05494b185f836f0cf6db50a47b6f36287c5630
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,66 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import net.kyori.adventure.key.Key;
++import net.kyori.adventure.text.Component;
++import net.kyori.adventure.text.TranslatableComponent;
++import net.kyori.adventure.text.minimessage.MiniMessage;
++import net.kyori.adventure.text.minimessage.tag.Tag;
++import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 +import net.kyori.adventure.translation.Translator;
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
 +
 +import java.text.MessageFormat;
++import java.util.List;
 +import java.util.Locale;
 +
 +/**
@@ -370,7 +356,7 @@ index 0000000000000000000000000000000000000000..02b2519f21b46a587a28a1b98ef75e37
 +    private final PluginTranslationBundle translationBundle;
 +
 +    @SuppressWarnings("PatternValidation") // Key#key(String,String) will perform pattern validation, we do not have to enforce the pattern early.
-+    public SinglePluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle translationBundle) {
++    public SinglePluginTranslator(@NotNull final String namespace, @NotNull final PluginTranslationBundle translationBundle) {
 +        this.namespaceSuffixedDot = namespace + ".";
 +        this.key = Key.key(namespace, "translations");
 +        this.translationBundle = translationBundle;
@@ -382,7 +368,25 @@ index 0000000000000000000000000000000000000000..02b2519f21b46a587a28a1b98ef75e37
 +    }
 +
 +    @Override
-+    public @Nullable MessageFormat translate(@NotNull String key, @NotNull Locale locale) {
++    public @Nullable Component translate(@NotNull final TranslatableComponent component, @NotNull final Locale locale) {
++        final String key = component.key();
++        if (!key.startsWith(namespaceSuffixedDot)) return null;
++
++        var translation = this.translationBundle.findTranslation(locale, key);
++        if (translation == null) translation = this.translationBundle.findTranslation(Locale.ENGLISH, key);
++
++        if (translation == null) return null;
++
++        final List<Component> args = component.args();
++
++        return MiniMessage.miniMessage().deserialize(translation, TagResolver.resolver("arg", (argumentQueue, context) -> {
++            final String argIndex = argumentQueue.popOr(() -> "").value();
++            return Tag.inserting(args.get(Integer.parseInt(argIndex)));
++        }));
++    }
++
++    @Override
++    public @Nullable MessageFormat translate(@NotNull final String key, @NotNull final Locale locale) {
 +        if (!key.startsWith(namespaceSuffixedDot)) return null;
 +
 +        var translation = this.translationBundle.findTranslation(locale, key);
@@ -623,93 +627,6 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +    }
 +
 +}
-diff --git a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-index badde58c5151f838faa4b42db02e767eafa2da18..426d06f81803d757b58805e4d4c1e6729680eb4f 100644
---- a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-+++ b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-@@ -52,7 +52,7 @@ public final class PaperAdventure {
-             if (!Language.getInstance().has(translatable.key())) {
-                 for (final Translator source : GlobalTranslator.translator().sources()) {
-                     if (source instanceof TranslationRegistry registry && registry.contains(translatable.key())) {
--                        consumer.accept(GlobalTranslator.render(translatable, Locale.US));
-+                        consumer.accept(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(translatable, Locale.US)); // KTP
-                         return;
-                     }
-                 }
-@@ -190,8 +190,8 @@ public final class PaperAdventure {
-         return PlainTextComponentSerializer.plainText().serialize(translated(component, locale));
-     }
- 
--    private static Component translated(final Component component, final Locale locale) {
--        return GlobalTranslator.render(
-+    public static Component translated(final Component component, final Locale locale) { // KTP - translatable components - private -> public
-+        return dev.lynxplay.ktp.adventure.translation.KTPTranslator.render( // KTP - translatable components
-             component,
-             // play it safe
-             locale != null
-diff --git a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-index 9a3c1314d5a0aa20380662595359580b1a97be89..434de455cf8261fddaf5ddf230f8e0cd5fb39afa 100644
---- a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-+++ b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-@@ -16,6 +16,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
-     }
- 
-     private String serialize(final Component message) {
--        return HexFormattingConverter.SERIALIZER.serialize(GlobalTranslator.render(message, Locale.getDefault()));
-+        return HexFormattingConverter.SERIALIZER.serialize(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(message, Locale.getDefault())); // KTP - translator
-     }
- }
-diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 9c5754ac3b00d3f0cb80ec83a2beefadee6d0a14..be5e7c2345a9ad30c554bc7ae8d9713326c6b10e 100644
---- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-+++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2119,7 +2119,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
-         // Paper start - Adventure
-         quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
-         if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
--            this.server.getPlayerList().broadcastSystemMessage(PaperAdventure.asVanilla(quitMessage), false);
-+            this.server.getPlayerList().broadcastSystemMessage(quitMessage, Util.NIL_UUID); // KTP - use adventure-compatible broadcast
-             // Paper end
-         }
-         // CraftBukkit end
-diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 4d837c1530a3031a4c2a5a39d87bd013d60e14a6..965c0169264fb75eb0f221012182dacb6561ad16 100644
---- a/src/main/java/net/minecraft/server/players/PlayerList.java
-+++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -29,6 +29,7 @@ import java.util.function.Predicate;
- import javax.annotation.Nullable;
- import net.minecraft.ChatFormatting;
- import net.minecraft.FileUtil;
-+import net.minecraft.Util;
- import net.minecraft.commands.CommandSourceStack;
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.LayeredRegistryAccess;
-@@ -336,8 +337,8 @@ public abstract class PlayerList {
-         final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
- 
-         if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
--            joinMessage = PaperAdventure.asVanilla(jm); // Paper - Adventure
--            this.server.getPlayerList().broadcastSystemMessage(joinMessage, false); // Paper - Adventure
-+            // joinMessage = PaperAdventure.asVanilla(jm); // Paper - Adventure // KTP - use adventure native broadcast
-+            this.server.getPlayerList().broadcastSystemMessage(jm, Util.NIL_UUID); // Paper - Adventure // KTP - use adventure native broadcast
-         }
-         // CraftBukkit end
- 
-@@ -1348,6 +1349,14 @@ public abstract class PlayerList {
-     }
-     // CraftBukkit end
- 
-+    // KTP start
-+    public void broadcastSystemMessage(final net.kyori.adventure.text.Component component,
-+                                       final UUID sender) {
-+        final var identity = net.kyori.adventure.identity.Identity.identity(sender);
-+        this.server.server.sendMessage(identity, component, net.kyori.adventure.audience.MessageType.SYSTEM);
-+    }
-+    // KTP end
-+
-     public void broadcastSystemMessage(Component message, boolean overlay) {
-         this.broadcastSystemMessage(message, (entityplayer) -> {
-             return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 index b6881d548b3bdb0399ae597872c86779eb77723f..60c7bff9274077cf2682e376ae05077b0c9799c4 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
@@ -745,16 +662,37 @@ index b6881d548b3bdb0399ae597872c86779eb77723f..60c7bff9274077cf2682e376ae05077b
 +    }
 +    // KTP end
  }
-diff --git a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-index 4e56018b64d11f76c8da43fd8f85c6de72204e36..0af310136ed7ac895afb839db81cb702d0f608ed 100644
---- a/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-+++ b/src/main/java/org/bukkit/craftbukkit/command/CraftConsoleCommandSender.java
-@@ -91,7 +91,7 @@ public class CraftConsoleCommandSender extends ServerCommandSender implements Co
-     // Paper start
-     @Override
-     public void sendMessage(final net.kyori.adventure.identity.Identity identity, final net.kyori.adventure.text.Component message, final net.kyori.adventure.audience.MessageType type) {
--        this.sendRawMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(message));
-+        this.sendRawMessage(io.papermc.paper.adventure.PaperAdventure.asPlain(message, java.util.Locale.getDefault())); // KTP - render to prevent non-serializable component from being sent
-     }
- 
-     @Override
+diff --git a/src/test/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImplTest.java b/src/test/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImplTest.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..22c06100d0b151485a67ddabc329280e00e44ae5
+--- /dev/null
++++ b/src/test/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactoryImplTest.java
+@@ -0,0 +1,28 @@
++package dev.lynxplay.ktp.adventure.translation;
++
++import net.kyori.adventure.text.Component;
++import net.kyori.adventure.text.TranslatableComponent;
++import org.junit.Assert;
++import org.junit.Test;
++
++import java.util.Locale;
++import java.util.Map;
++
++public class KTPTranslatableComponentFactoryImplTest {
++
++    @Test
++    public void testProperFallbackCreation() {
++        final KTPTranslatableComponentFactoryImpl factory = new KTPTranslatableComponentFactoryImpl(new PluginTranslationBundle[]{
++            new PluginTranslationBundleImpl(Map.of(
++                Locale.ENGLISH, Map.of("test", "<green>Everything worked for test <arg:1>")
++            ))
++        });
++
++        final TranslatableComponent translatable = factory.translatable("test", Component.text("first test"));
++        Assert.assertEquals(1, translatable.args().size());
++        Assert.assertEquals(Component.text("first test"), translatable.args().get(0));
++        Assert.assertEquals("test", translatable.key());
++        Assert.assertEquals("Everything worked for test %1$s", translatable.fallback());
++    }
++
++}
