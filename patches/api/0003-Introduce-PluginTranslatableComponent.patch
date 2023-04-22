@@ -23,19 +23,22 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactory.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactory.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..d2847a014cd25f2159f27a333d46b8cdf6f44e55
+index 0000000000000000000000000000000000000000..439a40089cc385baba7f0ac0fb82e7e276de66ff
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/KTPTranslatableComponentFactory.java
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,36 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
++import net.kyori.adventure.text.Component;
 +import net.kyori.adventure.text.ComponentLike;
 +import net.kyori.adventure.text.TranslatableComponent;
 +import org.jetbrains.annotations.NotNull;
 +
++import java.util.Locale;
++
 +/**
 + * The ktp translatable component factory may be used for constructing {@link net.kyori.adventure.text.TranslatableComponent} instances
-+ * that, in combination with the {@link PluginTranslators#renderer()} can hold mini message content.
++ * that, in combination with the {@link org.bukkit.Bukkit#render(net.kyori.adventure.text.Component, Locale)} can hold mini message content.
 + * <p>
 + * The factory is to be used in a plugins language class for constructing {@link net.kyori.adventure.text.TranslatableComponent} instances that have a
 + * sensible fallback applied to them, so that accidental usage of {@link net.kyori.adventure.text.TranslatableComponent} that are only registered
