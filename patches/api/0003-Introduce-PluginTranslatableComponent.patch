@@ -767,10 +767,10 @@ index 0000000000000000000000000000000000000000..3368a06f218c0632f7b32c40c9e3b541
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index f1af93319d6b29d7bc709e7e273e8abe26c7b4af..9253a0d71c4ee5db8ee47fa1a7168a1ad9148913 100644
+index 15a9993c2705e2dcc0366394ded57acffab589c0..e6a1b4c29b0dbc7b6693cd4acb3d2acb7175b8cd 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2456,6 +2456,15 @@ public final class Bukkit {
+@@ -2455,6 +2455,15 @@ public final class Bukkit {
          return server.getPotionBrewer();
      }
      // Paper end
@@ -787,10 +787,10 @@ index f1af93319d6b29d7bc709e7e273e8abe26c7b4af..9253a0d71c4ee5db8ee47fa1a7168a1a
      @NotNull
      public static Server.Spigot spigot() {
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 8621dba7f10ab822b5b99ce0d05da58823605cb6..0090d9ba266f19e79eb3dba22b00d3a23c09e11c 100644
+index 9f7029d327b55c8b1b9cfef8ea2678b87dad8ddb..7632bdff4ea09e62cc411c743b3679596f9b26af 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2136,4 +2136,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2135,4 +2135,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
       */
      @NotNull org.bukkit.potion.PotionBrewer getPotionBrewer();
      // Paper end

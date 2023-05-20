@@ -49,10 +49,10 @@ index 300da713dcc303b340efad70efe57facf5422964..47d24985e450205da262c94fe06e060b
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index 9ff8d5e104ca35bc7145cd845d96b3825e279277..abeb74854ccdea0868c92ed22f95a6264e53d437 100644
+index 0d9184abd7090a5123a990f76847ee9b8971f735..f4b54afb0c299eabf45f689e8a8d3a7916a93a76 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
-@@ -435,4 +435,109 @@ public interface RegionAccessor extends Keyed { // Paper
+@@ -480,4 +480,109 @@ public interface RegionAccessor extends Keyed { // Paper
       */
      boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
      // Paper end
@@ -163,10 +163,10 @@ index 9ff8d5e104ca35bc7145cd845d96b3825e279277..abeb74854ccdea0868c92ed22f95a626
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 0b8776355f724927ada826735d5e73f3fb6897d5..5fc7336d016a469f4bbcf5bf1dd780676b24c20d 100644
+index 2b45aa9b438d7856ec448c56832b2b2100961565..c852d3e2c442ba2f219c31505d76f2fbdd035934 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4077,4 +4077,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4032,4 +4032,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
