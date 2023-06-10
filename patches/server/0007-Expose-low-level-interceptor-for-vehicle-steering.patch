@@ -15,13 +15,13 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 946407a98b6c3a351a3c852f7d6cda5b4a68592f..d1fb2a8d25328e156acf853e2233ec14a57f0a02 100644
+index d011797f61b31e540bbefcaad5f0b3cc6d69a249..9ef47aa9607b6d503f9d5b928c751c6125240f99 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -562,7 +562,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
-         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.getLevel());
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
 -        this.player.setPlayerInput(packet.getXxa(), packet.getZza(), packet.isJumping(), packet.isShiftKeyDown());
 +        // KTP start - expose low level interceptor for vehicle steering
 +        final var event = new dev.lynxplay.ktp.event.packet.PlayerPassengerInputEventEvent(
@@ -34,11 +34,11 @@ index 946407a98b6c3a351a3c852f7d6cda5b4a68592f..d1fb2a8d25328e156acf853e2233ec14
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 10164cd7854a30e530f56c595b504ab24d10c2a6..662b604af39765bf55bf0b7f800429c47ac885d0 100644
+index 3c804f4b450200e759b492313c0dcd618cd4991d..4d7042884979d7b0258aa2a553d6808a78ab8a6f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -1445,4 +1445,30 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
-         return !this.getHandle().level.noCollision(this.getHandle(), aabb);
+         return !this.getHandle().level().noCollision(this.getHandle(), aabb);
      }
      // Paper End - Collision API
 +    // KTP start

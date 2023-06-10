@@ -17,10 +17,10 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 8d442c5a498ecf288a0cc0c54889c6e2fda849ce..ea6b6dbb374442c0d00607b61b291bef9f20f33a 100644
+index 77d05f7efdcdceef681a75692c208075d873d368..80d5910b3e618b65c6569d8384802500615cfb51 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -143,6 +143,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -128,6 +128,10 @@ public class GlobalConfiguration extends ConfigurationPart {
          public boolean allowHeadlessPistons = false;
          @Comment("This setting controls if grindstones should be able to output overstacked items (such as cursed books).")
          public boolean allowGrindstoneOverstacking = false;
