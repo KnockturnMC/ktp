@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 8d3a32a0538a6065fd0725721ab8a1a011c4d64a..4e4e532b7be3405e01ec704e0222a2ff08bde259 100644
+index 8f0234296397ca2d4a607dcea6093c6c606dc7d2..10c903a0fdc2898bad320e744e875d59e48ad27b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -76,6 +76,7 @@ import org.bukkit.Particle;
+@@ -78,6 +78,7 @@ import org.bukkit.Particle;
  import org.bukkit.Raid;
  import org.bukkit.Registry;
  import org.bukkit.Sound;
@@ -20,7 +20,7 @@ index 8d3a32a0538a6065fd0725721ab8a1a011c4d64a..4e4e532b7be3405e01ec704e0222a2ff
  import org.bukkit.TreeType;
  import org.bukkit.World;
  import org.bukkit.WorldBorder;
-@@ -2391,4 +2392,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2431,4 +2432,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return this.adventure$pointers;
      }
      // Paper end

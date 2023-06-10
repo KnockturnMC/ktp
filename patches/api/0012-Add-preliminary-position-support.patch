@@ -163,10 +163,10 @@ index 0d9184abd7090a5123a990f76847ee9b8971f735..f4b54afb0c299eabf45f689e8a8d3a79
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 2b45aa9b438d7856ec448c56832b2b2100961565..c852d3e2c442ba2f219c31505d76f2fbdd035934 100644
+index 72f1576b8ce5b55b50f053f346ce42c52db4b568..a5e4fe26594cbe4d0f2ed0497ff21dcba8606c3b 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4032,4 +4032,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4041,4 +4041,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }

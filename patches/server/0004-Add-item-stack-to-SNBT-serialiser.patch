@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index 81ffcca62c2ebb15889d286bfe9138b86ccfe71e..86280ff64068abf2db476a5e084d31aa9de96e22 100644
+index 1179e9fbff93ec8ff82aa3aae477f6bf4ce9b885..48702f2e17b96380c8d880bba1df1fe1c079cb7f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -617,6 +617,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
+@@ -625,6 +625,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
          cra.setBiome(x, y, z, biomeBase);
      }
      // Paper end
