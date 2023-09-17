@@ -269,13 +269,13 @@ index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ff
 +
 +}
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index a2a423d4e4c2702ba5967223cab0432dd7d04732..c206a0877f2e910dd3be6cc260812d1c77d46f37 100644
+index 762cb07861ca8ff058ce8d57ea6c15df1e588bf3..d51f350cfd1427986daebe1466c04b5e9c285955 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -954,4 +954,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1049,4 +1049,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
-     boolean wouldCollideUsing(@NotNull BoundingBox boundingBox);
-     // Paper End - Collision API
+     @NotNull String getScoreboardEntryName();
+     // Paper end - entity scoreboard name
 +    // KTP start
 +
 +    /**

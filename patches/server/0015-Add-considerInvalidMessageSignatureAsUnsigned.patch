@@ -17,20 +17,20 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 77d05f7efdcdceef681a75692c208075d873d368..80d5910b3e618b65c6569d8384802500615cfb51 100644
+index 3bc7230ca62ebe3426da293e436a962bb0134f85..0c64b4d2cf91a56c6f07c4e2c53baaabc38f8837 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -128,6 +128,10 @@ public class GlobalConfiguration extends ConfigurationPart {
-         public boolean allowHeadlessPistons = false;
-         @Comment("This setting controls if grindstones should be able to output overstacked items (such as cursed books).")
+@@ -170,6 +170,10 @@ public class GlobalConfiguration extends ConfigurationPart {
          public boolean allowGrindstoneOverstacking = false;
+         @Comment("This setting controls what compression format is used for region files.")
+         public CompressionFormat compressionFormat = CompressionFormat.ZLIB;
 +        // KTP start - invalid signature unsigned message fallback
 +        @Comment("This setting controls if the server should consider a message with an invalid or missing signature as unsigned or not")
 +        public boolean considerInvalidMessageSignatureAsUnsigned = false;
 +        // KTP end - invalid signature unsigned message fallback
-     }
  
-     public Commands commands;
+         public enum CompressionFormat {
+             GZIP,
 diff --git a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
 index c0a80824a0307ea673805015119cc834b268f0dc..af908a96608c32f716dd5836694cae0c94bc1cad 100644
 --- a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java

@@ -624,10 +624,10 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-index 3dc613116c086444ece88bcb0a569eeea953074f..7cd1a499f5a8c5eddb9274ce96a4becb7dd36df0 100644
+index db54a9c32578defa02fa58dc694c96684a4885ac..7f2ace6924264edd65abc1fc252a57169714da9b 100644
 --- a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
 +++ b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-@@ -60,7 +60,7 @@ public final class PaperAdventure {
+@@ -61,7 +61,7 @@ public final class PaperAdventure {
              if (!Language.getInstance().has(translatable.key())) {
                  for (final Translator source : GlobalTranslator.translator().sources()) {
                      if (source instanceof TranslationRegistry registry && registry.contains(translatable.key())) {
@@ -636,7 +636,7 @@ index 3dc613116c086444ece88bcb0a569eeea953074f..7cd1a499f5a8c5eddb9274ce96a4becb
                          return;
                      }
                  }
-@@ -199,8 +199,8 @@ public final class PaperAdventure {
+@@ -203,8 +203,8 @@ public final class PaperAdventure {
          return PlainTextComponentSerializer.plainText().serialize(translated(component, locale));
      }
  
@@ -648,22 +648,22 @@ index 3dc613116c086444ece88bcb0a569eeea953074f..7cd1a499f5a8c5eddb9274ce96a4becb
              // play it safe
              locale != null
 diff --git a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-index 9a3c1314d5a0aa20380662595359580b1a97be89..434de455cf8261fddaf5ddf230f8e0cd5fb39afa 100644
+index 769f6489632302627fa1730cc08e77f51eb54eb4..f6d52d62b4b5e4e4a196311e7ed258ec9b7d7e44 100644
 --- a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
 +++ b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
 @@ -16,6 +16,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
      }
  
      private String serialize(final Component message) {
--        return HexFormattingConverter.SERIALIZER.serialize(GlobalTranslator.render(message, Locale.getDefault()));
-+        return HexFormattingConverter.SERIALIZER.serialize(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(message, Locale.getDefault())); // KTP - translator
+-        return PaperAdventure.ANSI_SERIALIZER.serialize(GlobalTranslator.render(message, Locale.getDefault()));
++        return PaperAdventure.ANSI_SERIALIZER.serialize(dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(message, Locale.getDefault())); // KTP - translator
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index ae82ab0e3d8e99f87ca8465fbcbb44b5ce18bf96..d011797f61b31e540bbefcaad5f0b3cc6d69a249 100644
+index ab58827001b3b42e44d7f701c390480fed1fa1f1..648d4e0b26cd4c82567184757c2838b4293dacf6 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2118,7 +2118,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -2177,7 +2177,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          // Paper start - Adventure
          quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
          if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
@@ -673,7 +673,7 @@ index ae82ab0e3d8e99f87ca8465fbcbb44b5ce18bf96..d011797f61b31e540bbefcaad5f0b3cc
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 683b5d78f9e3dc34e40c54683f64be32317797ac..e3e69fdf564796b474cc7c5e1574562fa5e6c196 100644
+index f097ec5b4e3ad6b1a7c464a8cff4f8b2568fcf4f..f6dbb35705069cc102522fe08396f37e75a0773b 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -29,6 +29,7 @@ import java.util.function.Predicate;
@@ -695,7 +695,7 @@ index 683b5d78f9e3dc34e40c54683f64be32317797ac..e3e69fdf564796b474cc7c5e1574562f
          }
          // CraftBukkit end
  
-@@ -1357,6 +1358,14 @@ public abstract class PlayerList {
+@@ -1366,6 +1367,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  
@@ -711,18 +711,18 @@ index 683b5d78f9e3dc34e40c54683f64be32317797ac..e3e69fdf564796b474cc7c5e1574562f
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 00a774fef6f140fd795c88f58205161ad49c4db7..297954a947b6e2f9577531a8bec488e7bb772b3e 100644
+index 0e661b0d823fc0429af748ba6c04d0fd0ec6c84f..4cfeab9d0d85d8373e07b4b62084b0258eb1f386 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -302,6 +302,7 @@ public final class CraftServer implements Server {
+@@ -305,6 +305,7 @@ public final class CraftServer implements Server {
      public static Exception excessiveVelEx; // Paper - Velocity warnings
      private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
      private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper
 +    private final dev.lynxplay.ktp.adventure.translation.PluginTranslators pluginTranslators; // KTP - plugin translators - server instance
  
-     static {
-         ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-@@ -389,6 +390,7 @@ public final class CraftServer implements Server {
+     // Paper start - Folia region threading API
+     private final io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler regionizedScheduler = new io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler();
+@@ -466,6 +467,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -730,7 +730,7 @@ index 00a774fef6f140fd795c88f58205161ad49c4db7..297954a947b6e2f9577531a8bec488e7
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2972,4 +2974,14 @@ public final class CraftServer implements Server {
+@@ -3123,4 +3125,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end
