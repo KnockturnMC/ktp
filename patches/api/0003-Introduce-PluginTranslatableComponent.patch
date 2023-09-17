@@ -767,10 +767,10 @@ index 0000000000000000000000000000000000000000..3368a06f218c0632f7b32c40c9e3b541
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index b0bc2df41506770e2854a287813f1c53f003eda1..4fc1e232c9d252ec4b0e87f9e1e2dad7ce95ac84 100644
+index f78b5fd3c3347d28da58777bff88903d2eb140f6..34efc0afbbb2fefa5ca6d3ac20aa4669b223ef29 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2478,6 +2478,15 @@ public final class Bukkit {
+@@ -2616,6 +2616,15 @@ public final class Bukkit {
          return server.getPotionBrewer();
      }
      // Paper end
@@ -784,17 +784,16 @@ index b0bc2df41506770e2854a287813f1c53f003eda1..4fc1e232c9d252ec4b0e87f9e1e2dad7
 +    }
 +    // KTP end
  
-     @NotNull
-     public static Server.Spigot spigot() {
+     // Paper start - Folia region threading API
+     /**
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 1d1a1d087dabc9794e0062a064da2cced4062309..3a509785659552b7a750e7ff3292e2a7c4d87f18 100644
+index 8d8fe04e6b09d2a5b1cc05002073df5c58cdcb96..05f2a85c72731e7fce89cbc67a30d72162d40de1 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2162,4 +2162,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
-      */
+@@ -2290,6 +2290,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
      @NotNull org.bukkit.potion.PotionBrewer getPotionBrewer();
      // Paper end
-+
+ 
 +    // KTP start
 +    /**
 +     * Returns the plugin translator of the server that plugins may use to register custom translations.
@@ -802,7 +801,10 @@ index 1d1a1d087dabc9794e0062a064da2cced4062309..3a509785659552b7a750e7ff3292e2a7
 +     */
 +    @org.jetbrains.annotations.NotNull dev.lynxplay.ktp.adventure.translation.PluginTranslators pluginTranslators();
 +    // KTP end
- }
++
+     // Paper start - Folia region threading API
+     /**
+      * Returns the Folia region task scheduler. The region task scheduler can be used to schedule
 diff --git a/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..c43ed43ef3678c30085d983b0bc459c764c7f337
