@@ -14,10 +14,10 @@ executed by spigot which allows plugins to modify potential target
 entities that are teleported by other plugins prior to the checks.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 2dbe8b870fd39b4d22e9725912f443757ae70761..fd46c7fbe5ed4802b319eb35e73ebc757ac37eeb 100644
+index 315d8260e196709ed9084272aa640f11e327c0a8..772708c3fa4e4069d363a050ce2e405f083a85a2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -585,6 +585,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -584,6 +584,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          // Paper end
          Preconditions.checkArgument(location != null, "location cannot be null");
          location.checkFinite();
@@ -28,10 +28,10 @@ index 2dbe8b870fd39b4d22e9725912f443757ae70761..fd46c7fbe5ed4802b319eb35e73ebc75
          Set<io.papermc.paper.entity.TeleportFlag> flagSet = Set.of(flags);
          boolean dismount = !flagSet.contains(io.papermc.paper.entity.TeleportFlag.EntityState.RETAIN_VEHICLE);
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 3d5876cbadb5c8c02de751c3e15fc7f251ea7d35..e2f9248a1a6b1d49911e0f192c88e1a1079d090b 100644
+index e188bb3ba5d2ec28421947c0b66b25eecb569bfe..2af7489fb7dcb4cfacebd8a6487f96a884f1e1c8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1344,6 +1344,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1346,6 +1346,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          if (this.getHealth() == 0 || entity.isRemoved()) {
              return false;
          }

@@ -49,7 +49,7 @@ index 300da713dcc303b340efad70efe57facf5422964..47d24985e450205da262c94fe06e060b
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index 0d9184abd7090a5123a990f76847ee9b8971f735..f4b54afb0c299eabf45f689e8a8d3a7916a93a76 100644
+index cbb51dde78f792db4ddac43f144d23ff4b12d25f..d7dae9d3c0f41585a6884c235333a825f9f5d3e9 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
 @@ -480,4 +480,109 @@ public interface RegionAccessor extends Keyed { // Paper
@@ -163,10 +163,10 @@ index 0d9184abd7090a5123a990f76847ee9b8971f735..f4b54afb0c299eabf45f689e8a8d3a79
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 6917931966377c51db88a3364997a110dd987970..53820468699adeea1fb3595b7ff0e3d89027f658 100644
+index da524a71af74b02515b037f7fe09ba6988e2c8bf..712fade075bee17795a55cd97a8e75e4a331a97a 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4059,4 +4059,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4075,4 +4075,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
