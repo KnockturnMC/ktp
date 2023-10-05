@@ -13,7 +13,7 @@ system-message chat setup, this patch defines a server as
 enforceSecureProfile if it is configured to be in a proxy-online mode.
 
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index c49802c936ae8e3f4dc1badd98414d96714ecd60..e6f5fd65e966e57aef08c49b51c09fc0ee4a7d26 100644
+index dbccbcb9b44e4efacdf53c2d161115cc20b36cff..2169dc86e834b138604a681eb582c456fa1ab676 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -638,7 +638,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
@@ -24,4 +24,4 @@ index c49802c936ae8e3f4dc1badd98414d96714ecd60..e6f5fd65e966e57aef08c49b51c09fc0
 +        return dedicatedserverproperties.enforceSecureProfile && io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() &&  this.services.profileKeySignatureValidator() != null; // KTP - properly support secure profile verification when in proxy online mode
      }
  
-     protected boolean convertOldUsers() {
+     @Override

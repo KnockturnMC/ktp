@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index de36dab37d3af249cf51573d163731c12346066a..58671723592ea35e7dc08db8a97418d743eca1e4 100644
+index 9237e2fca0557890b718de9029207a552396e45a..0863cc93821476b0aa9c9437be226b4fcbb4330a 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -252,4 +252,7 @@ public interface UnsafeValues {
+@@ -251,4 +251,7 @@ public interface UnsafeValues {
  
      String getStatisticCriteriaKey(@NotNull org.bukkit.Statistic statistic);
      // Paper end

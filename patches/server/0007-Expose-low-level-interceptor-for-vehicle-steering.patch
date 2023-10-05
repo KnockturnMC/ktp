@@ -15,10 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 648d4e0b26cd4c82567184757c2838b4293dacf6..0754dce1e7bc2b170fdedc6fa8151104d283840a 100644
+index 74a121c986caf2f9c2e6a18367cd5045293082e4..288c43246d821178b54a5e9f35e8ce0e47af6771 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -564,7 +564,13 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -449,7 +449,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
@@ -34,10 +34,10 @@ index 648d4e0b26cd4c82567184757c2838b4293dacf6..0754dce1e7bc2b170fdedc6fa8151104
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index fd46c7fbe5ed4802b319eb35e73ebc757ac37eeb..8eb17003a76cf94a35ac8520348076674e2f6078 100644
+index 772708c3fa4e4069d363a050ce2e405f083a85a2..8aa9d9d0d177c656a2a4db461295bcdda032b3dc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1503,7 +1503,31 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1519,7 +1519,31 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return !this.getHandle().level().noCollision(this.getHandle(), aabb);
      }
      // Paper End - Collision API

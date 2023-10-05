@@ -12,10 +12,10 @@ This commit adds a new de- and serialization method for entities that
 returns the adventure-nbt representation of the compound tag.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 58671723592ea35e7dc08db8a97418d743eca1e4..645dca30d3ab280008a5a0d12184c69e36669a4b 100644
+index 0863cc93821476b0aa9c9437be226b4fcbb4330a..0666d80d68e3c26879c624c3d0d891b30b6e23ac 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -254,5 +254,44 @@ public interface UnsafeValues {
+@@ -253,5 +253,44 @@ public interface UnsafeValues {
      // Paper end
      // KTP start
      String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack);

@@ -7,7 +7,7 @@ Recent upstream changes allow custom potion recipes to be easily registered, how
 This commit adds the ability to unrestrict potion brewing, so that any combination of ingredients is permitted.
 
 diff --git a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
-index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf177f7148a 100644
+index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c2799deb7 100644
 --- a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 +++ b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 @@ -26,8 +26,26 @@ public class PotionBrewing {
@@ -38,7 +38,7 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf1
      }
  
      protected static boolean isContainerIngredient(ItemStack stack) {
-@@ -67,6 +85,8 @@ public class PotionBrewing {
+@@ -61,6 +79,8 @@ public class PotionBrewing {
      }
  
      public static boolean hasMix(ItemStack input, ItemStack ingredient) {
@@ -47,7 +47,7 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf1
          // Paper start
          if (hasCustomMix(input, ingredient)) {
              return true;
-@@ -151,6 +171,7 @@ public class PotionBrewing {
+@@ -136,6 +156,7 @@ public class PotionBrewing {
      }
  
      public static boolean isCustomInput(ItemStack stack) {
@@ -55,7 +55,7 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf1
          for (var mix : CUSTOM_MIXES.values()) {
              if (mix.input().test(stack)) {
                  return true;
-@@ -160,8 +181,10 @@ public class PotionBrewing {
+@@ -145,8 +166,10 @@ public class PotionBrewing {
      }
  
      private static boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
@@ -67,7 +67,7 @@ index 12d9556a11ac4ef2e7a62fcd2686d868904bc010..888466317afbb7c76be47136d9d7bcf1
                  return true;
              }
          }
-@@ -180,6 +203,7 @@ public class PotionBrewing {
+@@ -165,6 +188,7 @@ public class PotionBrewing {
      }
  
      public static void reload() {
