@@ -14,13 +14,13 @@ COPY patches/ patches/
 COPY build-data/ build-data/
 
 # Apply all patches to make
-RUN ./gradlew applyPatches
+RUN ./gradlew applyPatches --no-daemon
 
 # Copy over git information of repository needed during build
 COPY .git .git
 
 # Compile ktp to paperclip jar
-RUN ./gradlew createReobfPaperclipJar
+RUN ./gradlew createReobfPaperclipJar --no-daemon
 
 RUN cp build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-reobf.jar server.jar
 
@@ -50,4 +50,4 @@ COPY .docker/run.sh /bin/run.sh
 RUN echo "eula=true" >> eula.txt
 COPY --from=builder /work/server.jar /bin/server.jar
 
-ENTRYPOINT ["sh", "/bin/run.sh"]
+ENTRYPOINT ["bash", "/bin/run.sh"]
