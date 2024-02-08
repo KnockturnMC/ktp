@@ -32,11 +32,11 @@ index a6f58b3457b7477015c5c6d969e7d83017dd3fa1..321af6a2ffda4b1872c9a5376f1197fe
          public enum CompressionFormat {
              GZIP,
 diff --git a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
-index c0a80824a0307ea673805015119cc834b268f0dc..af908a96608c32f716dd5836694cae0c94bc1cad 100644
+index ba12919c3f9aec34a9e64993b143ae92be5eb172..fa3e8edae193077af30eeeb02ee61d54f6503f5a 100644
 --- a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
 +++ b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
-@@ -39,6 +39,11 @@ public class SignedMessageChain {
-             } else {
+@@ -44,6 +44,11 @@ public class SignedMessageChain {
+                 this.lastTimeStamp = body.timeStamp();
                  PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, (Component)null, FilterMask.PASS_THROUGH);
                  if (!playerChatMessage.verify(signatureValidator)) {
 +                    // KTP start - invalid signature unsigned message fallback

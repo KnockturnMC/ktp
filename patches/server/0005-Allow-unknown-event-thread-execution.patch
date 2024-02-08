@@ -1,12 +1,12 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Bjarne Koll <lynxplay101@gmail.com>
 Date: Sun, 19 Feb 2023 16:14:28 +0100
-Subject: [PATCH] Optimize spigot event bus
+Subject: [PATCH] Allow unknown event thread execution
 
-This patch contains a lot of small optimizations to the spigot event bus
-to improve its speed as much as possible, allowing for a large amount of
-events to be published by the server without impacting the overall
-performance too much.
+This patch allows events to actively define that they may or may not be
+called on the main thread of the server.
+This is preferred over passing the "asyncness" of the event as async
+bool parameter to the event instance every time.
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..760535e1d6335cf07b6222525610a11318d2596f 100644

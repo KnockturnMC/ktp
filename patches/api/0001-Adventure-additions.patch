@@ -7,10 +7,10 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 460bd4029b5a01e39b2322e69aecc128a073ee3a..c7fa5bb0dd9393567ae2e7c3a42d2e244a8a421b 100644
+index 50dd795c67557c7d2668068af0bba87a1ec8dc43..b9b2b2caa6b63e385576db4e4d4388b77fb2aa99 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -43,6 +43,7 @@ dependencies {
+@@ -48,6 +48,7 @@ dependencies {
      apiAndDocs("net.kyori:adventure-text-serializer-gson")
      apiAndDocs("net.kyori:adventure-text-serializer-legacy")
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
@@ -19,10 +19,10 @@ index 460bd4029b5a01e39b2322e69aecc128a073ee3a..c7fa5bb0dd9393567ae2e7c3a42d2e24
      api("org.apache.logging.log4j:log4j-api:$log4jVersion")
      api("org.slf4j:slf4j-api:$slf4jVersion")
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index e33ec3eaa1cd520db8224250e886e6240fefe76f..05b1ee955f1727c5ead308dafe303e305ec7543d 100644
+index 478b6d2acbc5788f72db81f387daa08df7837a5d..ecf1eec1c1e82b67ed601076a927c63dc492f14d 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-@@ -50,6 +50,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -51,6 +51,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void displayName(final net.kyori.adventure.text.@Nullable Component displayName);
      // Paper end
  
@@ -41,7 +41,7 @@ index e33ec3eaa1cd520db8224250e886e6240fefe76f..05b1ee955f1727c5ead308dafe303e30
      /**
       * Gets the display name that is set.
       * <p>
-@@ -152,6 +164,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -153,6 +165,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void lore(final @Nullable List<? extends net.kyori.adventure.text.Component> lore);
      // Paper end
  

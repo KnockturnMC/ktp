@@ -10,13 +10,13 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 9237e2fca0557890b718de9029207a552396e45a..0863cc93821476b0aa9c9437be226b4fcbb4330a 100644
+index 923d8655a84e26960d35d8dc6e4ebc0b10c295d5..ed6958d51e89588d60877a804557a180b5987e9a 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -251,4 +251,7 @@ public interface UnsafeValues {
- 
-     String getStatisticCriteriaKey(@NotNull org.bukkit.Statistic statistic);
-     // Paper end
+@@ -273,4 +273,7 @@ public interface UnsafeValues {
+      */
+     @Nullable org.bukkit.Color getSpawnEggLayerColor(org.bukkit.entity.EntityType entityType, int layer);
+     // Paper end - spawn egg color visibility
 +    // KTP start
 +    String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack);
 +    // KTP stop

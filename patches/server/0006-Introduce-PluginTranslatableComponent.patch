@@ -209,12 +209,13 @@ index 0000000000000000000000000000000000000000..92ff57f5544176ecfdba24287df9678e
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22c06a26c7
+index 0000000000000000000000000000000000000000..41f72e3fcebbe97c9c0a08ea1c562d6ee7bde910
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,42 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
++import dev.lynxplay.ktp.adventure.translation.PluginTranslationBundle;
 +import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import org.jetbrains.annotations.NotNull;
@@ -256,22 +257,22 @@ index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e8580d9a8
+index 0000000000000000000000000000000000000000..6422fc07fc64a1eee804a11d33025a4e6d79dbe4
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 @@ -0,0 +1,84 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
-+import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
 +import dev.lynxplay.ktp.adventure.translation.parser.FilenameTranslationLocaleParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.JsonTranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.PropertiesTranslationFileParser;
++import dev.lynxplay.ktp.adventure.translation.parser.YamlTranslationFileParser;
++import net.kyori.adventure.translation.Translator;
++import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
-+import dev.lynxplay.ktp.adventure.translation.parser.YamlTranslationFileParser;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
-+import net.kyori.adventure.translation.Translator;
 +import org.jetbrains.annotations.NotNull;
 +
 +import java.io.IOException;
@@ -394,13 +395,14 @@ index 0000000000000000000000000000000000000000..02b2519f21b46a587a28a1b98ef75e37
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ee5ff959e783071cee22832d3699bdec27babc13
+index 0000000000000000000000000000000000000000..80736704174b48bb517d73e8e7b5a91ce876f51c
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,31 @@
 +package dev.lynxplay.ktp.adventure.translation.parser;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationLocaleParserException;
++import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
 +import net.kyori.adventure.translation.Translator;
 +import org.apache.commons.lang.StringUtils;
 +import org.jetbrains.annotations.NotNull;
@@ -624,10 +626,10 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-index db54a9c32578defa02fa58dc694c96684a4885ac..7f2ace6924264edd65abc1fc252a57169714da9b 100644
+index ca80cbe422d766b3d044a5b53ce40bb7f92558e4..6788c2706e77f54c432b55fcf8a1823377b33b6e 100644
 --- a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
 +++ b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-@@ -61,7 +61,7 @@ public final class PaperAdventure {
+@@ -65,7 +65,7 @@ public final class PaperAdventure {
              if (!Language.getInstance().has(translatable.key())) {
                  for (final Translator source : GlobalTranslator.translator().sources()) {
                      if (source instanceof TranslationRegistry registry && registry.contains(translatable.key())) {
@@ -636,22 +638,20 @@ index db54a9c32578defa02fa58dc694c96684a4885ac..7f2ace6924264edd65abc1fc252a5716
                          return;
                      }
                  }
-@@ -203,8 +203,8 @@ public final class PaperAdventure {
-         return PlainTextComponentSerializer.plainText().serialize(translated(component, locale));
-     }
+@@ -217,7 +217,7 @@ public final class PaperAdventure {
  
--    private static Component translated(final Component component, final Locale locale) {
+     private static Component translated(final Component component, final Locale locale) {
+         //noinspection ConstantValue
 -        return GlobalTranslator.render(
-+    public static Component translated(final Component component, final Locale locale) { // KTP - translatable components - private -> public
-+        return dev.lynxplay.ktp.adventure.translation.KTPTranslator.render( // KTP - translatable components
++        return dev.lynxplay.ktp.adventure.translation.KTPTranslator.render(
              component,
              // play it safe
              locale != null
 diff --git a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-index 769f6489632302627fa1730cc08e77f51eb54eb4..f6d52d62b4b5e4e4a196311e7ed258ec9b7d7e44 100644
+index a143ea1e58464a3122fbd8ccafe417bdb3c31c78..630c2e3f82c3b4c739b9e084355ea35669d57c09 100644
 --- a/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
 +++ b/src/main/java/io/papermc/paper/adventure/providers/ComponentLoggerProviderImpl.java
-@@ -16,6 +16,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
+@@ -17,6 +17,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
      }
  
      private String serialize(final Component message) {
@@ -660,10 +660,10 @@ index 769f6489632302627fa1730cc08e77f51eb54eb4..f6d52d62b4b5e4e4a196311e7ed258ec
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 8bd243a8d5a4be54f907af2b02e96ea833cee62f..74a121c986caf2f9c2e6a18367cd5045293082e4 100644
+index a7e40f72a3b56916620a7f089410ec3a6db0cffc..7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2064,7 +2064,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -2096,7 +2096,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
          // Paper start - Adventure
          quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
          if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
@@ -673,10 +673,10 @@ index 8bd243a8d5a4be54f907af2b02e96ea833cee62f..74a121c986caf2f9c2e6a18367cd5045
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 48d1444fbad1c57738807d0128b94160a5a17a4d..8dd695f4113fbdc7554b2eb8882c141f433137e7 100644
+index 91feb12732564c90656da487664dbc12e55397fc..2dbbd09c37b7db846af08b55279aafa651e2b091 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -332,7 +332,7 @@ public abstract class PlayerList {
+@@ -351,7 +351,7 @@ public abstract class PlayerList {
  
          if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
              joinMessage = io.papermc.paper.adventure.PaperAdventure.asVanilla(jm); // Paper - Adventure
@@ -685,7 +685,7 @@ index 48d1444fbad1c57738807d0128b94160a5a17a4d..8dd695f4113fbdc7554b2eb8882c141f
          }
          // CraftBukkit end
  
-@@ -1360,6 +1360,14 @@ public abstract class PlayerList {
+@@ -1386,6 +1386,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  
@@ -701,18 +701,18 @@ index 48d1444fbad1c57738807d0128b94160a5a17a4d..8dd695f4113fbdc7554b2eb8882c141f
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 217940b2a56589d09ad85a4b2b31809d4d38eb39..2a84712adc830627dddc7fba97d2955d0910276e 100644
+index 1b8422b52670e0482384932ccd030e15118ecac4..713778d14866c13b40c40806407de25cd022d2ef 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -307,6 +307,7 @@ public final class CraftServer implements Server {
+@@ -305,6 +305,7 @@ public final class CraftServer implements Server {
      public static Exception excessiveVelEx; // Paper - Velocity warnings
      private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
-     private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper
+     private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper - Custom Potion Mixes
 +    private final dev.lynxplay.ktp.adventure.translation.PluginTranslators pluginTranslators; // KTP - plugin translators - server instance
  
      // Paper start - Folia region threading API
      private final io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler regionizedScheduler = new io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler();
-@@ -470,6 +471,7 @@ public final class CraftServer implements Server {
+@@ -463,6 +464,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -720,7 +720,7 @@ index 217940b2a56589d09ad85a4b2b31809d4d38eb39..2a84712adc830627dddc7fba97d2955d
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -3132,4 +3134,14 @@ public final class CraftServer implements Server {
+@@ -3227,4 +3229,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end

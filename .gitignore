@@ -50,6 +50,7 @@ mc-dev
 .idea
 testserver
 run
+paper-api-generator
 ktp-paperclip.jar
 
 !gradle/wrapper/gradle-wrapper.jar

@@ -15,10 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 74a121c986caf2f9c2e6a18367cd5045293082e4..288c43246d821178b54a5e9f35e8ce0e47af6771 100644
+index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c38667a18 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -449,7 +449,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -450,7 +450,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
@@ -34,15 +34,15 @@ index 74a121c986caf2f9c2e6a18367cd5045293082e4..288c43246d821178b54a5e9f35e8ce0e
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 772708c3fa4e4069d363a050ce2e405f083a85a2..8aa9d9d0d177c656a2a4db461295bcdda032b3dc 100644
+index 43fab95ea0c8bb186bece0fb8285db6166ecd840..b752fbc7208751c4bfe551a383d218f942e300e9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1519,7 +1519,31 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
-         return !this.getHandle().level().noCollision(this.getHandle(), aabb);
+@@ -1230,4 +1230,29 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return this.getHandle().getScoreboardName();
      }
-     // Paper End - Collision API
+     // Paper end - entity scoreboard name
 +    // KTP start
- 
++
 +    @Override
 +    public void move(@org.jetbrains.annotations.NotNull final dev.lynxplay.ktp.entity.MovementCause movementCause,
 +                     @org.jetbrains.annotations.NotNull final Vector vector) {
@@ -66,6 +66,4 @@ index 772708c3fa4e4069d363a050ce2e405f083a85a2..8aa9d9d0d177c656a2a4db461295bcdd
 +        return !this.entity.noPhysics;
 +    }
 +    // KTP end
-     // Paper start - entity scoreboard name
-     @Override
-     public String getScoreboardEntryName() {
+ }

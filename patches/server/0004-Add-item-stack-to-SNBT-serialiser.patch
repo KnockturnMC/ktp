@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index 96f6e0554baf5915dd1f5b93f3bcfe7a13393c29..935fd02c4ab2a01fc3612e0d3ae27601ff92e504 100644
+index ca5312febcdd467889ad725c0263367bc5fe69f6..3e42659732a88d247308c9c3bd164bced379b21a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -611,6 +611,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
+@@ -644,6 +644,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
          return org.bukkit.craftbukkit.CraftStatistic.getNMSStatistic(statistic).getName();
      }
      // Paper end
@@ -26,5 +26,5 @@ index 96f6e0554baf5915dd1f5b93f3bcfe7a13393c29..935fd02c4ab2a01fc3612e0d3ae27601
 +    }
 +    // KTP stop
  
-     /**
-      * This helper class represents the different NBT Tags.
+     // Paper start - spawn egg color visibility
+     @Override
