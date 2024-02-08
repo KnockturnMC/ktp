@@ -8,10 +8,10 @@ ServerExceptionEvent when a plugin throws an Exception/Throwable during
 its onEnable logic.
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
-index 9c7552968b8c017c71a7a77557a66a03ed89f125..56eb09f8d55d79b0ed84d60a648f03df52463818 100644
+index eeea1e6f7b1ed64567a3f90d8eb2e2cfd53e5912..066c6c0e9c181b18bf23d1b4a49b17cdb7f42fe6 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
-@@ -188,7 +188,7 @@ class PaperPluginInstanceManager {
+@@ -187,7 +187,7 @@ class PaperPluginInstanceManager {
              try {
                  jPlugin.setEnabled(true);
              } catch (Throwable ex) {

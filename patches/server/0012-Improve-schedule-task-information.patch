@@ -13,10 +13,10 @@ fetch the implementation class type of overdue tasks from BukkitWorker
 instances which are displayed in the nag message on shutdown.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2a84712adc830627dddc7fba97d2955d0910276e..09ed50482db8f3a571bf477f958c91dce71f1210 100644
+index 713778d14866c13b40c40806407de25cd022d2ef..9b18fd52d5ad1bf4aa74d441cc60d361df311dde 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1088,9 +1088,10 @@ public final class CraftServer implements Server {
+@@ -1086,9 +1086,10 @@ public final class CraftServer implements Server {
          for (BukkitWorker worker : overdueWorkers) {
              Plugin plugin = worker.getOwner();
              this.getLogger().log(Level.SEVERE, String.format(
@@ -27,8 +27,8 @@ index 2a84712adc830627dddc7fba97d2955d0910276e..09ed50482db8f3a571bf477f958c91dc
 +                worker.getTaskClass().getName(), // KTP - improved task information
                  "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
              ));
-             if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper
-@@ -1119,9 +1120,10 @@ public final class CraftServer implements Server {
+             if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper - Debugging
+@@ -1117,9 +1118,10 @@ public final class CraftServer implements Server {
          for (BukkitWorker worker : overdueWorkers) {
              Plugin plugin = worker.getOwner();
              getLogger().log(Level.SEVERE, String.format(
@@ -41,7 +41,7 @@ index 2a84712adc830627dddc7fba97d2955d0910276e..09ed50482db8f3a571bf477f958c91dc
              ));
          }
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
-index 6d66f83afbeb650b10669fd7eeb24a315951fa86..9e8710639b965ca111cc8a0a31000784ca0b660f 100644
+index e97f6b76ef2fe21c7c2eca8d4a707e5866d70de9..f993897bbfe27c93df806cbc9a8672a639a20c4e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
 @@ -50,6 +50,13 @@ class CraftAsyncTask extends CraftTask {

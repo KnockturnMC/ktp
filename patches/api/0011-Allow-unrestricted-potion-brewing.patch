@@ -7,10 +7,10 @@ Recent upstream changes allow custom potion recipes to be easily registered, how
 This commit adds the ability to unrestrict potion brewing, so that any combination of ingredients is permitted.
 
 diff --git a/src/main/java/org/bukkit/potion/PotionBrewer.java b/src/main/java/org/bukkit/potion/PotionBrewer.java
-index 1598f34d306fb34ff7ffe7886b0d6e4abe734b6b..2b57b0bc7478f851b5170cac8a242c978675fbbb 100644
+index eb189e170bc4975c5378f95f86ecf2cc880bd931..7eda3c8a03fcc2d7dad95d6f65fe94b8446b8693 100644
 --- a/src/main/java/org/bukkit/potion/PotionBrewer.java
 +++ b/src/main/java/org/bukkit/potion/PotionBrewer.java
-@@ -64,4 +64,45 @@ public interface PotionBrewer {
+@@ -66,4 +66,45 @@ public interface PotionBrewer {
       */
      void resetPotionMixes();
      // Paper end

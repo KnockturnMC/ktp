@@ -15,11 +15,11 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 77a1c7dfbaccc2e74da5c78ce4dfcd1717a7ac65..a4a6b09e6e0fbd180988084f3fd413bb28607169 100644
+index 6523795e715e5d472739e9bc6433143115c3de8f..27c298b2e478d137b80eacdba3c34353005f3a86 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -1585,6 +1585,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
-         target.knockback(0.5D, target.getX() - this.getX(), target.getZ() - this.getZ(), this); // Paper
+@@ -1590,6 +1590,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+         target.knockback(0.5D, target.getX() - this.getX(), target.getZ() - this.getZ(), this); // Paper - Add EntityKnockbackByEntityEvent and EntityPushedByEntityAttackEvent
      }
  
 +    public boolean checkTotemDeathProtectionPublic(DamageSource source) { return this.checkTotemDeathProtection(source); } // KTP - manual totem resurrection - obf helper as we are missing at
@@ -27,10 +27,10 @@ index 77a1c7dfbaccc2e74da5c78ce4dfcd1717a7ac65..a4a6b09e6e0fbd180988084f3fd413bb
          if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
              return false;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index fe2124694eb080cab685a1ce1f6a66e2fcdf6a17..29f3a60a062e90ecbfbf9c1691c6b00b112e02bc 100644
+index 4afc1c9d2a7638e84a55fe30932dc36db465c31a..fe95f5ac5e1494c413375dcf0f4a7ff8c4622954 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -1099,4 +1099,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -1118,4 +1118,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
          getHandle().knockback(strength, directionX, directionZ);
      };
      // Paper end

@@ -7,7 +7,7 @@ Recent upstream changes allow custom potion recipes to be easily registered, how
 This commit adds the ability to unrestrict potion brewing, so that any combination of ingredients is permitted.
 
 diff --git a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
-index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c2799deb7 100644
+index 0bba74bd22d66881fc6851797d29c1442f509445..54ad662500cfb120f93be56b21b25fc73a2d4213 100644
 --- a/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 +++ b/src/main/java/net/minecraft/world/item/alchemy/PotionBrewing.java
 @@ -26,8 +26,26 @@ public class PotionBrewing {
@@ -33,21 +33,20 @@ index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c
 +    // KTP end
 +
      public static boolean isIngredient(ItemStack stack) {
--        return isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper
-+        return unrestrictedIngredient() || isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper, KTP - Allow unrestricted brewing
+-        return isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper - Custom Potion Mixes
++        return unrestrictedIngredient() || isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper - Custom Potion Mixes // KTP - Allow unrestricted brewing
      }
  
      protected static boolean isContainerIngredient(ItemStack stack) {
-@@ -61,6 +79,8 @@ public class PotionBrewing {
+@@ -61,6 +79,7 @@ public class PotionBrewing {
      }
  
      public static boolean hasMix(ItemStack input, ItemStack ingredient) {
 +        if (unrestrictedBrewing()) return true; // KTP - allow unrestricted potion brewing
-+
-         // Paper start
+         // Paper start - Custom Potion Mixes
          if (hasCustomMix(input, ingredient)) {
              return true;
-@@ -136,6 +156,7 @@ public class PotionBrewing {
+@@ -136,6 +155,7 @@ public class PotionBrewing {
      }
  
      public static boolean isCustomInput(ItemStack stack) {
@@ -55,7 +54,7 @@ index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c
          for (var mix : CUSTOM_MIXES.values()) {
              if (mix.input().test(stack)) {
                  return true;
-@@ -145,8 +166,10 @@ public class PotionBrewing {
+@@ -145,8 +165,10 @@ public class PotionBrewing {
      }
  
      private static boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
@@ -67,7 +66,7 @@ index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c
                  return true;
              }
          }
-@@ -165,6 +188,7 @@ public class PotionBrewing {
+@@ -165,6 +187,7 @@ public class PotionBrewing {
      }
  
      public static void reload() {
@@ -76,14 +75,13 @@ index ef798adc296ae1595cfcd33fed5aa71b9ad00037..7a8c203de7890fe01184d7553b7a6c0c
          CONTAINER_MIXES.clear();
          ALLOWED_CONTAINERS.clear();
 diff --git a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
-index a0b0c64b819b8f713eeea78210e276664e30e66e..1a96a9f114986c746c516be2ef1f1c7e56530bce 100644
+index 2909a2736a0c9d863c7ab01e0ec259f7952080cc..43d925057ffda4f123f204fea6709c771043bd6c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/potion/CraftPotionBrewer.java
-@@ -66,4 +66,19 @@ public class CraftPotionBrewer implements PotionBrewer {
+@@ -45,4 +45,18 @@ public class CraftPotionBrewer implements PotionBrewer {
          net.minecraft.world.item.alchemy.PotionBrewing.reload();
      }
      // Paper end
-+
 +    //KTP start - Allow unrestricted potion brewing
 +    @Override
 +    public Collection<PotionBrewingRestriction> activePotionBrewingRestrictions() {

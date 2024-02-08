@@ -4,7 +4,7 @@ plugins {
     java
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1" apply false
-    id("io.papermc.paperweight.patcher") version "1.5.9-SNAPSHOT"
+    id("io.papermc.paperweight.patcher") version "1.5.11"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.8.6:fat")
+    remapper("net.fabricmc:tiny-remapper:0.8.10:fat")
     decompiler("net.minecraftforge:forgeflower:2.0.627.2")
     paperclip("io.papermc:paperclip:3.0.3")
 }
@@ -70,6 +70,15 @@ paperweight {
 
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
             serverOutputDir.set(layout.projectDirectory.dir("ktp-server"))
+        }
+
+        patchTasks {
+            register("generatedApi") {
+                isBareDirectory.set(true)
+                upstreamDirPath.set("paper-api-generator/generated")
+                patchDir.set(layout.projectDirectory.dir("patches/generatedApi"))
+                outputDir.set(layout.projectDirectory.dir("paper-api-generator/generated"))
+            }
         }
     }
 }
