@@ -132,7 +132,7 @@ index 90751edd742d9b8d2171c4b16891aa009e4b8dfe..d750a2ea4f061c38875187bb8cc7a71e
  }
 diff --git a/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionAdditionTest.java b/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionAdditionTest.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1b2574585152734d7f1e95dfd7ffd72e7a9930b4
+index 0000000000000000000000000000000000000000..e1ae8844792d4504a51a565a8e758576c22f6578
 --- /dev/null
 +++ b/src/test/java/dev/lynxplay/ktp/configuration/GetConfigurationSectionAdditionTest.java
 @@ -0,0 +1,42 @@
@@ -141,8 +141,8 @@ index 0000000000000000000000000000000000000000..1b2574585152734d7f1e95dfd7ffd72e
 +import org.bukkit.configuration.ConfigurationSection;
 +import org.bukkit.configuration.InvalidConfigurationException;
 +import org.bukkit.configuration.file.YamlConfiguration;
-+import org.junit.Assert;
-+import org.junit.Test;
++import org.junit.jupiter.api.Assertions;
++import org.junit.jupiter.api.Test;
 +
 +public class GetConfigurationSectionAdditionTest {
 +
@@ -162,19 +162,19 @@ index 0000000000000000000000000000000000000000..1b2574585152734d7f1e95dfd7ffd72e
 +        config.loadFromString(YAML_CONTENT);
 +
 +        final var configSectionList = config.getConfigurationSectionList("list");
-+        Assert.assertEquals(2, configSectionList.size());
++        Assertions.assertEquals(2, configSectionList.size());
 +
 +        final var lynxplay = configSectionList.get(0);
-+        Assert.assertEquals("lynxplay", lynxplay.getString("name"));
-+        Assert.assertEquals("developer", lynxplay.getString("role"));
++        Assertions.assertEquals("lynxplay", lynxplay.getString("name"));
++        Assertions.assertEquals("developer", lynxplay.getString("role"));
 +
 +        final ConfigurationSection lynxplayData = lynxplay.getConfigurationSectionOrParse("data");
-+        Assert.assertNotNull("Failed to find configuration section in section list", lynxplayData);
-+        Assert.assertEquals("localhost", lynxplayData.getString("location"));
++        Assertions.assertNotNull(lynxplayData, "Failed to find configuration section in section list");
++        Assertions.assertEquals("localhost", lynxplayData.getString("location"));
 +
 +        final var carter = configSectionList.get(1);
-+        Assert.assertEquals("carter", carter.getString("name"));
-+        Assert.assertEquals("admiral", carter.getString("role"));
++        Assertions.assertEquals("carter", carter.getString("name"));
++        Assertions.assertEquals("admiral", carter.getString("role"));
 +    }
 +
 +}

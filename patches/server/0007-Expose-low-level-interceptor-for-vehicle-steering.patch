@@ -14,6 +14,27 @@ before the packet even begins processing. While this obviously prevents
 acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
+diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
+index 850f75172e9efa72cabb8e5bd124b96a0b1a945f..096d0eb2c3dd9121c3a98eeee4dea97aa7d854cd 100644
+--- a/src/main/java/io/papermc/paper/util/MCUtil.java
++++ b/src/main/java/io/papermc/paper/util/MCUtil.java
+@@ -503,6 +503,16 @@ public final class MCUtil {
+         return new Vec3(position.x(), position.y(), position.z());
+     }
+ 
++    // KTP start
++    public static Vec3 toVec3(org.bukkit.util.Vector vector) {
++        return new Vec3(vector.getX(), vector.getY(), vector.getZ());
++    }
++
++    public static org.bukkit.util.Vector toVector(Vec3 vec3) {
++        return new org.bukkit.util.Vector(vec3.x, vec3.y, vec3.z);
++    }
++    // KTP end
++
+     public static boolean isEdgeOfChunk(BlockPos pos) {
+         final int modX = pos.getX() & 15;
+         final int modZ = pos.getZ() & 15;
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c38667a18 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
@@ -33,11 +54,24 @@ index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c
      }
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..2ecbd6e79628f135bb6b05575dfa4cf38adfd49e 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1454,7 +1454,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         return offsetFactor;
+     }
+ 
+-    private Vec3 collide(Vec3 movement) {
++    public Vec3 collide(Vec3 movement) { // KTP - expose
+         // Paper start - optimise collisions
+         final boolean xZero = movement.x == 0.0;
+         final boolean yZero = movement.y == 0.0;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 43fab95ea0c8bb186bece0fb8285db6166ecd840..b752fbc7208751c4bfe551a383d218f942e300e9 100644
+index 43fab95ea0c8bb186bece0fb8285db6166ecd840..c4aea572366c86586a4491b9e809c8be758d21c7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1230,4 +1230,29 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1230,4 +1230,37 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return this.getHandle().getScoreboardName();
      }
      // Paper end - entity scoreboard name
@@ -53,7 +87,7 @@ index 43fab95ea0c8bb186bece0fb8285db6166ecd840..b752fbc7208751c4bfe551a383d218f9
 +            case SHULKER -> net.minecraft.world.entity.MoverType.SHULKER;
 +            case SHULKER_BOX -> net.minecraft.world.entity.MoverType.SHULKER_BOX;
 +        };
-+        this.entity.move(internalMovementCause, new net.minecraft.world.phys.Vec3(vector.getX(), vector.getY(), vector.getZ()));
++        this.entity.move(internalMovementCause, io.papermc.paper.util.MCUtil.toVec3(vector));
 +    }
 +
 +    @Override
@@ -64,6 +98,14 @@ index 43fab95ea0c8bb186bece0fb8285db6166ecd840..b752fbc7208751c4bfe551a383d218f9
 +    @Override
 +    public boolean physics() {
 +        return !this.entity.noPhysics;
++    }
++
++    @Override
++    @org.jetbrains.annotations.NotNull
++    public Vector correctMovementForCollision(@org.jetbrains.annotations.NotNull Vector movement) {
++        return io.papermc.paper.util.MCUtil.toVector(
++            this.entity.collide(io.papermc.paper.util.MCUtil.toVec3(movement))
++        );
 +    }
 +    // KTP end
  }
