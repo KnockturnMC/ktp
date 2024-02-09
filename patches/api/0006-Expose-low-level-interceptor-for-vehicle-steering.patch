@@ -269,10 +269,10 @@ index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ff
 +
 +}
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 6ace3581f8d0c2a1b7e2188d5b6af5c984b74a0e..a1dbc7dd19aecca469f8c86d57adf19c084dafcc 100644
+index 6ace3581f8d0c2a1b7e2188d5b6af5c984b74a0e..54c5131c08e81eaaaa4991cb12dd581d00f22c37 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1107,4 +1107,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1107,4 +1107,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
      @NotNull String getScoreboardEntryName();
      // Paper end - entity scoreboard name
@@ -305,5 +305,17 @@ index 6ace3581f8d0c2a1b7e2188d5b6af5c984b74a0e..a1dbc7dd19aecca469f8c86d57adf19c
 +     * @return the boolean value indicating whether the entity is processing its physics.
 +     */
 +    boolean physics();
++
++    /**
++     * Corrects the passed movement in accordance with in-world collisions.
++     * An entity moving up by [0,1,0] with a block directly above its bounding box, would hence have a corrected move vector of [0,0,0] as
++     * no movement upwards is possible.
++     *
++     * @param movement the originally wanted movement vector.
++     *
++     * @return the corrected vector for movement.
++     */
++    @NotNull
++    Vector correctMovementForCollision(@NotNull Vector movement);
 +    // KTP end
  }
