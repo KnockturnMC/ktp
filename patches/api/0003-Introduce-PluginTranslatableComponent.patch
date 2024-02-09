@@ -807,7 +807,7 @@ index 9af4bc16da09e59009c47911219e99450cdf2aa5..afaeef257b47d29371e00bcae109e15b
       * Returns the Folia region task scheduler. The region task scheduler can be used to schedule
 diff --git a/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c43ed43ef3678c30085d983b0bc459c764c7f337
+index 0000000000000000000000000000000000000000..7b04f9562be055fe56c5b5f2f052e4055018d03c
 --- /dev/null
 +++ b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
 @@ -0,0 +1,47 @@
@@ -816,45 +816,45 @@ index 0000000000000000000000000000000000000000..c43ed43ef3678c30085d983b0bc459c7
 +import net.kyori.adventure.text.minimessage.MiniMessage;
 +import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 +import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-+import org.junit.Assert;
-+import org.junit.Test;
++import org.junit.jupiter.api.Assertions;
++import org.junit.jupiter.api.Test;
 +
 +public class PluginTranslatableComponentImplTest {
 +
 +    @Test
 +    public void key() {
 +        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").build();
-+        Assert.assertEquals("test.key", component.key());
++        Assertions.assertEquals("test.key", component.key());
 +
 +        final var updateComponent = component.key("test.updated");
-+        Assert.assertEquals("test.updated", updateComponent.key());
++        Assertions.assertEquals("test.updated", updateComponent.key());
 +    }
 +
-+    @Test(expected = IllegalStateException.class)
++    @Test
 +    public void keyBuilderUnset() {
-+        new PluginTranslatableComponentImpl.BuilderImpl().build();
++        Assertions.assertThrowsExactly(IllegalStateException.class, () -> new PluginTranslatableComponentImpl.BuilderImpl().build());
 +    }
 +
 +    @Test
 +    public void tagResolver() {
 +        final var tagResolverOne = TagResolver.resolver(Placeholder.component("test", Component.text("test")));
 +        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").tagResolver(tagResolverOne).build();
-+        Assert.assertEquals(tagResolverOne, component.tagResolver());
++        Assertions.assertEquals(tagResolverOne, component.tagResolver());
 +
 +        final var tagResolverTwo = TagResolver.standard();
 +        final var updateComponent = component.tagResolver(tagResolverTwo);
-+        Assert.assertEquals(tagResolverTwo, updateComponent.tagResolver());
++        Assertions.assertEquals(tagResolverTwo, updateComponent.tagResolver());
 +    }
 +
 +    @Test
 +    public void miniMessageInstance() {
 +        final var miniMessageOne = MiniMessage.builder().build();
 +        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").miniMessageInstance(miniMessageOne).build();
-+        Assert.assertEquals(miniMessageOne, component.miniMessageInstance());
++        Assertions.assertEquals(miniMessageOne, component.miniMessageInstance());
 +
 +        final var miniMessageTwo = MiniMessage.builder().strict(true).build();
 +        final var updateComponent = component.miniMessageInstance(miniMessageTwo);
-+        Assert.assertEquals(miniMessageTwo, updateComponent.miniMessageInstance());
++        Assertions.assertEquals(miniMessageTwo, updateComponent.miniMessageInstance());
 +    }
 +
 +}
