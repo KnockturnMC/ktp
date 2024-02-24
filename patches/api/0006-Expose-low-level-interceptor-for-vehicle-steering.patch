@@ -268,6 +268,30 @@ index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ff
 +    }
 +
 +}
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index efa2043e044b0e461780e808c347d6ec00f6da0a..3cf06c9036fac53bc838439f13ff9e69ed1f09c9 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -4299,4 +4299,19 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+             }
+         }
+     }
++    // KTP start - expose low level steering interceptors
++
++    /**
++     * Computes the corrected movement for the passed bounding box if it were to move by the passed movement.
++     * This method mirrors {@link Entity#correctMovementForCollision(Vector)}, however, accepts a custom bounding box.
++     *
++     * @param movement the movement vector the bounding box would move by.
++     * @param boundingBox the bounding box at its location prior to the movement described by the passed vector.
++     *
++     * @return the corrected movement vector.
++     */
++    @NotNull
++    Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
++    // KTP end - expose low level steering interceptors
++
+ }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
 index 6ace3581f8d0c2a1b7e2188d5b6af5c984b74a0e..54c5131c08e81eaaaa4991cb12dd581d00f22c37 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
