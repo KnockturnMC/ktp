@@ -55,18 +55,82 @@ index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..2ecbd6e79628f135bb6b05575dfa4cf38adfd49e 100644
+index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a3877069972 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1454,7 +1454,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1453,8 +1453,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         this.pistonDeltas[i] = d1;
          return offsetFactor;
      }
- 
+-
 -    private Vec3 collide(Vec3 movement) {
-+    public Vec3 collide(Vec3 movement) { // KTP - expose
++    // ktp start - expose to static environment
++    public Vec3 collide(Vec3 movement) {
++        return collideStatic(movement, this.level, this.getBoundingBox(), this);
++    }
++    public static Vec3 collideStatic(Vec3 movement, Level level, AABB boundingBox, @javax.annotation.Nullable Entity entity) {
++        // ktp end - expose to static environment
          // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
+@@ -1463,8 +1467,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+             return movement;
+         }
+ 
+-        final Level world = this.level;
+-        final AABB currBoundingBox = this.getBoundingBox();
++        final Level world = level; // ktp - expose to static environment
++        final AABB currBoundingBox = boundingBox; // ktp - expose to static environment
+ 
+         if (io.papermc.paper.util.CollisionUtil.isEmpty(currBoundingBox)) {
+             return movement;
+@@ -1472,9 +1476,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+ 
+         final List<AABB> potentialCollisionsBB = new java.util.ArrayList<>();
+         final List<VoxelShape> potentialCollisionsVoxel = new java.util.ArrayList<>();
+-        final double stepHeight = (double)this.maxUpStep();
++        final double stepHeight = entity != null ? (double)entity.maxUpStep() : 0; // ktp - expose to static environment
+         final AABB collisionBox;
+-        final boolean onGround = this.onGround;
++        final boolean onGround = entity != null ? entity.onGround : false; // ktp - expose to static environment
+ 
+         if (xZero & zZero) {
+             if (movement.y > 0.0) {
+@@ -1497,7 +1501,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         }
+ 
+         io.papermc.paper.util.CollisionUtil.getCollisions(
+-                world, this, collisionBox, potentialCollisionsVoxel, potentialCollisionsBB,
++                world, entity, collisionBox, potentialCollisionsVoxel, potentialCollisionsBB, // ktp - expose to static environment
+                 io.papermc.paper.util.CollisionUtil.COLLISION_FLAG_CHECK_BORDER,
+                 null, null
+         );
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index a139601888b88e8580bdb9c2469386a94abae975..f7f46c45bf67f5ddc05a8f527567350a8a5061ba 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2488,4 +2488,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         return this.adventure$pointers;
+     }
+     // Paper end
++    // KTP start - expose low level steering interceptors
++    @Override
++    public @NotNull Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox) {
++        return io.papermc.paper.util.MCUtil.toVector(
++            net.minecraft.world.entity.Entity.collideStatic(
++                io.papermc.paper.util.MCUtil.toVec3(movement),
++                this.getHandle(),
++                new net.minecraft.world.phys.AABB(
++                    boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(),
++                    boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ()
++                ),
++                null
++            )
++        );
++    }
++    // KTP stop - expose low level steering interceptors
++
+ }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 index 43fab95ea0c8bb186bece0fb8285db6166ecd840..c4aea572366c86586a4491b9e809c8be758d21c7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
