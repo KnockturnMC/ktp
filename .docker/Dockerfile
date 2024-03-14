@@ -1,7 +1,7 @@
 # The builder image, responsible for building the project from source state.
-# eclipse-temurin:17-jdk-alpine
-FROM eclipse-temurin@sha256:595dfc1148baa2a6d632cfa7ec5c793191290957551be4a46dde6d6e6c31d9c1 as builder
-RUN apk add git
+# 21
+FROM amazoncorretto@sha256:f0c381e971cab629f1a65d0cf6d8e873cfd246b94b676e4846f00f58df1749c8 as builder
+RUN yum install -y git
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
 WORKDIR /work
@@ -25,9 +25,9 @@ RUN ./gradlew createReobfPaperclipJar --no-daemon
 
 RUN cp build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-reobf.jar server.jar
 
-# Runtime image, jre only
-# eclipse-temurin:17-jre-alpine
-FROM eclipse-temurin@sha256:cba04f7101096852719a1530feffbb04a232765a8180b083f6182bafc6b3e1d3
+# Runtime image
+# 21-alpine3.19
+FROM amazoncorretto@sha256:02248922f536b975c5f1fc00c36e6bebfb4bae5b95eaf77f034251b47abd3954
 
 # Configure non root user for server
 ARG USERNAME=server
