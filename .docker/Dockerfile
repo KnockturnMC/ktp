@@ -1,6 +1,6 @@
 # The builder image, responsible for building the project from source state.
 # 21
-FROM amazoncorretto:sha256:f0c381e971cab629f1a65d0cf6d8e873cfd246b94b676e4846f00f58df1749c8 as builder
+FROM amazoncorretto@sha256:f0c381e971cab629f1a65d0cf6d8e873cfd246b94b676e4846f00f58df1749c8 as builder
 RUN yum install -y git
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
@@ -27,7 +27,7 @@ RUN cp build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut 
 
 # Runtime image
 # 21-alpine3.19
-FROM amazoncorretto:sha256:02248922f536b975c5f1fc00c36e6bebfb4bae5b95eaf77f034251b47abd3954
+FROM amazoncorretto@sha256:02248922f536b975c5f1fc00c36e6bebfb4bae5b95eaf77f034251b47abd3954
 
 # Configure non root user for server
 ARG USERNAME=server
