@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 5 Apr 2024 23:59:59 +0200
+Subject: [PATCH] Guard against null auth server response
+
+The mojang auth server seems to be returning unaccounted for errors or
+empty game profiles in some scenarios.
+To counteract this, this patch properly guards against the potentially
+nullable profiles array similar to newer versions of the game.
+
+diff --git a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilGameProfileRepository.java b/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilGameProfileRepository.java
+index c48a40155108b6bae18073638a0ba12649344261..333716f0007eac726828c50c8258b4a88f85502c 100644
+--- a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilGameProfileRepository.java
++++ b/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilGameProfileRepository.java
+@@ -54,12 +54,13 @@ public class YggdrasilGameProfileRepository implements GameProfileRepository {
+ 
+                 try {
+                     final ProfileSearchResultsResponse response = authenticationService.makeRequest(HttpAuthenticationService.constantURL(searchPageUrl + agent.getName().toLowerCase()), request, ProfileSearchResultsResponse.class);
++                    final GameProfile[] profiles = response.getProfiles() != null ? response.getProfiles() : new GameProfile[0]; // ktp - guard against changed profile service error
+                     failCount = 0;
+ 
+-                    LOGGER.debug("Page {} returned {} results, parsing", page, response.getProfiles().length);
++                    LOGGER.debug("Page {} returned {} results, parsing", page, profiles.length); // ktp - guard against changed profile service error
+ 
+                     final Set<String> missing = Sets.newHashSet(request);
+-                    for (final GameProfile profile : response.getProfiles()) {
++                    for (final GameProfile profile : profiles) { // ktp - guard against changed profile service error
+                         LOGGER.debug("Successfully looked up profile {}", profile);
+                         missing.remove(profile.getName().toLowerCase());
+                         callback.onProfileLookupSucceeded(profile);
