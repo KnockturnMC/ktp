@@ -34,7 +34,7 @@ ARG USER_GID=$USER_UID
 
 WORKDIR /home/$USERNAME
 
-RUN apk add --no-cache shadow \
+RUN apk add --no-cache shadow font-dejavu \
     && groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && chown -R $USER_UID:$USER_GID /home/$USERNAME
