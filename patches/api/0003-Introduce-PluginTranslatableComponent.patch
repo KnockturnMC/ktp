@@ -767,10 +767,10 @@ index 0000000000000000000000000000000000000000..3368a06f218c0632f7b32c40c9e3b541
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index 2d53675907f411046978b0a234c0b6f33c909973..01509d6f96cba6ac0c69fea8670933ae36cf4c5f 100644
+index db46e3233edf18bd91a6da8612ccc9f0080d5c17..bf72954e4eab96ac41fbf4e384b63af1befa67b4 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2702,6 +2702,15 @@ public final class Bukkit {
+@@ -2738,6 +2738,15 @@ public final class Bukkit {
          return server.getPotionBrewer();
      }
      // Paper end
@@ -787,10 +787,10 @@ index 2d53675907f411046978b0a234c0b6f33c909973..01509d6f96cba6ac0c69fea8670933ae
      // Paper start - Folia region threading API
      /**
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 9af4bc16da09e59009c47911219e99450cdf2aa5..afaeef257b47d29371e00bcae109e15bacd4597a 100644
+index 0eb61b090d6f8fa6d99735ff3680dac774c52c1f..b44a9b185d880843ff2e4ef0eaffc8b8c68f25e1 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2367,6 +2367,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2398,6 +2398,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
      @NotNull org.bukkit.potion.PotionBrewer getPotionBrewer();
      // Paper end
  

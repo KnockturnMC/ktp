@@ -269,10 +269,10 @@ index 0000000000000000000000000000000000000000..fb384b8e3a31182e5fba4fb1df1da8ff
 +
 +}
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index efa2043e044b0e461780e808c347d6ec00f6da0a..3cf06c9036fac53bc838439f13ff9e69ed1f09c9 100644
+index c5fe36050eeaff80cfb989fe2f38370215af6fe5..fe574bda810f8e1599e46c2f3879271b94e5d33a 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4299,4 +4299,19 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4367,4 +4367,19 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -293,10 +293,10 @@ index efa2043e044b0e461780e808c347d6ec00f6da0a..3cf06c9036fac53bc838439f13ff9e69
 +
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 6ace3581f8d0c2a1b7e2188d5b6af5c984b74a0e..54c5131c08e81eaaaa4991cb12dd581d00f22c37 100644
+index 967125e99adc1b5446f42811d60ef44ba56ef5f5..45a2bbd239e88bb31144beae26e9818eb0d34e98 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1107,4 +1107,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1138,4 +1138,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
      @NotNull String getScoreboardEntryName();
      // Paper end - entity scoreboard name

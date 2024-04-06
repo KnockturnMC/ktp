@@ -17,10 +17,10 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index a6f58b3457b7477015c5c6d969e7d83017dd3fa1..321af6a2ffda4b1872c9a5376f1197fe812e65d0 100644
+index 0cc2307636279915c1f8529e62174cc696e185ee..fa979a7f69fac965d8a8e6b2f8459efc299af9fe 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -182,6 +182,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -187,6 +187,10 @@ public class GlobalConfiguration extends ConfigurationPart {
          public boolean allowGrindstoneOverstacking = false;
          @Comment("This setting controls what compression format is used for region files.")
          public CompressionFormat compressionFormat = CompressionFormat.ZLIB;

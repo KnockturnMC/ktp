@@ -626,10 +626,10 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-index ca80cbe422d766b3d044a5b53ce40bb7f92558e4..6788c2706e77f54c432b55fcf8a1823377b33b6e 100644
+index cf5a4c142ed6d9ab4850373a9041bdc6af5a2a71..b7b436c88985f02a237629e4dc09b39943247ec1 100644
 --- a/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
 +++ b/src/main/java/io/papermc/paper/adventure/PaperAdventure.java
-@@ -65,7 +65,7 @@ public final class PaperAdventure {
+@@ -67,7 +67,7 @@ public final class PaperAdventure {
              if (!Language.getInstance().has(translatable.key())) {
                  for (final Translator source : GlobalTranslator.translator().sources()) {
                      if (source instanceof TranslationRegistry registry && registry.contains(translatable.key())) {
@@ -638,7 +638,7 @@ index ca80cbe422d766b3d044a5b53ce40bb7f92558e4..6788c2706e77f54c432b55fcf8a18233
                          return;
                      }
                  }
-@@ -217,7 +217,7 @@ public final class PaperAdventure {
+@@ -219,7 +219,7 @@ public final class PaperAdventure {
  
      private static Component translated(final Component component, final Locale locale) {
          //noinspection ConstantValue
@@ -660,10 +660,10 @@ index a143ea1e58464a3122fbd8ccafe417bdb3c31c78..630c2e3f82c3b4c739b9e084355ea356
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index a7e40f72a3b56916620a7f089410ec3a6db0cffc..7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd 100644
+index 860d33ac56680babd87358b1d7d2216dac3f7865..bf4cf3daab19dda7212c4ec75bb048b16467ee79 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2096,7 +2096,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -2092,7 +2092,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
          // Paper start - Adventure
          quitMessage = quitMessage == null ? this.server.getPlayerList().remove(this.player) : this.server.getPlayerList().remove(this.player, quitMessage); // Paper - pass in quitMessage to fix kick message not being used
          if ((quitMessage != null) && !quitMessage.equals(net.kyori.adventure.text.Component.empty())) {
@@ -673,10 +673,10 @@ index a7e40f72a3b56916620a7f089410ec3a6db0cffc..7a476c07cc7bbbd52a9fd6d87fc5e898
          }
          // CraftBukkit end
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 91feb12732564c90656da487664dbc12e55397fc..2dbbd09c37b7db846af08b55279aafa651e2b091 100644
+index 1e5f709115007ff19901c0a6c3cf884d9e4d3a6c..e95e6737fa4478ec11f6eb79dafa9ad6bf7d681d 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -351,7 +351,7 @@ public abstract class PlayerList {
+@@ -352,7 +352,7 @@ public abstract class PlayerList {
  
          if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
              joinMessage = io.papermc.paper.adventure.PaperAdventure.asVanilla(jm); // Paper - Adventure
@@ -685,7 +685,7 @@ index 91feb12732564c90656da487664dbc12e55397fc..2dbbd09c37b7db846af08b55279aafa6
          }
          // CraftBukkit end
  
-@@ -1386,6 +1386,14 @@ public abstract class PlayerList {
+@@ -1387,6 +1387,14 @@ public abstract class PlayerList {
      }
      // CraftBukkit end
  
@@ -701,10 +701,10 @@ index 91feb12732564c90656da487664dbc12e55397fc..2dbbd09c37b7db846af08b55279aafa6
          this.broadcastSystemMessage(message, (entityplayer) -> {
              return message;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 1b8422b52670e0482384932ccd030e15118ecac4..713778d14866c13b40c40806407de25cd022d2ef 100644
+index 43a32bd5954e80a527f383a680f5f2deb8490537..840b23f6f1ad29cbfe8dde6aa17164f1ec369dd9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -305,6 +305,7 @@ public final class CraftServer implements Server {
+@@ -307,6 +307,7 @@ public final class CraftServer implements Server {
      public static Exception excessiveVelEx; // Paper - Velocity warnings
      private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
      private final CraftPotionBrewer potionBrewer = new CraftPotionBrewer(); // Paper - Custom Potion Mixes
@@ -712,7 +712,7 @@ index 1b8422b52670e0482384932ccd030e15118ecac4..713778d14866c13b40c40806407de25c
  
      // Paper start - Folia region threading API
      private final io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler regionizedScheduler = new io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler();
-@@ -463,6 +464,7 @@ public final class CraftServer implements Server {
+@@ -465,6 +466,7 @@ public final class CraftServer implements Server {
              MapPalette.setMapColorCache(new CraftMapColorCache(this.logger));
          }
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -720,7 +720,7 @@ index 1b8422b52670e0482384932ccd030e15118ecac4..713778d14866c13b40c40806407de25c
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -3227,4 +3229,14 @@ public final class CraftServer implements Server {
+@@ -3259,4 +3261,14 @@ public final class CraftServer implements Server {
      }
  
      // Paper end

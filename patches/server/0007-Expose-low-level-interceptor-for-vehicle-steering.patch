@@ -15,10 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
-index 850f75172e9efa72cabb8e5bd124b96a0b1a945f..096d0eb2c3dd9121c3a98eeee4dea97aa7d854cd 100644
+index e028353e0261310afc42ca0454b723d9f1ffc131..ad1c4e42e2d2e9eec95cec531ab73e3c04391a1a 100644
 --- a/src/main/java/io/papermc/paper/util/MCUtil.java
 +++ b/src/main/java/io/papermc/paper/util/MCUtil.java
-@@ -503,6 +503,16 @@ public final class MCUtil {
+@@ -506,6 +506,16 @@ public final class MCUtil {
          return new Vec3(position.x(), position.y(), position.z());
      }
  
@@ -36,7 +36,7 @@ index 850f75172e9efa72cabb8e5bd124b96a0b1a945f..096d0eb2c3dd9121c3a98eeee4dea97a
          final int modX = pos.getX() & 15;
          final int modZ = pos.getZ() & 15;
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c38667a18 100644
+index bf4cf3daab19dda7212c4ec75bb048b16467ee79..3934f32d2b9b735f822096724f5d9f663ad14a02 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -450,7 +450,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
@@ -55,10 +55,10 @@ index 7a476c07cc7bbbd52a9fd6d87fc5e898fd81e6fd..632e42648dbf93ff3008100f733b5d5c
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a3877069972 100644
+index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0bd78dff04 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1453,8 +1453,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1465,8 +1465,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
          this.pistonDeltas[i] = d1;
          return offsetFactor;
      }
@@ -73,7 +73,7 @@ index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a38
          // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
-@@ -1463,8 +1467,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1475,8 +1479,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
              return movement;
          }
  
@@ -84,7 +84,7 @@ index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a38
  
          if (io.papermc.paper.util.CollisionUtil.isEmpty(currBoundingBox)) {
              return movement;
-@@ -1472,9 +1476,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1484,9 +1488,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
  
          final List<AABB> potentialCollisionsBB = new java.util.ArrayList<>();
          final List<VoxelShape> potentialCollisionsVoxel = new java.util.ArrayList<>();
@@ -96,7 +96,7 @@ index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a38
  
          if (xZero & zZero) {
              if (movement.y > 0.0) {
-@@ -1497,7 +1501,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1509,7 +1513,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
          }
  
          io.papermc.paper.util.CollisionUtil.getCollisions(
@@ -106,10 +106,10 @@ index 9ee1e3da1cb16291ff3e37829e25227a6b97a177..87e821ed036e21f7454628604d9b0a38
                  null, null
          );
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index a139601888b88e8580bdb9c2469386a94abae975..f7f46c45bf67f5ddc05a8f527567350a8a5061ba 100644
+index bfb178c69026e9759e9afaebb9da141b62d1f144..b47988e0dc0a39342233a0bd61fef92011d6a9a0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2488,4 +2488,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2525,4 +2525,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return this.adventure$pointers;
      }
      // Paper end
@@ -132,10 +132,10 @@ index a139601888b88e8580bdb9c2469386a94abae975..f7f46c45bf67f5ddc05a8f527567350a
 +
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 43fab95ea0c8bb186bece0fb8285db6166ecd840..c4aea572366c86586a4491b9e809c8be758d21c7 100644
+index baf03ed7755115f30f3eb303e5a70b1b8c05017e..e1a3ae04a4c77d56053b137fc21eff8cacc00dc9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1230,4 +1230,37 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1255,4 +1255,37 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return this.getHandle().getScoreboardName();
      }
      // Paper end - entity scoreboard name

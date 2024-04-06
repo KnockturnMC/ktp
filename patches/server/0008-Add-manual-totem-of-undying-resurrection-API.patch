@@ -15,11 +15,11 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 6523795e715e5d472739e9bc6433143115c3de8f..27c298b2e478d137b80eacdba3c34353005f3a86 100644
+index 23570a0b1227a840b9c1e6ae326827ea655bb5f7..89a5b428b01296f1ba138bb635e9e028cc078fe1 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -1590,6 +1590,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
-         target.knockback(0.5D, target.getX() - this.getX(), target.getZ() - this.getZ(), this); // Paper - Add EntityKnockbackByEntityEvent and EntityPushedByEntityAttackEvent
+@@ -1599,6 +1599,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+         target.knockback(0.5D, target.getX() - this.getX(), target.getZ() - this.getZ(), this, EntityKnockbackEvent.KnockbackCause.SHIELD_BLOCK); // CraftBukkit // Paper - fix attacker
      }
  
 +    public boolean checkTotemDeathProtectionPublic(DamageSource source) { return this.checkTotemDeathProtection(source); } // KTP - manual totem resurrection - obf helper as we are missing at
@@ -27,10 +27,10 @@ index 6523795e715e5d472739e9bc6433143115c3de8f..27c298b2e478d137b80eacdba3c34353
          if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
              return false;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index 4afc1c9d2a7638e84a55fe30932dc36db465c31a..fe95f5ac5e1494c413375dcf0f4a7ff8c4622954 100644
+index 993844ee3d76591be38e8d27eba37ff8723443b1..3cc3fdf7daaebd93e0edd53ab7347b0c5db90792 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -1118,4 +1118,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -1155,4 +1155,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
          getHandle().knockback(strength, directionX, directionZ);
      };
      // Paper end

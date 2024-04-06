@@ -18,14 +18,13 @@ temporary configuration sections, easing their usage and keeping the api
 fluent.
 
 diff --git a/src/main/java/org/bukkit/configuration/ConfigurationSection.java b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
-index b6b00af08f12f838411845e4f4e29e62826dfc7f..5d2573a5fcd25c570f0f6a120b3c4584dd1b1f94 100644
+index d168b1e58b4b4ad00466fab60232d516551668e0..e11f748b2f759f49bc7ed74fecaa18936c9e7e74 100644
 --- a/src/main/java/org/bukkit/configuration/ConfigurationSection.java
 +++ b/src/main/java/org/bukkit/configuration/ConfigurationSection.java
-@@ -1058,4 +1058,33 @@ public interface ConfigurationSection {
-      * one line.
-      */
-     public void setInlineComments(@NotNull String path, @Nullable List<String> comments);
-+
+@@ -1152,4 +1152,32 @@ public interface ConfigurationSection {
+         this.set(path, encoder.serializeOrNull(value));
+     }
+     // Paper end - add rich message component support to configuration
 +    // KTP start - expose lists of configuration sections
 +
 +    /**

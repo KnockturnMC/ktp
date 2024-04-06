@@ -49,10 +49,10 @@ index 26bc5a0fa67855af87c8fd4cd8229b4d9f242740..377b6c40af8c52beb1031c9084ff05f8
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index 43dd6c59cceba12f27e6b265acc3ad97eea37abd..e32b253067a6e0c4760696489e27d0e177b40c42 100644
+index eb33e8e671972aa308ad75a7ce9aa9ac526f470f..a28da1a4b9470b38472fdb68cc91d6a38906e55a 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
-@@ -504,4 +504,109 @@ public interface RegionAccessor extends Keyed { // Paper
+@@ -539,4 +539,109 @@ public interface RegionAccessor extends Keyed { // Paper
       */
      boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
      // Paper end
@@ -163,10 +163,10 @@ index 43dd6c59cceba12f27e6b265acc3ad97eea37abd..e32b253067a6e0c4760696489e27d0e1
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 3cf06c9036fac53bc838439f13ff9e69ed1f09c9..ee43a3673b421e3e17949221766bf7f6e9166e65 100644
+index fe574bda810f8e1599e46c2f3879271b94e5d33a..4490aff3ac4005f0e5db77f670b7eb07d40d8424 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4314,4 +4314,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4382,4 +4382,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors
  

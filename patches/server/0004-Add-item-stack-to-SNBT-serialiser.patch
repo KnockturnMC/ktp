@@ -10,21 +10,22 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index ca5312febcdd467889ad725c0263367bc5fe69f6..3e42659732a88d247308c9c3bd164bced379b21a 100644
+index 1324f05de8106032ce290e928cf106fb4f450517..d7809e2b4d387ce64ec541dd9e31633e0e4a030f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -644,6 +644,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
-         return org.bukkit.craftbukkit.CraftStatistic.getNMSStatistic(statistic).getName();
+@@ -464,6 +464,15 @@ public final class CraftMagicNumbers implements UnsafeValues {
+         return apiVersion != null && SUPPORTED_API.contains(apiVersion);
      }
      // Paper end
-+    // KTP start
-+    public String itemStackAsString(ItemStack itemStack) {
++    // KTP start - itemstack to snbt serializer
++    @Override
++    public String itemStackAsString(final ItemStack itemStack) {
 +        final var nmsStack = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(itemStack);
 +        final var saveCompound = new net.minecraft.nbt.CompoundTag();
 +        nmsStack.save(saveCompound);
 +        return saveCompound.toString();
 +    }
-+    // KTP stop
++    // KTP stop - itemstack to snbt serializer
  
-     // Paper start - spawn egg color visibility
      @Override
+     public FeatureFlag getFeatureFlag(NamespacedKey namespacedKey) {
