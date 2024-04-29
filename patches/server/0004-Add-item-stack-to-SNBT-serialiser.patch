@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index 2afd0335334fc2392503e598919b3eec95c73961..4195a987edb09d2ce8dc9704fe2794f15dfa2e79 100644
+index 2afd0335334fc2392503e598919b3eec95c73961..2ae893ce8cd7c1e66ea6d7e4b2ccf326b8d0c8c1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -470,6 +470,15 @@ public final class CraftMagicNumbers implements UnsafeValues {
+@@ -470,6 +470,13 @@ public final class CraftMagicNumbers implements UnsafeValues {
          return !toCheck.isNewerThan(ApiVersion.CURRENT) && !toCheck.isOlderThan(minimumVersion);
      }
      // Paper end
@@ -21,9 +21,7 @@ index 2afd0335334fc2392503e598919b3eec95c73961..4195a987edb09d2ce8dc9704fe2794f1
 +    @Override
 +    public String itemStackAsString(final ItemStack itemStack) {
 +        final var nmsStack = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(itemStack);
-+        final var saveCompound = new net.minecraft.nbt.CompoundTag();
-+        nmsStack.save(saveCompound);
-+        return saveCompound.toString();
++        return nmsStack.save(net.minecraft.server.MinecraftServer.getServer().registryAccess()).toString();
 +    }
 +    // KTP stop - itemstack to snbt serializer
  

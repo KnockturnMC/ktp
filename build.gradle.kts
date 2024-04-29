@@ -54,6 +54,7 @@ subprojects {
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots/") {
             name = "sonatype-oss-snapshots"
         }
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     }
 }
 
