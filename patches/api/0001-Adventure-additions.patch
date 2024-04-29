@@ -7,7 +7,7 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 50dd795c67557c7d2668068af0bba87a1ec8dc43..b9b2b2caa6b63e385576db4e4d4388b77fb2aa99 100644
+index 65e67b8726f1e19a6bcb1fe2f448e4ab68df11d1..5afb92675cc67d4b68192ea1452880fb36ea01df 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -48,6 +48,7 @@ dependencies {
@@ -19,10 +19,10 @@ index 50dd795c67557c7d2668068af0bba87a1ec8dc43..b9b2b2caa6b63e385576db4e4d4388b7
      api("org.apache.logging.log4j:log4j-api:$log4jVersion")
      api("org.slf4j:slf4j-api:$slf4jVersion")
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index 478b6d2acbc5788f72db81f387daa08df7837a5d..ecf1eec1c1e82b67ed601076a927c63dc492f14d 100644
+index ed12e27a0ed75caa8aa46c3e965ed566a97865cf..80215393ef283f4e651995adf220c0d9db8e5ced 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-@@ -51,6 +51,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -53,6 +53,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void displayName(final net.kyori.adventure.text.@Nullable Component displayName);
      // Paper end
  
@@ -41,7 +41,7 @@ index 478b6d2acbc5788f72db81f387daa08df7837a5d..ecf1eec1c1e82b67ed601076a927c63d
      /**
       * Gets the display name that is set.
       * <p>
-@@ -153,6 +165,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -222,6 +234,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void lore(final @Nullable List<? extends net.kyori.adventure.text.Component> lore);
      // Paper end
  

@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 9a65c4f614a6c358d74491794d7b25172a00bc11..0f225b029c502eb94456a419ce786c39a192d617 100644
+index a3ba9249e636d1fb8dad98fab413436009fe04df..44bf8d4306ad0dba16ba34712e0911d83f527713 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -300,4 +300,5 @@ public interface UnsafeValues {
+@@ -273,4 +273,5 @@ public interface UnsafeValues {
      // Paper end - lifecycle event API
  
      @NotNull java.util.List<net.kyori.adventure.text.Component> computeTooltipLines(@NotNull ItemStack itemStack, @NotNull io.papermc.paper.inventory.tooltip.TooltipContext tooltipContext, @Nullable org.bukkit.entity.Player player); // Paper - expose itemstack tooltip lines

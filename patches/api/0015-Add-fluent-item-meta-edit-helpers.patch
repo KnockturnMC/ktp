@@ -9,10 +9,10 @@ ItemStack#editMeta methods but return the mutated item stack for
 consumption or further edits instead of a result boolean.
 
 diff --git a/src/main/java/org/bukkit/inventory/ItemStack.java b/src/main/java/org/bukkit/inventory/ItemStack.java
-index 7adf54c561d64e6337af8a2d86f6b574b083edb5..fb800e60005236e70aba05d12cf73a0980edfc3f 100644
+index 84a7bf0936d35bf42b5ed038d295d5c31740f472..84bca2575e39b517453fbaa069a3c3126846aa4d 100644
 --- a/src/main/java/org/bukkit/inventory/ItemStack.java
 +++ b/src/main/java/org/bukkit/inventory/ItemStack.java
-@@ -601,6 +601,55 @@ public class ItemStack implements Cloneable, ConfigurationSerializable, Translat
+@@ -639,6 +639,55 @@ public class ItemStack implements Cloneable, ConfigurationSerializable, Translat
          return false;
      }
      // Paper end

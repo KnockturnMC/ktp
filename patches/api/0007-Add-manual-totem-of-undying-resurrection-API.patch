@@ -15,14 +15,13 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index 5cb82901a5d0c8ee673501fc53389d526d4a5b6f..6a87013d6b8d64b739ffb0cb00a28fe70488b1f2 100644
+index b777e530122549455dcce6fac8d4a151c1c0af42..f51a890120ac1aee1e86f86024d608727670c194 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -1312,4 +1312,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+@@ -1447,4 +1447,34 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
       */
      void setBodyYaw(float bodyYaw);
-     // Paper end
-+
+     // Paper end - body yaw API
 +    // KTP start
 +    /**
 +     * Attempts to resurrect this living entity with a totem of undying, regardless of current health.

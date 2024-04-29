@@ -12,10 +12,10 @@ This commit adds a new de- and serialization method for entities that
 returns the adventure-nbt representation of the compound tag.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 0f225b029c502eb94456a419ce786c39a192d617..7343d4bff61c9a17144d1ba218d07a40a4b7e8db 100644
+index 44bf8d4306ad0dba16ba34712e0911d83f527713..d050cbe01c95c63a8c3f2944202ecae22ab2ec02 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -301,4 +301,44 @@ public interface UnsafeValues {
+@@ -274,4 +274,44 @@ public interface UnsafeValues {
  
      @NotNull java.util.List<net.kyori.adventure.text.Component> computeTooltipLines(@NotNull ItemStack itemStack, @NotNull io.papermc.paper.inventory.tooltip.TooltipContext tooltipContext, @Nullable org.bukkit.entity.Player player); // Paper - expose itemstack tooltip lines
      String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack); // KTP - itemstack to snbt conversion
