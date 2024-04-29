@@ -15,7 +15,7 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
-index e028353e0261310afc42ca0454b723d9f1ffc131..ad1c4e42e2d2e9eec95cec531ab73e3c04391a1a 100644
+index 1d6b3fe2ce240af4ede61588795456b046eee6c9..f7e922f3155aeead4f35d9a0fd5a594ca751851c 100644
 --- a/src/main/java/io/papermc/paper/util/MCUtil.java
 +++ b/src/main/java/io/papermc/paper/util/MCUtil.java
 @@ -506,6 +506,16 @@ public final class MCUtil {
@@ -36,10 +36,10 @@ index e028353e0261310afc42ca0454b723d9f1ffc131..ad1c4e42e2d2e9eec95cec531ab73e3c
          final int modX = pos.getX() & 15;
          final int modZ = pos.getZ() & 15;
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index bf4cf3daab19dda7212c4ec75bb048b16467ee79..3934f32d2b9b735f822096724f5d9f663ad14a02 100644
+index 3ec15a8a62cd52490153af5f638d2ad747b45634..e74c1e83b52ff89a14a396f53d04ea5fb9e3c541 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -450,7 +450,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -470,7 +470,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
      @Override
      public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
@@ -55,10 +55,10 @@ index bf4cf3daab19dda7212c4ec75bb048b16467ee79..3934f32d2b9b735f822096724f5d9f66
  
      private static boolean containsInvalidValues(double x, double y, double z, float yaw, float pitch) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0bd78dff04 100644
+index 2bc85351e6e52f90da5fdb29d8d042a06132d742..0c47d157b659832d9bdb486bcf60d23aebc693c2 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1465,8 +1465,12 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1507,8 +1507,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          this.pistonDeltas[i] = d1;
          return offsetFactor;
      }
@@ -73,7 +73,7 @@ index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0b
          // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
-@@ -1475,8 +1479,8 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1517,8 +1521,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              return movement;
          }
  
@@ -84,7 +84,7 @@ index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0b
  
          if (io.papermc.paper.util.CollisionUtil.isEmpty(currBoundingBox)) {
              return movement;
-@@ -1484,9 +1488,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1526,9 +1530,9 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
  
          final List<AABB> potentialCollisionsBB = new java.util.ArrayList<>();
          final List<VoxelShape> potentialCollisionsVoxel = new java.util.ArrayList<>();
@@ -96,7 +96,7 @@ index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0b
  
          if (xZero & zZero) {
              if (movement.y > 0.0) {
-@@ -1509,7 +1513,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+@@ -1551,7 +1555,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          }
  
          io.papermc.paper.util.CollisionUtil.getCollisions(
@@ -106,10 +106,10 @@ index b2eff51f1ad1e702525ef298807ea7d2083f6218..61a1e845d1592a1e8b0532155bfb2b0b
                  null, null
          );
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index bfb178c69026e9759e9afaebb9da141b62d1f144..b47988e0dc0a39342233a0bd61fef92011d6a9a0 100644
+index f2b20ed5063a293f0b464548f590d652170cd1d8..aff37173fbb9d8943cf64a3f083276e18a370e63 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2525,4 +2525,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2561,4 +2561,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return this.adventure$pointers;
      }
      // Paper end
@@ -132,10 +132,10 @@ index bfb178c69026e9759e9afaebb9da141b62d1f144..b47988e0dc0a39342233a0bd61fef920
 +
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index baf03ed7755115f30f3eb303e5a70b1b8c05017e..e1a3ae04a4c77d56053b137fc21eff8cacc00dc9 100644
+index 526ab1623ee0812c45c0bd91d0db345251eb305c..3ae1a8998f853f71e166fc8edac44986a102c2fc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1255,4 +1255,37 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1283,4 +1283,37 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return this.getHandle().getScoreboardName();
      }
      // Paper end - entity scoreboard name

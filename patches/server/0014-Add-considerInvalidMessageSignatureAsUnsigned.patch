@@ -17,11 +17,11 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 0cc2307636279915c1f8529e62174cc696e185ee..fa979a7f69fac965d8a8e6b2f8459efc299af9fe 100644
+index b8a89bf8a7a0ef25f00ccc0e84ca64f4524fdc3e..aaa36dc3473ffc9f53301d91606aaaf097d24146 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -187,6 +187,10 @@ public class GlobalConfiguration extends ConfigurationPart {
-         public boolean allowGrindstoneOverstacking = false;
+@@ -185,6 +185,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+         public boolean allowHeadlessPistons = false;
          @Comment("This setting controls what compression format is used for region files.")
          public CompressionFormat compressionFormat = CompressionFormat.ZLIB;
 +        // KTP start - invalid signature unsigned message fallback
@@ -32,18 +32,18 @@ index 0cc2307636279915c1f8529e62174cc696e185ee..fa979a7f69fac965d8a8e6b2f8459efc
          public enum CompressionFormat {
              GZIP,
 diff --git a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
-index ba12919c3f9aec34a9e64993b143ae92be5eb172..fa3e8edae193077af30eeeb02ee61d54f6503f5a 100644
+index 300929a406905f5ff1ede664d5b99fb0938d4d2e..aa6da30043b296aa25c4b7e82dbd944405630b89 100644
 --- a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
 +++ b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
-@@ -44,6 +44,11 @@ public class SignedMessageChain {
-                 this.lastTimeStamp = body.timeStamp();
-                 PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, (Component)null, FilterMask.PASS_THROUGH);
-                 if (!playerChatMessage.verify(signatureValidator)) {
-+                    // KTP start - invalid signature unsigned message fallback
-+                    if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.considerInvalidMessageSignatureAsUnsigned) {
-+                        return new PlayerChatMessage(signedMessageLink, null, body, null, FilterMask.PASS_THROUGH);
-+                    }
-+                    // KTP end - invalid signature unsigned message fallback
-                     throw new SignedMessageChain.DecodeException(Component.translatable("multiplayer.disconnect.unsigned_chat"), true, org.bukkit.event.player.PlayerKickEvent.Cause.UNSIGNED_CHAT); // Paper - kick event causes
-                 } else {
-                     if (playerChatMessage.hasExpiredServer(Instant.now())) {
+@@ -52,6 +52,11 @@ public class SignedMessageChain {
+                         SignedMessageChain.this.lastTimeStamp = body.timeStamp();
+                         PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, null, FilterMask.PASS_THROUGH);
+                         if (!playerChatMessage.verify(signatureValidator)) {
++                            // KTP start - invalid signature unsigned message fallback
++                            if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.considerInvalidMessageSignatureAsUnsigned) {
++                                return new PlayerChatMessage(signedMessageLink, null, body, null, FilterMask.PASS_THROUGH);
++                            }
++                            // KTP end - invalid signature unsigned message fallback
+                             this.setChainBroken();
+                             throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
+                         } else {
