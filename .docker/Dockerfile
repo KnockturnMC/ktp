@@ -34,7 +34,7 @@ ARG USER_GID=$USER_UID
 
 WORKDIR /home/$USERNAME
 
-RUN apk add --no-cache shadow font-dejavu \
+RUN apk add --no-cache bash shadow font-dejavu \
     && groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && chown -R $USER_UID:$USER_GID /home/$USERNAME
@@ -50,4 +50,4 @@ COPY .docker/run.sh /bin/run.sh
 RUN echo "eula=true" >> eula.txt
 COPY --from=builder /work/server.jar /bin/server.jar
 
-ENTRYPOINT ["sh", "/bin/run.sh"]
+ENTRYPOINT ["bash", "/bin/run.sh"]
