@@ -1,5 +1,5 @@
 # The builder image, responsible for building the project from source state.
-FROM amazoncorretto:21 as builder
+FROM amazoncorretto:21 AS builder
 RUN yum install -y git
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
@@ -9,18 +9,23 @@ WORKDIR /work
 COPY *gradle.kts gradle.properties gradlew* ./
 COPY gradle ./gradle
 
-# Copy patches and build data
-COPY patches/ patches/
 COPY build-data/ build-data/
+RUN mkdir -p patches/api patches/server
 
-# Apply all patches to make
-RUN ./gradlew applyPatches
+# Setup upstream, improves caching
+RUN ./gradlew applyPatches --no-daemon
 
 # Copy over git information of repository needed during build
+# Copy patches
 COPY .git .git
+COPY patches/ patches/
+RUN rm -r ktp-api ktp-server
+
+# Apply the actual patches
+RUN ./gradlew applyPatches --no-daemon
 
 # Compile ktp to paperclip jar
-RUN ./gradlew createReobfPaperclipJar
+RUN ./gradlew createReobfPaperclipJar --no-daemon
 
 RUN cp build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-reobf.jar server.jar
 
