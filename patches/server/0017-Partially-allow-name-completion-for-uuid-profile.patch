@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Thu, 15 Aug 2024 23:40:03 +0200
+Subject: [PATCH] Partially allow name completion for uuid profile
+
+A partial fix for paper's 8927 issue, allowing the PlayerProfile#update
+method to return a correctly updated and filled profile.
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+index 3ff790cec1ad89caec4be64421dd7d51652be598..aa05a2894d19f13c44735d2c357fae55f8b2caa6 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
++++ b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+@@ -170,7 +170,7 @@ public class CraftPlayerProfile implements PlayerProfile, SharedPlayerProfile {
+     public @NotNull CompletableFuture<PlayerProfile> update() {
+         return CompletableFuture.supplyAsync(() -> {
+             final CraftPlayerProfile clone = clone();
+-            clone.complete(true);
++            clone.complete(true, GlobalConfiguration.get().proxies.isProxyOnlineMode(), true); // KTP - allow update calls to return filled profile
+             return clone;
+         }, Util.PROFILE_EXECUTOR);
+     }
+@@ -223,11 +223,24 @@ public class CraftPlayerProfile implements PlayerProfile, SharedPlayerProfile {
+         return complete(textures, GlobalConfiguration.get().proxies.isProxyOnlineMode());
+     }
+     public boolean complete(boolean textures, boolean onlineMode) {
++    // KTP start - allow update calls to return filled profile
++        return complete(textures, onlineMode, false);
++    }
++    public boolean complete(boolean textures, boolean onlineMode, boolean mutateThis) {
++    // KTP end - allow update calls to return filled profile
+         MinecraftServer server = MinecraftServer.getServer();
+         boolean isCompleteFromCache = this.completeFromCache(true, onlineMode);
+         if (onlineMode && (!isCompleteFromCache || textures && !hasTextures())) {
+             GameProfile result = server.getSessionService().fillProfileProperties(profile, true);
+             if (result != null) {
++                // KTP start - allow update calls to return filled profile
++                if (mutateThis) {
++                    this.profile = new GameProfile(
++                        java.util.Objects.requireNonNullElse(this.profile.getId(), result.getId()),
++                        java.util.Objects.requireNonNullElse(this.profile.getName(), result.getName())
++                    );
++                }
++                // KTP end - allow update calls to return filled profile
+                 copyProfileProperties(result, this.profile, true);
+             }
+             if (this.profile.isComplete()) {
