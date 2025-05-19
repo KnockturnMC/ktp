@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 19 May 2025 23:50:15 +0200
+Subject: [PATCH] Adventure additions
+
+This commit contains any form of adventure additions done by the ktp
+server software.
+
+diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
+index 82b8bd29c57cc5aa95061db156cb025f3246ab57..be2e26a915f0222ff6baecd9d1c9c187cf853977 100644
+--- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
++++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
+@@ -102,6 +102,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+     }
+     // Paper end
+ 
++    // KTP start
++    /**
++     * Sets the display name of the item meta and enforces that the display name is not displayed with an italic decoration.
++     * It is hence a shorthand for explicitly decorating the passed component with non-italic.
++     *
++     * @param displayName the display name to set
++     */
++    default void displayNameNonItalic(final @Nullable net.kyori.adventure.text.Component displayName) {
++        this.displayName(displayName == null ? null : displayName.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
++    }
++    // KTP end
++
+     /**
+      * Gets the display name that is set.
+      * <p>
+@@ -271,6 +283,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+     void lore(final @Nullable List<? extends net.kyori.adventure.text.Component> lore);
+     // Paper end
+ 
++    // KTP start
++    /**
++     * Sets the lore of the item meta and enforcing that none of the components are rendered italic.
++     * This method is hence a shorthand for decorating all components in the lore with an explicit non-italic
++     * decoration.
++     *
++     * @param lore the lore to set.
++     */
++    default void loreNonItalic(final @Nullable List<? extends net.kyori.adventure.text.Component> lore) {
++        if (lore == null) {
++            this.lore(null);
++            return;
++        }
++
++        final var mutated = new java.util.ArrayList<net.kyori.adventure.text.Component>(lore.size());
++        for (final var component : lore) {
++            mutated.add(component.decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
++        }
++        this.lore(mutated);
++    }
++    // KTP end
++
+     /**
+      * Gets the lore that is set.
+      * <p>
