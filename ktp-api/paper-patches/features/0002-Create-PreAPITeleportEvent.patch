@@ -1,0 +1,120 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 19 May 2025 23:55:24 +0200
+Subject: [PATCH] Create PreAPITeleportEvent
+
+As spigot api teleportation is subject to stricter checks than the
+default minecraft teleportation, some plugins may not be able to
+teleport entities that would be perfectly fine teleporting under the
+vanilla standart.
+
+To not remove the created rules by spigot and potentially break plugin
+compatibility the PreAPITeleportEvent is called prior to most checks
+executed by spigot which allows plugins to modify potential target
+entities that are teleported by other plugins prior to the checks.
+
+diff --git a/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java b/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d7790b7bdc7e137ce259f9653807cbacdb563b03
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/event/server/PreAPITeleportEvent.java
+@@ -0,0 +1,99 @@
++package dev.lynxplay.ktp.event.server;
++
++import org.bukkit.Bukkit;
++import org.bukkit.Location;
++import org.bukkit.entity.Entity;
++import org.bukkit.entity.LivingEntity;
++import org.bukkit.event.Event;
++import org.bukkit.event.HandlerList;
++import org.bukkit.event.player.PlayerTeleportEvent;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * Defines an event thrown prior to any checks that may prevent an entity from being teleported through the server
++ * API. This event is therefore of use for pre-teleportation logic that may interfere with the checks.
++ * <p>
++ * As the event is therefore purely for monitoring purposes and modification of external causes for potential failures
++ * in the API teleportation, this event is not mutable and changes to the {@link PreAPITeleportEvent#getFrom()} as well
++ * as the {@link PreAPITeleportEvent#getTo()} location are not respected by the server.
++ * <p>
++ * The only checks that this event is not capable of bypassing is the {@link Location#checkFinite()} check that
++ * is assumed for every kind of teleportation as well as the {@link LivingEntity#isDead()} checks that are performed
++ * prior to teleportation as entities with 0 health or those that are marked dead may not be teleported.
++ * <p>
++ * Furthermore this event may be called in both async and sync mode as teleportation may occur in sync with the server
++ * and outside of the main server thread. If the event is in sync or not can be checked through
++ * {@link Event#isAsynchronous()}
++ */
++public class PreAPITeleportEvent extends Event {
++
++    private static final HandlerList handlers = new HandlerList();
++    private final Entity entity;
++    private final Location from;
++    private final Location to;
++    private final PlayerTeleportEvent.TeleportCause cause;
++
++    public PreAPITeleportEvent(@NotNull Entity teleportingEntity,
++                               @NotNull Location from,
++                               @NotNull Location to,
++                               @NotNull PlayerTeleportEvent.TeleportCause cause) {
++        super(!Bukkit.isPrimaryThread());
++        this.entity = teleportingEntity;
++        this.from = from;
++        this.to = to;
++        this.cause = cause;
++    }
++
++    /**
++     * Provides the entity that is about to be teleported through an api call.
++     * This entity may or may not comply with the spigot api rules for teleportation.
++     *
++     * @return the entity instance that is about to be teleported. This instance will never be null.
++     */
++    @NotNull
++    public Entity getEntity() {
++        return entity;
++    }
++
++    /**
++     * Gets the location that this entity moved from
++     *
++     * @return Location this entity moved from
++     */
++    @NotNull
++    public Location getFrom() {
++        return from;
++    }
++
++    /**
++     * Gets the location that this entity moved to
++     *
++     * @return Location the entity moved to
++     */
++    @NotNull
++    public Location getTo() {
++        return to;
++    }
++
++    /**
++     * Gets the cause of this teleportation event
++     *
++     * @return Cause of the event
++     */
++    @NotNull
++    public PlayerTeleportEvent.TeleportCause getCause() {
++        return cause;
++    }
++
++    @NotNull
++    @Override
++    public HandlerList getHandlers() {
++        return handlers;
++    }
++
++    @NotNull
++    public static HandlerList getHandlerList() {
++        return handlers;
++    }
++
++}

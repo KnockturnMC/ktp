@@ -1,0 +1,103 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 00:15:39 +0200
+Subject: [PATCH] Allow event execution regardless of thread
+
+This patch contains a lot of small optimizations to the spigot event bus
+to improve its speed as much as possible, allowing for a large amount of
+events to be published by the server without impacting the overall
+performance too much.
+
+diff --git a/src/main/java/org/bukkit/event/Event.java b/src/main/java/org/bukkit/event/Event.java
+index 7fd1f4b59584d840759e6c100743d646cb98348e..99a0a8d309db7cdbaf62294276d4242c32f87ace 100644
+--- a/src/main/java/org/bukkit/event/Event.java
++++ b/src/main/java/org/bukkit/event/Event.java
+@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
+ public abstract class Event {
+ 
+     private String name;
+-    private final boolean isAsync;
++    private final net.kyori.adventure.util.TriState isAsync; // KTP - optimize spigot event bus
+ 
+     /**
+      * The default constructor is defined for cleaner code. This constructor
+@@ -34,9 +34,36 @@ public abstract class Event {
+      *     by default from default constructor
+      */
+     public Event(boolean isAsync) {
++    // KTP start - optimize spigot event bus
++        this(net.kyori.adventure.util.TriState.byBoolean(isAsync));
++    }
++
++    /**
++     * This constructor is used to explicitly declare an event as synchronous
++     * or asynchronous or potentially unset.
++     *
++     * @param isAsync true indicates the event will fire asynchronously, false
++     *                by default from default constructor, unset indicates that the event may be called on either the server thread or off the server
++     *                thread.
++     */
++    public Event(@NotNull final net.kyori.adventure.util.TriState isAsync) {
+         this.isAsync = isAsync;
+     }
+ 
++    /**
++     * Returns a tristate that, when resolving to true or false, has the exact indications defined by {@link #isAsynchronous()}.
++     * <p>
++     * If the tristate resolves to NOT_SET, the event may or may not have been fired off the main thread, meaning a plugin would have
++     * to validate what thread the spigot event bus was called on.
++     *
++     * @return the tristate enum.
++     */
++    public final @NotNull net.kyori.adventure.util.TriState asynchronous() {
++        return this.isAsync;
++    }
++    // KTP end - optimize spigot event bus
++
++    // Paper start
+     /**
+      * Calls the event and tests if cancelled.
+      *
+@@ -92,7 +119,7 @@ public abstract class Event {
+      * @return {@code false} by default, {@code true} if the event fires asynchronously
+      */
+     public final boolean isAsynchronous() {
+-        return this.isAsync;
++        return this.isAsync == net.kyori.adventure.util.TriState.TRUE; // KTP - optimize spigot event bus
+     }
+ 
+     public enum Result {
+diff --git a/src/main/java/org/bukkit/plugin/RegisteredListener.java b/src/main/java/org/bukkit/plugin/RegisteredListener.java
+index 2e1d2042916aec6da58a7ceecc7a166661c3c83f..c131193500ae7ab000a4080592a333e7f0456429 100644
+--- a/src/main/java/org/bukkit/plugin/RegisteredListener.java
++++ b/src/main/java/org/bukkit/plugin/RegisteredListener.java
+@@ -63,8 +63,10 @@ public class RegisteredListener {
+      * @throws EventException If an event handler throws an exception.
+      */
+     public void callEvent(@NotNull final Event event) throws EventException {
+-        if (event instanceof Cancellable) {
+-            if (((Cancellable) event).isCancelled() && isIgnoringCancelled()) {
++        // KTP start - optimize spigot event bus
++        if (isIgnoringCancelled()) {
++            if (event instanceof Cancellable cancellable && cancellable.isCancelled()) {
++        // KTP end - optimize spigot event bus
+                 return;
+             }
+         }
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index 7e4f7cb2afbc145e532285c793573ad107bc3033..0866bd1bfbadf58c5a4b0f1cc0a80f40ff2a2799 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -318,4 +318,12 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+     }
+ 
+     // Paper end
++
++    // KTP start - expose addURL
++    @Override
++    public void addURL(final URL url) {
++        super.addURL(url);
++    }
++    // KTP end - expose addURL
++
+ }

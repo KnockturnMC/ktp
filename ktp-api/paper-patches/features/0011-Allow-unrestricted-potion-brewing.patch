@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 00:27:28 +0200
+Subject: [PATCH] Allow unrestricted potion brewing
+
+Recent upstream changes allow custom potion recipes to be easily registered, how
+ever it does not satisfy a use case where the possible ingredient combinations a
+nd resulting potions are not easily defined.
+This commit adds the ability to unrestrict potion brewing, so that any
+combination of ingredients is permitted.
+
+diff --git a/src/main/java/org/bukkit/potion/PotionBrewer.java b/src/main/java/org/bukkit/potion/PotionBrewer.java
+index 72e159698762f816c06378090a9847d211bfc451..8a6ecc3d89939a769488b39100e682e878dd5cb5 100644
+--- a/src/main/java/org/bukkit/potion/PotionBrewer.java
++++ b/src/main/java/org/bukkit/potion/PotionBrewer.java
+@@ -76,4 +76,43 @@ public interface PotionBrewer {
+     @NotNull
+     @Deprecated(since = "1.20.2", forRemoval = true) // Paper
+     public Collection<PotionEffect> getEffects(@NotNull PotionType type, boolean upgraded, boolean extended);
++
++    // KTP start - allow unrestricted potion brewing
++    /**
++     * Allows the restrictions applied to potion brewing to be altered or removed completely.
++     * See {@link PotionBrewingRestriction} for information on each restriction.
++     *
++     * @param restrictions the restriction(s) to apply to potion brewing. Passing an empty collection will remove all active restrictions, making any
++     *     ingredient/input combination a valid recipe.
++     */
++    void configurePotionBrewingRestrictions(@NotNull Collection<PotionBrewingRestriction> restrictions);
++
++    /**
++     * Retrieves an immutable collection of active potion brewing restrictions.
++     * <p>
++     * The default restrictions only allow vanilla and registered {@link io.papermc.paper.potion.PotionMix} to produce a result in the brewing
++     * stand.
++     * </p>
++     *
++     * @return An immutable collection of all active potion brewing restrictions. An empty collection means there are no active restrictions and any
++     *     ingredient/input combination is valid.
++     */
++    @NotNull
++    @org.jetbrains.annotations.UnmodifiableView
++    Collection<PotionBrewingRestriction> activePotionBrewingRestrictions();
++
++    /**
++     * Flags that determine how strict brewing stands are when considering ingredients/inputs.
++     */
++    enum PotionBrewingRestriction {
++        /**
++         * Any item placed in the ingredient slot is considered a valid recipe without an associated {@link io.papermc.paper.potion.PotionMix}
++         */
++        INGREDIENT,
++        /**
++         * Any items placed in the input/potion slots are considered a valid recipe without an associated {@link io.papermc.paper.potion.PotionMix}
++         */
++        INPUTS
++    }
++    // KTP end
+ }
