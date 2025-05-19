@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:37:10 +0200
+Subject: [PATCH] Throw ServerExceptionEvent during Plugin#onEnable
+
+This patch allows the server's plugin manager to properly throw a
+ServerExceptionEvent when a plugin throws an Exception/Throwable during
+its onEnable logic.
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+index 3e82ea07ca4194844c5528446e2c4a46ff4acee5..4d6bd1a4733f13f5eb889a8f6810be15a03faa8f 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperPluginInstanceManager.java
+@@ -201,7 +201,7 @@ class PaperPluginInstanceManager {
+             try {
+                 jPlugin.setEnabled(true);
+             } catch (Throwable ex) {
+-                this.server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getPluginMeta().getDisplayName() + " (Is it up to date?)", ex);
++                handlePluginException("Error occurred while enabling " + plugin.getPluginMeta().getDisplayName() + " (Is it up to date?)", ex, jPlugin); // KTP - Handle plugin exceptions during onEnable
+                 // Paper start - Disable plugins that fail to load
+                 this.server.getPluginManager().disablePlugin(jPlugin);
+                 return;

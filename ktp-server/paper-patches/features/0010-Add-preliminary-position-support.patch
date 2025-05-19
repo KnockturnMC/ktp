@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:36:29 +0200
+Subject: [PATCH] Add preliminary position support
+
+The paper introduced position type is currently highly experimental
+however, ktp and its consuming plugins aim to use this API.
+For this, this patch adds fundamental support to the API for position
+usage.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 4a405744061b2689a207aa085bec9a6a223342f2..17105c6b78fa2f263145583fb70434f014b814ac 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -84,6 +84,7 @@ import org.bukkit.Note;
+ import org.bukkit.Particle;
+ import org.bukkit.Raid;
+ import org.bukkit.Sound;
++import org.bukkit.SoundCategory;
+ import org.bukkit.TreeType;
+ import org.bukkit.World;
+ import org.bukkit.WorldBorder;
+@@ -2473,4 +2474,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         return this.adventure$pointers;
+     }
+     // Paper end
++
++    // KTP start - preliminary position support
++    @Override
++    public void playSound(@org.jetbrains.annotations.NotNull final io.papermc.paper.math.Position position,
++                          @org.jetbrains.annotations.NotNull final Sound sound,
++                          @org.jetbrains.annotations.NotNull final SoundCategory category,
++                          final float volume,
++                          final float pitch) {
++        if (position == null || sound == null || category == null) return;
++
++        double x = position.x();
++        double y = position.y();
++        double z = position.z();
++
++        this.getHandle().playSound(null, x, y, z, CraftSound.getSoundEffect(sound), SoundSource.valueOf(category.name()), volume, pitch);
++    }
++    // KTP end - preliminary position support
+ }

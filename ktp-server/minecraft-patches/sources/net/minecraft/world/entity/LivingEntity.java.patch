@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1679,7 +_,7 @@
+         entity.knockback(0.5, entity.getX() - this.getX(), entity.getZ() - this.getZ(), this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.SHIELD_BLOCK); // CraftBukkit // Paper - fix attacker & knockback events
+     }
+ 
+-    public boolean checkTotemDeathProtection(DamageSource damageSource) {
++    private boolean checkTotemDeathProtection(DamageSource damageSource) {
+         if (damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+             return false;
+         } else {

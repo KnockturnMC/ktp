@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:36:51 +0200
+Subject: [PATCH] Improve schedule task information
+
+When shutting down the server, tasks may not cancel properly due to some
+plugin not closing their tasks.
+Finding out which task is scheduled where and not closed however has
+proven troublesome.
+
+To fix this, this patch adds the ability to both plugins and servers to
+fetch the implementation class type of overdue tasks from BukkitWorker
+instances which are displayed in the nag message on shutdown.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index d3ba6648276e559b345056e648cc016560c14a42..5ecaee2ae181f139c26b19991fdc84d29984f59a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1124,9 +1124,10 @@ public final class CraftServer implements Server {
+         for (BukkitWorker worker : overdueWorkers) {
+             Plugin plugin = worker.getOwner();
+             this.getLogger().log(Level.SEVERE, String.format(
+-                "Nag author(s): '%s' of '%s' about the following: %s",
++                "Nag author(s): '%s' of '%s (%s)' about the following: %s", // KTP - improved task information
+                 plugin.getDescription().getAuthors(),
+                 plugin.getDescription().getFullName(),
++                worker.getTaskClass().getName(), // KTP - improved task information
+                 "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
+             ));
+             if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper - Debugging
+@@ -1163,9 +1164,10 @@ public final class CraftServer implements Server {
+         for (BukkitWorker worker : overdueWorkers) {
+             Plugin plugin = worker.getOwner();
+             getLogger().log(Level.SEVERE, String.format(
+-                "Nag author(s): '%s' of '%s' about the following: %s",
++                "Nag author: '%s' of '%s (%s)' about the following: %s", // KTP - improved task information
+                 plugin.getPluginMeta().getAuthors(),
+                 plugin.getPluginMeta().getDisplayName(),
++                worker.getTaskClass().getName(), // KTP - improved task information
+                 "This plugin is not properly shutting down its async tasks when it is being shut down. This task may throw errors during the final shutdown logs and might not complete before process dies."
+             ));
+             if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper - Debugging
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
+index e4e2e42d0ca25df7fe9f2dd4275610e45fcb2c84..68576bc30a47587aaec2515b4a9295df06816550 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncTask.java
+@@ -50,6 +50,13 @@ class CraftAsyncTask extends CraftTask {
+                     public Plugin getOwner() {
+                         return CraftAsyncTask.this.getOwner();
+                     }
++
++                    // KTP start - improved task information
++                    @Override
++                    public Class<?> getTaskClass() {
++                        return CraftAsyncTask.this.getTaskClass();
++                    }
++                    // KTP end - improved task information
+                 });
+         }
+         Throwable thrown = null;

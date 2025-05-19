@@ -1,5 +1,13 @@
 --- a/paper-api/build.gradle.kts
 +++ b/paper-api/build.gradle.kts
+@@ -63,6 +_,7 @@
+     apiAndDocs("net.kyori:adventure-text-serializer-gson")
+     apiAndDocs("net.kyori:adventure-text-serializer-legacy")
+     apiAndDocs("net.kyori:adventure-text-serializer-plain")
++    apiAndDocs("net.kyori:adventure-nbt") // KTP - include adventure nbt
+     apiAndDocs("net.kyori:adventure-text-logger-slf4j")
+ 
+     api("org.apache.maven:maven-resolver-provider:3.9.6") // make API dependency for Paper Plugins
 @@ -90,7 +_,7 @@
      testRuntimeOnly("org.junit.platform:junit-platform-launcher")
  }

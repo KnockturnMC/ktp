@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:19:23 +0200
+Subject: [PATCH] Expose low level interceptor for vehicle steering
+
+To allow plugins to run their own steering logic when a player is
+steering an entity that, by vanilla's design choices, does not react to
+vehicle movement packets, this patch introduces new API plugins can use
+to handle these packets.
+
+To keep the API as fast and lightweight as possible, the spigot event
+bus was previously optimized and is now called off the main thread
+before the packet even begins processing. While this obviously prevents
+acceess to the world, it also allows intercepting events to prevent main
+thread sync for these packets.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index b64902580c05a49e78d4f8e85a5ef677b498b2a8..7593273a8931c43ea01e2eb4d4b8c4d49d676800 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -1316,4 +1316,28 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         return this.entity.get(io.papermc.paper.datacomponent.PaperDataComponentType.bukkitToMinecraft(type)) != null;
+     }
+ 
++    // KTP start
++    @Override
++    public void move(@org.jetbrains.annotations.NotNull final dev.lynxplay.ktp.entity.MovementCause movementCause,
++                     @org.jetbrains.annotations.NotNull final Vector vector) {
++        final var internalMovementCause = switch (movementCause) {
++            case SELF -> net.minecraft.world.entity.MoverType.SELF;
++            case PLAYER -> net.minecraft.world.entity.MoverType.PLAYER;
++            case PISTON -> net.minecraft.world.entity.MoverType.PISTON;
++            case SHULKER -> net.minecraft.world.entity.MoverType.SHULKER;
++            case SHULKER_BOX -> net.minecraft.world.entity.MoverType.SHULKER_BOX;
++        };
++        this.entity.move(internalMovementCause, new net.minecraft.world.phys.Vec3(vector.getX(), vector.getY(), vector.getZ()));
++    }
++
++    @Override
++    public void physics(final boolean physics) {
++        this.entity.noPhysics = !physics;
++    }
++
++    @Override
++    public boolean physics() {
++        return !this.entity.noPhysics;
++    }
++    // KTP end
+ }

@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:22:05 +0200
+Subject: [PATCH] Add tile state data copying
+
+To allow plugins to clone tile states from one block to another, this
+patch introduces a copy method on the tile state interface that enables
+plugins to load the tile state data of an already existing tile state
+into a second tile state, effectivly cloning the initial tile state.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
+index 3422970353dcd886934b9ee906467769d39abbde..9828d12fd3bbe242f4057da3ae9682bbc2f8f4ab 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
+@@ -216,4 +216,21 @@ public abstract class CraftBlockEntityState<T extends BlockEntity> extends Craft
+         return !this.snapshotDisabled;
+     }
+     // Paper end
++    // KTP start
++
++    @Override
++    @SuppressWarnings("unchecked") // We validate correct type through #isApplicable
++    public void copyStateFrom(@org.jetbrains.annotations.NotNull TileState other) {
++        if (!(other instanceof CraftBlockEntityState<?> otherEntityState)) {
++            throw new IllegalArgumentException("The passed tile state was not a server provided tile state: " + other.getClass().getName());
++        }
++
++        if (!this.isApplicable(otherEntityState.getSnapshot())) {
++            throw new IllegalArgumentException("The passed tile state was supposed to be a " + getClass().getSimpleName() + " but was " + other.getClass().getSimpleName());
++        }
++
++        this.load((T) otherEntityState.getSnapshot());
++    }
++
++    // KTP end
+ }
