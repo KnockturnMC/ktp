@@ -1,35 +1,32 @@
+# syntax=docker/dockerfile-upstream:master-labs <- required for --parents in COPY
+
 # The builder image, responsible for building the project from source state.
 # 21
-FROM amazoncorretto@sha256:f6267db88bddd9a7ae29e59d5b3b51eb4b16167b179d57b27e74a9834e2be29d AS builder
+FROM amazoncorretto@sha256:670e3459f1bb0491c4a594ec23f8383acf426ee2e54419ac34a827cb276aa5ed AS builder
 RUN yum install -y git
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
 WORKDIR /work
 
-# Copy gradle wrapper and configuration files
-COPY *gradle.kts gradle.properties gradlew* ./
-COPY gradle ./gradle
+# Copy the minimal amount of files needed to first download and patch a 0 patch fork.
+# This way, buildx can cache the base fork setup/decompilation steps etc.
+# Improves build speeds in case only code was changed.
+COPY --parents gradle.properties gradlew gradle/ build.gradle.kts settings.gradle.kts **/*.kts.patch .
 
-# Copy patches and build data and create empty patch files.
-COPY build-data/ build-data/
-RUN mkdir -p patches/api patches/server
+# Apply 0 fork patches to cache fork setup
+RUN ./gradlew applyAllPatches --no-daemon
 
-# Apply all patches to make
-RUN ./gradlew applyPatches --no-daemon
-
-# Copy over git information of repository needed during build
-# Including patches
-COPY .git .git
-COPY patches/ patches/
+# Copy over the entire rest of the repo needed for a proper build.
+COPY --parents .git build-data ktp-api ktp-server .
 
 # Compile ktp to paperclip jar
-RUN rm -rf ktp-api ktp-server; ./gradlew applyPatches --no-daemon; ./gradlew createReobfPaperclipJar --no-daemon
+RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createMojmapPaperclipJar --no-daemon
 
-RUN cp build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-reobf.jar server.jar
+RUN cp ktp-server/build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-mojmap.jar server.jar
 
 # Runtime image
 # 21-alpine3.19
-FROM amazoncorretto@sha256:c815b95bbbe1eb4f14f9db14884edd1e2c061cb2d3192017476a0d94d611d23d
+FROM amazoncorretto@sha256:205526a42c31fe002b54b920362e8c8d6b7d2c07ecf54fa00fbaa54ce49626ab
 
 # Configure non root user for server
 ARG USERNAME=server
