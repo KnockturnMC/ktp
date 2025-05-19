@@ -6,6 +6,13 @@ build/
 .project
 .settings/
 
+/ktp-server/build.gradle.kts
+/ktp-server/src/minecraft
+/paper-server
+/ktp-api/build.gradle.kts
+/paper-api
+/paper-api-generator
+
 # VSCode stuff
 .vscode/
 
@@ -44,13 +51,8 @@ out/
 *~
 
 # other stuff
-ktp-server
-ktp-api
-mc-dev
 .idea
-testserver
 run
-ktp-paperclip.jar
 
 !gradle/wrapper/gradle-wrapper.jar
 
