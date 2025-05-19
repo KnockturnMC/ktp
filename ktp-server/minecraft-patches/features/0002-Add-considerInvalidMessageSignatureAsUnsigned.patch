@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:39:33 +0200
+Subject: [PATCH] Add considerInvalidMessageSignatureAsUnsigned
+
+The considerInvalidMessageSignatureAsUnsigned option added by this patch
+allows the server to consider any player chat message that was sent that
+contains an invalid or missing signature to simply interpet as a
+unsigned message.
+
+This behaviour may break basically everything unless a respective plugin
+is in place to also map all messages to system messages, which is the
+case in the environment KTP is meant to be run.
+
+This patch is certainly not a final fix for the current problem facing
+the production environment ktp is deployed in, but works as a quick and
+dirty fix for the issue.
+
+diff --git a/net/minecraft/network/chat/SignedMessageChain.java b/net/minecraft/network/chat/SignedMessageChain.java
+index f6eed34b2fd72ab74cc9dc4b99ca184d512c0a66..a843530f6fae5da29206879d2dca8f6487357e42 100644
+--- a/net/minecraft/network/chat/SignedMessageChain.java
++++ b/net/minecraft/network/chat/SignedMessageChain.java
+@@ -52,6 +52,11 @@ public class SignedMessageChain {
+                         SignedMessageChain.this.lastTimeStamp = body.timeStamp();
+                         PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, null, FilterMask.PASS_THROUGH);
+                         if (!playerChatMessage.verify(signatureValidator)) {
++                            // KTP start - invalid signature unsigned message fallback
++                            if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.considerInvalidMessageSignatureAsUnsigned) {
++                                return new PlayerChatMessage(signedMessageLink, null, body, null, FilterMask.PASS_THROUGH);
++                            }
++                            // KTP end - invalid signature unsigned message fallback
+                             this.setChainBroken();
+                             throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
+                         } else {

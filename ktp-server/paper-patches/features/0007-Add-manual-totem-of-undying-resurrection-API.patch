@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:21:40 +0200
+Subject: [PATCH] Add manual totem of undying resurrection API
+
+This patch introduces new API methods to the living entity that allow
+plugins to manually trigger a totem of undying resurrection on any given
+living entity.
+
+This is specifically useful for plugins that use the #setHealth methods
+to manipulate the entities health.
+
+The API is a full representation of the server internal and fully
+simulates a resurrection including bukkit event calls and potion
+effects.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index ff8987ca8f0d88c80f7229b33e6b356f1e342010..df3e361feed8060244b4c17a85d3b6024d73bd15 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -1170,4 +1170,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+     public CombatTracker getCombatTracker() {
+         return this.combatTracker;
+     }
++
++    // KTP start
++    @Override
++    public boolean attemptTotemOfUndyingResurrection() {
++        return this.getHandle().checkTotemDeathProtection(getHandle().level().damageSources().generic());
++    }
++    // KTP end
+ }

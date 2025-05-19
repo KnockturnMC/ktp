@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:33:55 +0200
+Subject: [PATCH] Allow unrestricted potion brewing
+
+Recent upstream changes allow custom potion recipes to be easily registered, how
+ever it does not satisfy a use case where the possible ingredient combinations a
+nd resulting potions are not easily defined.
+This commit adds the ability to unrestrict potion brewing, so that any
+combination of ingredients is permitted.
+
+diff --git a/src/main/java/io/papermc/paper/potion/PaperPotionBrewer.java b/src/main/java/io/papermc/paper/potion/PaperPotionBrewer.java
+index d9390227a2bba4e03aa9ee592ca157127633c41b..abeac2c3f7a7d784ea2e45dfbfb93d79c0166641 100644
+--- a/src/main/java/io/papermc/paper/potion/PaperPotionBrewer.java
++++ b/src/main/java/io/papermc/paper/potion/PaperPotionBrewer.java
+@@ -53,4 +53,18 @@ public class PaperPotionBrewer implements PotionBrewer {
+     public void resetPotionMixes() {
+         this.minecraftServer.potionBrewing = this.minecraftServer.potionBrewing().reload(this.minecraftServer.getWorldData().enabledFeatures());
+     }
++
++    // KTP start - Allow unrestricted potion brewing
++    @Override
++    public Collection<PotionBrewingRestriction> activePotionBrewingRestrictions() {
++        return java.util.Collections.unmodifiableCollection(net.minecraft.world.item.alchemy.PotionBrewing.brewingRestrictions);
++    }
++
++    @Override
++    public void configurePotionBrewingRestrictions(Collection<PotionBrewingRestriction> restrictions) {
++        final var configuredRestrictions = java.util.EnumSet.noneOf(PotionBrewingRestriction.class);
++        configuredRestrictions.addAll(restrictions);
++        net.minecraft.world.item.alchemy.PotionBrewing.brewingRestrictions = configuredRestrictions;
++    }
++    // KTP end - Allow unrestricted potion brewing
+ }

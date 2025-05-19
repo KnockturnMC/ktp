@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:40:52 +0200
+Subject: [PATCH] Limbo server config
+
+The void server should not be sending *any* packets outside of the login
+packet to not confuse the client when quickly switching.
+
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+index ce3ef0d6d250ea36a7523df508f014246848d49e..92e0c2e0798a8b1b962e74f6afc08ab572324643 100644
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
++++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+@@ -196,6 +196,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+         @Comment("This setting controls if the server should consider a message with an invalid or missing signature as unsigned or not")
+         public boolean considerInvalidMessageSignatureAsUnsigned = false;
+         // KTP end - invalid signature unsigned message fallback
++        // KTP start - limbo server
++        @Comment("This setting controls if the server should send anything more than just the login packet in the game phase.")
++        public boolean limboServer = false;
++        // KTP end - limbo server
+     }
+ 
+     public Commands commands;

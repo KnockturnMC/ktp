@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:32:35 +0200
+Subject: [PATCH] Allow unrestricted potion brewing
+
+Recent upstream changes allow custom potion recipes to be easily registered, how
+ever it does not satisfy a use case where the possible ingredient combinations a
+nd resulting potions are not easily defined.
+This commit adds the ability to unrestrict potion brewing, so that any
+combination of ingredients is permitted.
+
+diff --git a/net/minecraft/world/item/alchemy/PotionBrewing.java b/net/minecraft/world/item/alchemy/PotionBrewing.java
+index f7826f1ab4985cd7a754c4c550252943e874864e..553fa0ac94da8a393bf3b37378b1cb7936c41829 100644
+--- a/net/minecraft/world/item/alchemy/PotionBrewing.java
++++ b/net/minecraft/world/item/alchemy/PotionBrewing.java
+@@ -27,8 +27,25 @@ public class PotionBrewing {
+         this.containerMixes = containerMixes;
+     }
+ 
++    // KTP start - Allow unrestricted potion brewing
++    public static java.util.EnumSet<org.bukkit.potion.PotionBrewer.PotionBrewingRestriction> brewingRestrictions =
++        java.util.EnumSet.allOf(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.class);
++
++    private static boolean unrestrictedBrewing() {
++        return brewingRestrictions.isEmpty();
++    }
++
++    private static boolean unrestrictedIngredient() {
++        return !brewingRestrictions.contains(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.INGREDIENT);
++    }
++
++    private static boolean unrestrictedInputs() {
++        return !brewingRestrictions.contains(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.INPUTS);
++    }
++    // KTP end - Allow unrestricted potion brewing
++
+     public boolean isIngredient(ItemStack stack) {
+-        return this.isContainerIngredient(stack) || this.isPotionIngredient(stack) || this.isCustomIngredient(stack); // Paper - Custom Potion Mixes
++        return unrestrictedIngredient() || this.isContainerIngredient(stack) || this.isPotionIngredient(stack) || this.isCustomIngredient(stack); // Paper - Custom Potion Mixes,  KTP - Allow unrestricted brewing
+     }
+ 
+     private boolean isContainer(ItemStack stack) {
+@@ -72,6 +89,7 @@ public class PotionBrewing {
+     }
+ 
+     public boolean hasMix(ItemStack reagent, ItemStack potionItem) {
++        if (unrestrictedBrewing()) return true; // KTP - allow unrestricted potion brewing
+         // Paper start - Custom Potion Mixes
+         if (this.hasCustomMix(reagent, potionItem)) {
+             return true;
+@@ -214,6 +232,7 @@ public class PotionBrewing {
+     }
+ 
+     public boolean isCustomInput(ItemStack stack) {
++        if (unrestrictedInputs()) return true; // KTP - allow unrestricted potion brewing
+         for (io.papermc.paper.potion.PaperPotionMix mix : this.customMixes.values()) {
+             if (mix.input().test(stack)) {
+                 return true;
+@@ -223,8 +242,9 @@ public class PotionBrewing {
+     }
+ 
+     private boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
++        if (unrestrictedBrewing()) return true; // KTP - Allow unrestricted potion brewing.
+         for (io.papermc.paper.potion.PaperPotionMix mix : this.customMixes.values()) {
+-            if (mix.input().test(input) && mix.ingredient().test(ingredient)) {
++            if ((unrestrictedInputs() || mix.input().test(input)) && (unrestrictedIngredient() || mix.ingredient().test(ingredient))) { // KTP - Allow unrestricted potion brewing.
+                 return true;
+             }
+         }
+@@ -243,6 +263,7 @@ public class PotionBrewing {
+     }
+ 
+     public PotionBrewing reload(FeatureFlagSet flags) {
++        brewingRestrictions = java.util.EnumSet.allOf(org.bukkit.potion.PotionBrewer.PotionBrewingRestriction.class); // KTP - Allow unrestricted potion brewing
+         return bootstrap(flags);
+     }
+     // Paper end - Custom Potion Mixes

@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:12:28 +0200
+Subject: [PATCH] Add item stack to SNBT serialiser
+
+Adds a new method to the UnsafeValues interface that allows developers
+to convert an API item stack into the SNBT required to create it.
+This method allows for a complete string representation that is human
+readable compared to the existing ItemStack#toString() method that does
+only expose metadata known to the ItemMeta.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index a287ad5cce532229f2a514956d34a9358175bc45..1046d6dc67b39ceb7034084f6e62d11ca1279a4c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -820,6 +820,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
+         return lines.stream().map(io.papermc.paper.adventure.PaperAdventure::asAdventure).toList();
+     }
+     // Paper end
++    // KTP start
++    public String itemStackAsString(ItemStack itemStack) {
++        final var nmsStack = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(itemStack);
++        final var saveCompound = new net.minecraft.nbt.CompoundTag();
++        nmsStack.save(saveCompound);
++        return saveCompound.toString();
++    }
++    // KTP stop
+ 
+     @Override
+     public org.bukkit.Color getSpawnEggLayerColor(final EntityType entityType, final int layer) {
