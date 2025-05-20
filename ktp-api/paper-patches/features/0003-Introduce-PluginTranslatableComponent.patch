@@ -23,16 +23,18 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846289daa4c
+index 0000000000000000000000000000000000000000..92f3e30a857e9a241e943e47385c76a2047843cc
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,48 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
++import org.jetbrains.annotations.Unmodifiable;
 +
 +import java.util.Locale;
++import java.util.Set;
 +
 +/**
 + * A plugin translation bundle is a collection of all available locales a plugin may be translated including all translation keys and their
@@ -54,23 +56,38 @@ index 0000000000000000000000000000000000000000..846090a0e05f3a9974b2770178a55846
 +     */
 +    @Nullable String findTranslation(@NotNull Locale locale, @NotNull String translationKey);
 +
++    /**
++     * A set of all locales present in the translation bundle.
++     *
++     * @return set of locale instances.
++     */
++    @Unmodifiable
++    Set<Locale> knownLocales();
++
++    /**
++     * A joint set of all known translation keys in this translation bundle.
++     * Any key present for any set of locales in the bundle will be included in this set, even if said key is not consistently present across
++     * all locales.
++     *
++     * @return the set of all keys known to the translation bundle in one or more locales.
++     */
++    @Unmodifiable
++    Set<String> joinedKnownKeys();
++
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ae1a67086cd6974596d538ed987c81c69199b7d0
+index 0000000000000000000000000000000000000000..f0a8aba306daf8dbc58f7285738566118e2255a3
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
-@@ -0,0 +1,165 @@
+@@ -0,0 +1,134 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import com.google.common.base.Preconditions;
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
-+import net.kyori.adventure.text.Component;
-+import net.kyori.adventure.text.PluginTranslatableComponent;
-+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
-+import net.kyori.adventure.translation.GlobalTranslator;
++import net.kyori.adventure.text.TranslatableComponent;
 +import net.kyori.adventure.translation.Translator;
 +import org.bukkit.plugin.Plugin;
 +import org.jetbrains.annotations.NotNull;
@@ -80,7 +97,7 @@ index 0000000000000000000000000000000000000000..ae1a67086cd6974596d538ed987c81c6
 +
 +/**
 + * The plugin translators interface is the main entry point for registering and creating translations for plugins that may be consumed by creating
-+ * {@link PluginTranslatableComponent}s.
++ * {@link TranslatableComponent}s.
 + */
 +public interface PluginTranslators {
 +
@@ -134,34 +151,6 @@ index 0000000000000000000000000000000000000000..ae1a67086cd6974596d538ed987c81c6
 +     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
 +     */
 +    @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle);
-+
-+    /**
-+     * Provides the plugin translator renderer that will be used to render {@link PluginTranslatableComponent} on the server.
-+     * The translator is exposed as using the {@link net.kyori.adventure.translation.GlobalTranslator}'s {@link GlobalTranslator#renderer()} will
-+     * not properly render {@link PluginTranslatableComponent}.
-+     * <p>
-+     * <b>
-+     * The renderer should only be used when passing {@link PluginTranslatableComponent} to non packet methods, e.g. the modification of an
-+     * items or block entities.
-+     * </b>
-+     * <p>
-+     * <b>The render is automatically used for any form of direct text communication with the player.</b>
-+     *
-+     * @return the renderer the plugin translator uses to render {@link PluginTranslatableComponent}s.
-+     */
-+    @NotNull TranslatableComponentRenderer<Locale> renderer();
-+
-+    /**
-+     * Renders a component using the {@link #renderer()} provided.
-+     *
-+     * @param component the component that should be rendered.
-+     * @param context   the context, or more specifically, the locale in which this component should be rendered.
-+     *
-+     * @return the rendered component
-+     */
-+    default @NotNull Component render(final @NotNull Component component, final @NotNull Locale context) {
-+        return this.renderer().render(component, context);
-+    }
 +
 +    /**
 +     * Provides a static immutable implementation of the translation file parser that is capable of parsing yaml files.
@@ -348,436 +337,6 @@ index 0000000000000000000000000000000000000000..6af66024b8c8adf7aac86578581cff8e
 +     * @throws TranslationLocaleParserException if the parser failed to parse a locale from the path provided.
 +     */
 +    @NotNull Locale parseLocale(@NotNull Path path) throws TranslationLocaleParserException;
-+
-+}
-diff --git a/src/main/java/net/kyori/adventure/text/KTPComponents.java b/src/main/java/net/kyori/adventure/text/KTPComponents.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..e3e962d34552cc2f069a1468dfe43e0fdbc580da
---- /dev/null
-+++ b/src/main/java/net/kyori/adventure/text/KTPComponents.java
-@@ -0,0 +1,102 @@
-+package net.kyori.adventure.text;
-+
-+import org.jetbrains.annotations.NotNull;
-+
-+/**
-+ * KTP-API specific methods and constants that may be used to work with {@link net.kyori.adventure.text.Component}s and
-+ * their likes.
-+ */
-+public class KTPComponents {
-+
-+    /**
-+     * Creates a plugin translatable component fully configured with a key, tag resolver and mini message instance.
-+     *
-+     * @param key                 the translation key of the plugin translatable component.
-+     * @param tagResolver         the tag resolver that resolves the tags in the translated message.
-+     * @param miniMessageInstance the mini message instance that should be used to de-serialize the raw translation string message.
-+     *
-+     * @return a new immutable plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    public static @NotNull PluginTranslatableComponent pluginTranslatable(@NotNull final String key,
-+                                                                          @NotNull final net.kyori.adventure.text.minimessage.tag.resolver.TagResolver tagResolver,
-+                                                                          @NotNull final net.kyori.adventure.text.minimessage.MiniMessage miniMessageInstance) {
-+        return new PluginTranslatableComponentImpl(
-+            java.util.Collections.emptyList(),
-+            net.kyori.adventure.text.format.Style.empty(),
-+            key,
-+            tagResolver,
-+            miniMessageInstance
-+        );
-+    }
-+
-+    /**
-+     * Creates a plugin translatable component configured with a key and a tag resolver.
-+     * A default mini message instance will be used.
-+     *
-+     * @param key         the translation key of the plugin translatable component.
-+     * @param tagResolver the tag resolver that resolves the tags in the translated message.
-+     *
-+     * @return a new immutable plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    public static @NotNull PluginTranslatableComponent pluginTranslatable(@NotNull final String key,
-+                                                                          @NotNull final net.kyori.adventure.text.minimessage.tag.resolver.TagResolver tagResolver) {
-+        return new PluginTranslatableComponentImpl(
-+            java.util.Collections.emptyList(),
-+            net.kyori.adventure.text.format.Style.empty(),
-+            key,
-+            tagResolver,
-+            net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
-+        );
-+    }
-+
-+    /**
-+     * Creates a plugin translatable component configured with a key.
-+     * An empty tag resolver will be used, meaning no tags will be resolved. Additionally, a default mini message instance will be used.
-+     *
-+     * @param key the translation key of the plugin translatable component.
-+     *
-+     * @return a new immutable plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    public static @NotNull PluginTranslatableComponent pluginTranslatable(@NotNull final String key) {
-+        return new PluginTranslatableComponentImpl(
-+            java.util.Collections.emptyList(),
-+            net.kyori.adventure.text.format.Style.empty(),
-+            key,
-+            net.kyori.adventure.text.minimessage.tag.resolver.TagResolver.empty(),
-+            net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
-+        );
-+    }
-+
-+    /**
-+     * Creates a builder for the plugin translatable component.
-+     * The builder is not configured with any default values and will need to be filled.
-+     *
-+     * @return a mutable builder for the plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    public static @NotNull PluginTranslatableComponent.Builder pluginTranslatable() {
-+        return new PluginTranslatableComponentImpl.BuilderImpl();
-+    }
-+
-+    /**
-+     * Renders the provided component, translating to the given locale if possible.
-+     *
-+     * @param component the component to render
-+     * @param locale the locale to translate the text to
-+     *
-+     * @return the rendered component
-+     *
-+     * @since 1.19.4
-+     */
-+    public static @NotNull Component render(@NotNull Component component, @NotNull java.util.Locale locale) {
-+        return org.bukkit.Bukkit.pluginTranslators().renderer().render(component, locale);
-+    }
-+
-+}
-diff --git a/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..baa2c2f2b25bf99f887b10a6a4479a8c6032fed3
---- /dev/null
-+++ b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponent.java
-@@ -0,0 +1,156 @@
-+package net.kyori.adventure.text;
-+
-+import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-+import net.kyori.adventure.translation.Translatable;
-+import org.jetbrains.annotations.Contract;
-+import org.jetbrains.annotations.NotNull;
-+
-+import java.util.Objects;
-+
-+/**
-+ * The plugin translatable component is a form a {@link net.kyori.adventure.text.TranslatableComponent}. Similarly to a translatable component
-+ * it is constructed using only a {@link net.kyori.adventure.translation.Translatable} key, however the translation of this key is expected
-+ * to be representing a translation that is in the mini-message format.
-+ */
-+public interface PluginTranslatableComponent extends BuildableComponent<PluginTranslatableComponent, PluginTranslatableComponent.Builder>,
-+    ScopedComponent<PluginTranslatableComponent> {
-+
-+    /**
-+     * Gets the translation key.
-+     *
-+     * @return the translation key
-+     *
-+     * @since 1.17.1
-+     */
-+    @NotNull String key();
-+
-+    /**
-+     * Sets the translation key.
-+     *
-+     * @param translatable the translatable object to get the key from
-+     *
-+     * @return a plugin translatable component
-+     *
-+     * @since 1.17.1
-+     */
-+    @Contract(pure = true)
-+    default @NotNull PluginTranslatableComponent key(final @NotNull Translatable translatable) {
-+        return this.key(Objects.requireNonNull(translatable, "translatable").translationKey());
-+    }
-+
-+    /**
-+     * Sets the translation key.
-+     *
-+     * @param key the translation key
-+     *
-+     * @return a plugin translatable component
-+     *
-+     * @since 1.17.1
-+     */
-+    @Contract(pure = true)
-+    @NotNull PluginTranslatableComponent key(final @NotNull String key);
-+
-+    /**
-+     * Gets the unmodifiable instance of the tag resolver that is currently used by the component to resolve the tags found inside.
-+     *
-+     * @return the unmodifiable tag resolver instance.
-+     *
-+     * @since 1.17.1
-+     */
-+    @NotNull TagResolver tagResolver();
-+
-+    /**
-+     * Sets the tag resolver that should be used to resolve tags found.
-+     *
-+     * @param tagResolver the tag resolver instance.
-+     *
-+     * @return a plugin translatable component
-+     *
-+     * @since 1.17.1
-+     */
-+    @Contract(pure = true)
-+    @NotNull PluginTranslatableComponent tagResolver(final @NotNull TagResolver tagResolver);
-+
-+    /**
-+     * Provides the mini message instance to use when rendering the translatable component.
-+     *
-+     * @return the mini message instance that this component used by the component to render it.
-+     *
-+     * @since 1.17.1
-+     */
-+    @NotNull MiniMessage miniMessageInstance();
-+
-+    /**
-+     * Sets the mini message instance to use when rendering the translatable component.
-+     *
-+     * @param miniMessageInstance the mini message instance that should be used by the component to render it.
-+     *
-+     * @return a new plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    @Contract(pure = true)
-+    @NotNull PluginTranslatableComponent miniMessageInstance(final @NotNull MiniMessage miniMessageInstance);
-+
-+    /**
-+     * A text component builder for the plugin translatable component.
-+     *
-+     * @since 1.17.1
-+     */
-+    @SuppressWarnings("NonExtendableApiUsage")
-+    interface Builder extends ComponentBuilder<PluginTranslatableComponent, PluginTranslatableComponent.Builder> {
-+
-+        /**
-+         * Sets the translation key.
-+         *
-+         * @param translatable the translatable object to get the key from
-+         *
-+         * @return this builder
-+         *
-+         * @since 1.17.1
-+         */
-+        @Contract(pure = true)
-+        default @NotNull PluginTranslatableComponent.Builder key(final @NotNull Translatable translatable) {
-+            return this.key(Objects.requireNonNull(translatable, "translatable").translationKey());
-+        }
-+
-+        /**
-+         * Sets the translation key.
-+         *
-+         * @param key the translation key
-+         *
-+         * @return this builder
-+         *
-+         * @since 1.17.1
-+         */
-+        @Contract("_ -> this")
-+        @NotNull PluginTranslatableComponent.Builder key(final @NotNull String key);
-+
-+        /**
-+         * Sets the tag resolver that should be used to resolve tags found.
-+         *
-+         * @param tagResolver the tag resolver instance.
-+         *
-+         * @return this builder.
-+         *
-+         * @since 1.17.1
-+         */
-+        @Contract(pure = true)
-+        @NotNull PluginTranslatableComponent.Builder tagResolver(final @NotNull TagResolver tagResolver);
-+
-+        /**
-+         * Sets the mini message instance to use when rendering this translatable component.
-+         *
-+         * @param miniMessageInstance the mini message instance that should be used by the component to render it.
-+         *
-+         * @return this builder
-+         *
-+         * @since 1.17.1
-+         */
-+        @Contract("_ -> this")
-+        @NotNull PluginTranslatableComponent.Builder miniMessageInstance(final @NotNull MiniMessage miniMessageInstance);
-+
-+    }
-+
-+}
-diff --git a/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..3368a06f218c0632f7b32c40c9e3b5413ad4e243
---- /dev/null
-+++ b/src/main/java/net/kyori/adventure/text/PluginTranslatableComponentImpl.java
-@@ -0,0 +1,154 @@
-+package net.kyori.adventure.text;
-+
-+import net.kyori.adventure.text.format.Style;
-+import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-+import org.jetbrains.annotations.NotNull;
-+import org.jetbrains.annotations.Nullable;
-+import org.jetbrains.annotations.Unmodifiable;
-+
-+import java.util.List;
-+import java.util.Objects;
-+
-+import static java.util.Objects.requireNonNull;
-+
-+final class PluginTranslatableComponentImpl implements PluginTranslatableComponent {
-+
-+    @NotNull private final List<Component> children;
-+    @NotNull private final Style style;
-+    @NotNull private final String key;
-+    @NotNull private final MiniMessage miniMessageInstance;
-+    @NotNull private final TagResolver tagResolver;
-+
-+    public PluginTranslatableComponentImpl(@NotNull List<? extends ComponentLike> children,
-+                                           @NotNull Style style,
-+                                           @NotNull String key, @NotNull TagResolver tagResolver,
-+                                           @NotNull MiniMessage miniMessageInstance) {
-+        this.children = ComponentLike.asComponents(children, IS_NOT_EMPTY);
-+        this.style = requireNonNull(style, "style");
-+        this.key = requireNonNull(key, "key");
-+        this.tagResolver = requireNonNull(tagResolver, "tagResolver");
-+        this.miniMessageInstance = requireNonNull(miniMessageInstance, "miniMessageInstance");
-+    }
-+
-+    @Override
-+    public @NotNull String key() {
-+        return this.key;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent key(@NotNull String key) {
-+        requireNonNull(key, "key");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, key, this.tagResolver, this.miniMessageInstance);
-+    }
-+
-+    @Override
-+    public @NotNull TagResolver tagResolver() {
-+        return this.tagResolver;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent tagResolver(@NotNull TagResolver tagResolver) {
-+        requireNonNull(tagResolver, "tagResolver");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, tagResolver, this.miniMessageInstance);
-+    }
-+
-+    @Override
-+    public @NotNull MiniMessage miniMessageInstance() {
-+        return this.miniMessageInstance;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent miniMessageInstance(@NotNull MiniMessage miniMessageInstance) {
-+        requireNonNull(miniMessageInstance, "miniMessageInstance");
-+        return new PluginTranslatableComponentImpl(this.children, this.style, this.key, this.tagResolver, miniMessageInstance);
-+    }
-+
-+    @Override
-+    public @Unmodifiable @NotNull List<Component> children() {
-+        return this.children;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent children(@NotNull List<? extends ComponentLike> children) {
-+        requireNonNull(children, "children");
-+        return new PluginTranslatableComponentImpl(children, this.style, this.key, this.tagResolver, this.miniMessageInstance);
-+    }
-+
-+    @Override
-+    public @NotNull Style style() {
-+        return this.style;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent style(@NotNull Style style) {
-+        requireNonNull(style, "style");
-+        return new PluginTranslatableComponentImpl(this.children, style, this.key, this.tagResolver, this.miniMessageInstance);
-+    }
-+
-+    @Override
-+    public boolean equals(final @Nullable Object other) {
-+        if (this == other) return true;
-+        if (!(other instanceof PluginTranslatableComponent that)) return false;
-+        if (!super.equals(other)) return false;
-+        return Objects.equals(this.key, that.key()) && Objects.equals(this.tagResolver, that.tagResolver());
-+    }
-+
-+    @Override
-+    public int hashCode() {
-+        int result = this.children.hashCode();
-+        result = (31 * result) + this.style.hashCode();
-+        result = (31 * result) + this.key.hashCode();
-+        result = (31 * result) + this.tagResolver.hashCode();
-+        result = (31 * result) + this.miniMessageInstance.hashCode();
-+        return result;
-+    }
-+
-+    @Override
-+    public @NotNull PluginTranslatableComponent.Builder toBuilder() {
-+        return new BuilderImpl(this);
-+    }
-+
-+    static final class BuilderImpl extends AbstractComponentBuilder<PluginTranslatableComponent, PluginTranslatableComponent.Builder> implements PluginTranslatableComponent.Builder {
-+
-+        private @Nullable String key;
-+        private TagResolver tagResolver = TagResolver.empty();
-+        private MiniMessage miniMessageInstance = MiniMessage.miniMessage();
-+
-+        BuilderImpl() {
-+        }
-+
-+        BuilderImpl(final @NotNull PluginTranslatableComponent component) {
-+            super(component);
-+            this.key = component.key();
-+            this.tagResolver = component.tagResolver();
-+            this.miniMessageInstance = component.miniMessageInstance();
-+        }
-+
-+        @Override
-+        public @NotNull PluginTranslatableComponent.Builder key(final @NotNull String key) {
-+            this.key = key;
-+            return this;
-+        }
-+
-+        @Override
-+        public @NotNull PluginTranslatableComponent.Builder tagResolver(@NotNull TagResolver tagResolver) {
-+            this.tagResolver = tagResolver;
-+            return this;
-+        }
-+
-+        @Override
-+        public @NotNull PluginTranslatableComponent.Builder miniMessageInstance(@NotNull MiniMessage miniMessageInstance) {
-+            this.miniMessageInstance = miniMessageInstance;
-+            return this;
-+        }
-+
-+        @Override
-+        public @NotNull PluginTranslatableComponentImpl build() {
-+            if (this.key == null) throw new IllegalStateException("key must be set");
-+            return new PluginTranslatableComponentImpl(this.children, this.buildStyle(), this.key, this.tagResolver, this.miniMessageInstance);
-+        }
-+
-+    }
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
