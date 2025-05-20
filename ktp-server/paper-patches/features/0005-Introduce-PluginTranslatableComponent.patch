@@ -21,97 +21,28 @@ for the added plugin translatable components.
 
 Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
-diff --git a/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..08f72331db803cb7f0138e5d4c669ddc0e1ecab3
---- /dev/null
-+++ b/src/main/java/dev/lynxplay/ktp/adventure/text/PluginTranslatableComponentRenderer.java
-@@ -0,0 +1,67 @@
-+package dev.lynxplay.ktp.adventure.text;
-+
-+import dev.lynxplay.ktp.adventure.translation.PluginShortcutMessageFormat;
-+import net.kyori.adventure.text.Component;
-+import net.kyori.adventure.text.PluginTranslatableComponent;
-+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
-+import net.kyori.adventure.translation.Translator;
-+import org.jetbrains.annotations.NotNull;
-+import org.jetbrains.annotations.Nullable;
-+
-+import java.text.MessageFormat;
-+import java.util.ArrayList;
-+import java.util.Locale;
-+
-+public final class PluginTranslatableComponentRenderer extends TranslatableComponentRenderer<Locale> {
-+
-+    private final Translator translator;
-+
-+    public PluginTranslatableComponentRenderer(Translator translator) {
-+        this.translator = translator;
-+    }
-+
-+    @Override
-+    public @NotNull Component render(@NotNull Component component, @NotNull Locale context) {
-+        if (component instanceof PluginTranslatableComponent pluginTranslatable) {
-+            final var format = this.translate(pluginTranslatable.key(), context);
-+
-+            if (format == null) { // Translation not found, but arguments/children components need rendering
-+                final var builder = Component.text(pluginTranslatable.key()).toBuilder();
-+                return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
-+            }
-+
-+            final var rawTranslation = (format instanceof PluginShortcutMessageFormat shortcutFormat) ? shortcutFormat.toPattern()
-+                : format.format(null, new StringBuffer(), null).toString();
-+
-+            var rendered = super.render( // This call will take (at least on root level) a component the delegate will understand.
-+                pluginTranslatable.miniMessageInstance().deserialize(rawTranslation, pluginTranslatable.tagResolver()),
-+                context
-+            );
-+
-+            if (!component.children().isEmpty()) {
-+                final var renderedChildren = new ArrayList<Component>(rendered.children().size() + component.children().size());
-+                renderedChildren.addAll(rendered.children()); // Prepend mini message parsed children.
-+
-+                for (final var child : component.children()) {
-+                    renderedChildren.add(this.render(child, context)); // Add added children afterwards.
-+                }
-+
-+                rendered = rendered.children(renderedChildren);
-+            }
-+
-+            if (component.hasStyling()) {
-+                rendered =  rendered.mergeStyle(component);
-+            }
-+
-+            return rendered;
-+        }
-+
-+        return super.render(component, context);
-+    }
-+
-+    @Override
-+    protected @Nullable MessageFormat translate(@NotNull String key, @NotNull Locale context) {
-+        return translator.translate(key, context);
-+    }
-+
-+}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22c06a26c7
+index 0000000000000000000000000000000000000000..6d0bdb91d8babff43e7023e3f34d8593305887af
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,59 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
++import com.google.common.collect.ImmutableSet;
 +import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
++import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
++import org.jetbrains.annotations.Unmodifiable;
 +
 +import java.util.ArrayList;
 +import java.util.Collections;
 +import java.util.List;
 +import java.util.Locale;
 +import java.util.Map;
++import java.util.Set;
 +
 +/**
 + * A straight forward implementation of the plugin translation bundle that uses a fast util map.
@@ -140,13 +71,27 @@ index 0000000000000000000000000000000000000000..ae38ab57186e8d5afed32dd65b335e22
 +        return translationLocale == null ? null : translationLocale.get(translationKey);
 +    }
 +
++    @Override
++    public @Unmodifiable Set<Locale> knownLocales() {
++        return ImmutableSet.copyOf(this.localeTranslationMappings.keySet());
++    }
++
++    @Override
++    public @Unmodifiable Set<String> joinedKnownKeys() {
++        final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
++        for (final Map<String, String> value : localeTranslationMappings.values()) {
++            value.keySet().forEach(builder::add);
++        }
++        return builder.build();
++    }
++
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e8580d9a8
+index 0000000000000000000000000000000000000000..f23dbf43ba42e9f5ae814a34da624c3b14fca791
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,88 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
@@ -157,8 +102,11 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.YamlTranslationFileParser;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
++import net.kyori.adventure.key.Key;
++import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 +import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 +import net.kyori.adventure.translation.Translator;
++import org.intellij.lang.annotations.Subst;
 +import org.jetbrains.annotations.NotNull;
 +
 +import java.io.IOException;
@@ -167,6 +115,7 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +import java.util.List;
 +import java.util.Locale;
 +import java.util.Map;
++import java.util.Set;
 +import java.util.stream.Stream;
 +
 +/**
@@ -201,13 +150,13 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +    }
 +
 +    @Override
-+    public @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle) {
-+        return new SinglePluginTranslator(namespace, pluginTranslationBundle);
-+    }
-+
-+    @Override
-+    public @NotNull TranslatableComponentRenderer<Locale> renderer() {
-+        return KTPTranslator.RENDERER;
++    public @NotNull Translator createPluginTranslator(@Subst("plugin") @NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle) {
++        final MiniMessageTranslationStore store = MiniMessageTranslationStore.create(Key.key("ktp-plugin-translator", namespace));
++        final Set<String> allKeys = pluginTranslationBundle.joinedKnownKeys();
++        for (final Locale knownLocale : pluginTranslationBundle.knownLocales()) {
++            store.registerAll(knownLocale, allKeys, s -> pluginTranslationBundle.findTranslation(knownLocale, s));
++        }
++        return store;
 +    }
 +
 +    @Override
@@ -231,57 +180,9 @@ index 0000000000000000000000000000000000000000..218d25eab6dc87dcecd9239b0ecc845e
 +    }
 +
 +}
-diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..02b2519f21b46a587a28a1b98ef75e3729aeeff2
---- /dev/null
-+++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/SinglePluginTranslator.java
-@@ -0,0 +1,42 @@
-+package dev.lynxplay.ktp.adventure.translation;
-+
-+import net.kyori.adventure.key.Key;
-+import net.kyori.adventure.translation.Translator;
-+import org.jetbrains.annotations.NotNull;
-+import org.jetbrains.annotations.Nullable;
-+
-+import java.text.MessageFormat;
-+import java.util.Locale;
-+
-+/**
-+ * An implementation of the adventure translator interface that holds onto a {@link PluginTranslationBundle} of a specific plugin's namespace.
-+ */
-+public class SinglePluginTranslator implements Translator {
-+
-+    private final String namespaceSuffixedDot;
-+    private final Key key;
-+    private final PluginTranslationBundle translationBundle;
-+
-+    @SuppressWarnings("PatternValidation") // Key#key(String,String) will perform pattern validation, we do not have to enforce the pattern early.
-+    public SinglePluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle translationBundle) {
-+        this.namespaceSuffixedDot = namespace + ".";
-+        this.key = Key.key(namespace, "translations");
-+        this.translationBundle = translationBundle;
-+    }
-+
-+    @Override
-+    public @NotNull Key name() {
-+        return this.key;
-+    }
-+
-+    @Override
-+    public @Nullable MessageFormat translate(@NotNull String key, @NotNull Locale locale) {
-+        if (!key.startsWith(namespaceSuffixedDot)) return null;
-+
-+        var translation = this.translationBundle.findTranslation(locale, key);
-+        if (translation == null) translation = this.translationBundle.findTranslation(Locale.ENGLISH, key);
-+
-+        return translation == null ? null : new PluginShortcutMessageFormat(translation);
-+    }
-+
-+}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ee5ff959e783071cee22832d3699bdec27babc13
+index 0000000000000000000000000000000000000000..6a37f588aac5847ceb7245d22716d793e97ea224
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/parser/FilenameTranslationLocaleParser.java
 @@ -0,0 +1,30 @@
@@ -289,7 +190,7 @@ index 0000000000000000000000000000000000000000..ee5ff959e783071cee22832d3699bdec
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationLocaleParserException;
 +import net.kyori.adventure.translation.Translator;
-+import org.apache.commons.lang.StringUtils;
++import org.apache.commons.lang3.StringUtils;
 +import org.jetbrains.annotations.NotNull;
 +
 +import java.nio.file.Path;

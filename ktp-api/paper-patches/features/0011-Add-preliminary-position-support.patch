@@ -9,7 +9,7 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/io/papermc/paper/math/Position.java b/src/main/java/io/papermc/paper/math/Position.java
-index 0e6a6a6738353b118e0ed093994dda06750700c4..dee18fe6865d05cd533c315a01348b9d583cfc3a 100644
+index 0e6a6a6738353b118e0ed093994dda06750700c4..40cf8847f26cd1a1ffd10ab506100631134b370b 100644
 --- a/src/main/java/io/papermc/paper/math/Position.java
 +++ b/src/main/java/io/papermc/paper/math/Position.java
 @@ -189,4 +189,35 @@ public interface Position {
@@ -28,7 +28,7 @@ index 0e6a6a6738353b118e0ed093994dda06750700c4..dee18fe6865d05cd533c315a01348b9d
 +     *
 +     * @return the squared euclidean distance.
 +     */
-+    default double distanceSquared(@NotNull final Position position) {
++    default double distanceSquared(final Position position) {
 +        // Math.pow is optimised for the exponent 2.0: https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/FdLibm.java#L2122
 +        return Math.pow(x() - position.x(), 2) + Math.pow(y() - position.y(), 2) + Math.pow(z() - position.z(), 2);
 +    }
@@ -43,7 +43,7 @@ index 0e6a6a6738353b118e0ed093994dda06750700c4..dee18fe6865d05cd533c315a01348b9d
 +     *
 +     * @return the euclidean distance.
 +     */
-+    default double distance(@NotNull final Position position) {
++    default double distance(final Position position) {
 +        return Math.sqrt(distanceSquared(position));
 +    }
 +    // KTP end - preliminary position support
