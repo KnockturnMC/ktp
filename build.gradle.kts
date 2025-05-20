@@ -74,12 +74,10 @@ subprojects {
 
     extensions.configure<PublishingExtension> {
         repositories {
-            /*
-            maven("https://repo.papermc.io/repository/maven-snapshots/") {
-                name = "paperSnapshots"
+            maven("https://repo.knockturnmc.com/repository/knockturn-public-snapshot/") {
+                name = "knockturnPublic"
                 credentials(PasswordCredentials::class)
             }
-             */
         }
     }
 }
