@@ -88,10 +88,10 @@ index 0000000000000000000000000000000000000000..6d0bdb91d8babff43e7023e3f34d8593
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f23dbf43ba42e9f5ae814a34da624c3b14fca791
+index 0000000000000000000000000000000000000000..206ddd28d7dfc4027ea1033f26ec914bea5fe77c
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,91 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
@@ -103,6 +103,7 @@ index 0000000000000000000000000000000000000000..f23dbf43ba42e9f5ae814a34da624c3b
 +import dev.lynxplay.ktp.adventure.translation.parser.YamlTranslationFileParser;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import net.kyori.adventure.key.Key;
++import net.kyori.adventure.text.minimessage.MiniMessage;
 +import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 +import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 +import net.kyori.adventure.translation.Translator;
@@ -150,8 +151,10 @@ index 0000000000000000000000000000000000000000..f23dbf43ba42e9f5ae814a34da624c3b
 +    }
 +
 +    @Override
-+    public @NotNull Translator createPluginTranslator(@Subst("plugin") @NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle) {
-+        final MiniMessageTranslationStore store = MiniMessageTranslationStore.create(Key.key("ktp-plugin-translator", namespace));
++    public @NotNull Translator createPluginTranslator(@Subst("plugin") @NotNull String namespace,
++                                                      @NotNull PluginTranslationBundle pluginTranslationBundle,
++                                                      @NotNull MiniMessage miniMessage) {
++        final MiniMessageTranslationStore store = MiniMessageTranslationStore.create(Key.key("ktp-plugin-translator", namespace), miniMessage);
 +        final Set<String> allKeys = pluginTranslationBundle.joinedKnownKeys();
 +        for (final Locale knownLocale : pluginTranslationBundle.knownLocales()) {
 +            store.registerAll(knownLocale, allKeys, s -> pluginTranslationBundle.findTranslation(knownLocale, s));
