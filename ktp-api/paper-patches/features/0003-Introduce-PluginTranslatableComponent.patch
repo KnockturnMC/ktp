@@ -77,10 +77,10 @@ index 0000000000000000000000000000000000000000..92f3e30a857e9a241e943e47385c76a2
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f0a8aba306daf8dbc58f7285738566118e2255a3
+index 0000000000000000000000000000000000000000..0f834d4e0677644e27f5631f2787e785686a8a11
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslators.java
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,177 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import com.google.common.base.Preconditions;
@@ -88,6 +88,7 @@ index 0000000000000000000000000000000000000000..f0a8aba306daf8dbc58f728573856611
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationFileParser;
 +import dev.lynxplay.ktp.adventure.translation.parser.TranslationLocaleParser;
 +import net.kyori.adventure.text.TranslatableComponent;
++import net.kyori.adventure.text.minimessage.MiniMessage;
 +import net.kyori.adventure.translation.Translator;
 +import org.bukkit.plugin.Plugin;
 +import org.jetbrains.annotations.NotNull;
@@ -134,8 +135,30 @@ index 0000000000000000000000000000000000000000..f0a8aba306daf8dbc58f728573856611
 +     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
 +     */
 +    default @NotNull Translator createPluginTranslator(@NotNull Plugin plugin, @NotNull PluginTranslationBundle pluginTranslationBundle) {
++        return this.createPluginTranslator(plugin, pluginTranslationBundle, MiniMessage.miniMessage());
++    }
++
++    /**
++     * Creates a new adventure translator that may be registered on the {@link net.kyori.adventure.translation.GlobalTranslator} to take effect.
++     * <p>
++     * This method is a direct delegate to the {@link #createPluginTranslator(String, PluginTranslationBundle)} method by using the plugins name
++     * as a namespace. More specifically {@link Plugin#getName()} converted to lowercase.
++     * <p>
++     * The namespace is prefixed and joined using a plain '.'.
++     * An example would be the translation key 'message.player.join' and the plugin named 'Example' which would produced a final effective translation
++     * key of 'example.message.player.join'
++     *
++     * @param plugin                  the plugin instance that defines the namespace this plugin translator should be responsible for.
++     * @param pluginTranslationBundle the plugin translation bundle holding all the translations the plugin has for its messages.
++     * @param miniMessage             the mini message instance to use.
++     *
++     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
++     */
++    default @NotNull Translator createPluginTranslator(@NotNull Plugin plugin,
++                                                       @NotNull PluginTranslationBundle pluginTranslationBundle,
++                                                       @NotNull MiniMessage miniMessage) {
 +        Preconditions.checkNotNull(plugin, "The passed plugin was null");
-+        return this.createPluginTranslator(plugin.getName().toLowerCase(Locale.ROOT), pluginTranslationBundle);
++        return this.createPluginTranslator(plugin.getName().toLowerCase(Locale.ROOT), pluginTranslationBundle, miniMessage);
 +    }
 +
 +    /**
@@ -150,7 +173,27 @@ index 0000000000000000000000000000000000000000..f0a8aba306daf8dbc58f728573856611
 +     *
 +     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
 +     */
-+    @NotNull Translator createPluginTranslator(@NotNull String namespace, @NotNull PluginTranslationBundle pluginTranslationBundle);
++    default @NotNull Translator createPluginTranslator(@NotNull String namespace,
++                                                       @NotNull PluginTranslationBundle pluginTranslationBundle) {
++        return createPluginTranslator(namespace, pluginTranslationBundle, MiniMessage.miniMessage());
++    }
++
++    /**
++     * Creates a new adventure translator that may be registered on the {@link net.kyori.adventure.translation.GlobalTranslator} to take effect.
++     * <p>
++     * The namespace is prefixed and joined using a plain '.'.
++     * An example would be the translation key 'message.player.join' and the plugin named 'Example' which would produced a final effective translation
++     * key of 'example.message.player.join'
++     *
++     * @param namespace               the namespace this plugin translator should be responsible for.
++     * @param pluginTranslationBundle the plugin translation bundle holding all the translations the plugin has for its messages.
++     * @param miniMessage             the mini message instance to use.
++     *
++     * @return the translator instance that is capable of translating all translations in the translation bundle prefixed with the namespace.
++     */
++    @NotNull Translator createPluginTranslator(@NotNull String namespace,
++                                               @NotNull PluginTranslationBundle pluginTranslationBundle,
++                                               @NotNull MiniMessage miniMessage);
 +
 +    /**
 +     * Provides a static immutable implementation of the translation file parser that is capable of parsing yaml files.
