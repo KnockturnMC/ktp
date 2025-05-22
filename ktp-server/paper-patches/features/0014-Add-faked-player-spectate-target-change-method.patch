@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Thu, 22 May 2025 17:20:03 -0400
+Subject: [PATCH] Add faked player spectate target change method
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 10b792c6183d1060ec18be7c712045438be7f270..8ba66afc82b0222f276b27204476385c2263d8c1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -1202,6 +1202,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+         this.getHandle().connection.send(new ClientboundRemoveMobEffectPacket(entity.getEntityId(), CraftPotionEffectType.bukkitToMinecraftHolder(type)));
+     }
+ 
++    @Override
++    public void sendSpectateTargetChange(org.bukkit.entity.@Nullable Entity target) {
++        if (this.getHandle().connection == null) return;
++
++        this.getHandle().connection.sendPacket(
++            new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(
++                target == null ? this.getHandle() :  ((CraftEntity) target).getHandle()
++            )
++        );
++    }
++
+     @Override
+     public WorldBorder getWorldBorder() {
+         return this.clientWorldBorder;

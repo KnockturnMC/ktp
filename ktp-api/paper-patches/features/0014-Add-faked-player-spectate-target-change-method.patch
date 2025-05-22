@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jatyn Stacy <jlee0964@gmail.com>
+Date: Thu, 22 May 2025 17:20:03 -0400
+Subject: [PATCH] Add faked player spectate target change method
+
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index c3dfe3471d33c5e24985a883bdead48597dd9da0..ef76e4f9e37dfdb0118e7f0697b412fc2798ae6c 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -1287,6 +1287,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+      */
+     public void sendMap(MapView map);
+ 
++    /**
++     * Fakes a change in the player's spectator target to the given entity.
++     *
++     * @param target The entity the player should spectate, or null to reset
++     */
++    public void sendSpectateTargetChange(@Nullable Entity target);
++
+     /**
+      * Shows the player the win screen that normally is only displayed after one kills the ender dragon
+      * and exits the end for the first time.
