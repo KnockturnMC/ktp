@@ -14,11 +14,37 @@ before the packet even begins processing. While this obviously prevents
 acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index aae378697b2f2e388d2a5dfaca24c9197b8abf3e..30882415479396e6b53680dc58866eee91a0dddf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2473,4 +2473,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         return this.adventure$pointers;
+     }
+     // Paper end
++    // KTP start - expose low level steering interceptors
++    @Override
++    public org.bukkit.util.Vector computeCollisionCorrectedMovementFor(org.bukkit.util.Vector movement, org.bukkit.util.BoundingBox boundingBox) {
++        return org.bukkit.craftbukkit.util.CraftVector.toBukkit(
++            net.minecraft.world.entity.Entity.collideStatic(
++                org.bukkit.craftbukkit.util.CraftVector.toVec3(movement),
++                this.getHandle(),
++                new net.minecraft.world.phys.AABB(
++                    boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(),
++                    boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ()
++                ),
++                null
++            )
++        );
++    }
++    // KTP end - expose low level steering interceptors
++
+ }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index b64902580c05a49e78d4f8e85a5ef677b498b2a8..7593273a8931c43ea01e2eb4d4b8c4d49d676800 100644
+index b64902580c05a49e78d4f8e85a5ef677b498b2a8..83d69491efed83b91499240126448dbae25b2f5d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1316,4 +1316,28 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1316,4 +1316,36 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return this.entity.get(io.papermc.paper.datacomponent.PaperDataComponentType.bukkitToMinecraft(type)) != null;
      }
  
@@ -44,6 +70,14 @@ index b64902580c05a49e78d4f8e85a5ef677b498b2a8..7593273a8931c43ea01e2eb4d4b8c4d4
 +    @Override
 +    public boolean physics() {
 +        return !this.entity.noPhysics;
++    }
++
++    @Override
++    @org.jetbrains.annotations.NotNull
++    public Vector correctMovementForCollision(@org.jetbrains.annotations.NotNull Vector movement) {
++        return org.bukkit.craftbukkit.util.CraftVector.toBukkit(
++            this.entity.collide(org.bukkit.craftbukkit.util.CraftVector.toVec3(movement))
++        );
 +    }
 +    // KTP end
  }

@@ -1,4 +1,5 @@
 version = "1.0.0-SNAPSHOT"
+testing.suites.withType<JvmTestSuite> { useJUnitJupiter() }
 
 repositories {
     maven("https://libraries.minecraft.net")
@@ -7,16 +8,8 @@ repositories {
 
 dependencies {
     compileOnly(project(":ktp-api"))
-    compileOnly("io.papermc.paper:paper-mojangapi:1.18.2-R0.1-SNAPSHOT") {
-        exclude("io.papermc.paper", "paper-api")
-    }
 
     testImplementation(project(":ktp-api"))
-    testImplementation("io.papermc.paper:paper-mojangapi:1.18.2-R0.1-SNAPSHOT") {
-        exclude("io.papermc.paper", "paper-api")
-    }
-    testImplementation(platform("org.junit:junit-bom:5.8.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 tasks.processResources {

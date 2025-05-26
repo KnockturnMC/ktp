@@ -51,11 +51,34 @@ index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae997
 +     */
 +    SHULKER;
 +}
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index a8b64f78bf3c453094074b4b4d3c8fd07b9eb273..c8c9cc411ee07e6f246e927ad01d910ac1c95784 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -4444,4 +4444,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+             }
+         }
+     }
++
++    // KTP start - expose low level steering interceptors
++    /**
++     * Computes the corrected movement for the passed bounding box if it were to move by the passed movement.
++     * This method mirrors {@link Entity#correctMovementForCollision(Vector)}, however, accepts a custom bounding box.
++     *
++     * @param movement the movement vector the bounding box would move by.
++     * @param boundingBox the bounding box at its location prior to the movement described by the passed vector.
++     *
++     * @return the corrected movement vector.
++     */
++    @NotNull
++    Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
++    // KTP end - expose low level steering interceptors
+ }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 66a31c5d83b78dddb43e70cfd5ce7c7fb8a551b6..e0a6a25c5a46c7f30d6c067c0e283ea71bfd027e 100644
+index 66a31c5d83b78dddb43e70cfd5ce7c7fb8a551b6..2366b0b1076d0a8a4bd449aca7e2117d5d088ffe 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1261,4 +1261,34 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1261,4 +1261,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
      void broadcastHurtAnimation(@NotNull java.util.Collection<Player> players);
      // Paper end - broadcast hurt animation
@@ -88,5 +111,17 @@ index 66a31c5d83b78dddb43e70cfd5ce7c7fb8a551b6..e0a6a25c5a46c7f30d6c067c0e283ea7
 +     * @return the boolean value indicating whether the entity is processing its physics.
 +     */
 +    boolean physics();
++
++    /**
++     * Corrects the passed movement in accordance with in-world collisions.
++     * An entity moving up by [0,1,0] with a block directly above its bounding box, would hence have a corrected move vector of [0,0,0] as
++     * no movement upwards is possible.
++     *
++     * @param movement the originally wanted movement vector.
++     *
++     * @return the corrected vector for movement.
++     */
++    @NotNull
++    Vector correctMovementForCollision(@NotNull Vector movement);
 +    // KTP end
  }

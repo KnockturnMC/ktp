@@ -1,0 +1,155 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 26 May 2025 20:46:40 +0200
+Subject: [PATCH] Nasty playSound offthread hacks
+
+Sending sounds off the main thread uses the non-thread safe world seed
+in upstreams implementation, which makes sense.
+In the context of this fork however, such fine grained control over the
+seed is not needed, unless explicitly specified.
+Instead of async catching calls that implicitly generate a seed, fall
+back to a ThreadLocalRandom instance for seed generation off the main
+thread.
+
+Iteration over the player list is thread safe due to it being a
+COWArrayList.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 9637ead834b22a917a56084a957909691fd741f0..3d5d713f3f16af4f026857f68def2f61196d1e0b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -1858,17 +1858,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+-        this.playSound(loc, sound, category, volume, pitch, this.getHandle().random.nextLong());;
++        this.playSound(loc, sound, category, volume, pitch, this.syncSoundSeedOrNextLocalRandom());; // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+     public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+-        this.playSound(loc, sound, category, volume, pitch, this.getHandle().random.nextLong());
++        this.playSound(loc, sound, category, volume, pitch, this.syncSoundSeedOrNextLocalRandom()); // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+     public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
++        // KTP - nasty hack to off-thread playSound
+         if (loc == null || sound == null || category == null) return;
+ 
+         double x = loc.getX();
+@@ -1880,7 +1880,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
++        // KTP - nasty hack to off-thread playSound
+         if (loc == null || sound == null || category == null) return;
+ 
+         double x = loc.getX();
+@@ -1903,17 +1903,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public void playSound(Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+-        this.playSound(entity, sound, category, volume, pitch, this.getHandle().random.nextLong());
++        this.playSound(entity, sound, category, volume, pitch, this.syncSoundSeedOrNextLocalRandom()); // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+     public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+-        this.playSound(entity, sound, category, volume, pitch, this.getHandle().random.nextLong());
++        this.playSound(entity, sound, category, volume, pitch, this.syncSoundSeedOrNextLocalRandom()); // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+     public void playSound(Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
++        // KTP - nasty hack to off-thread playSound
+         if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
+ 
+         ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(CraftSound.bukkitToMinecraftHolder(sound), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
+@@ -1925,8 +1925,8 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+     // Paper start - Adventure
+     @Override
+     public void playSound(final net.kyori.adventure.sound.Sound sound) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
+-        final long seed = sound.seed().orElseGet(this.world.getRandom()::nextLong);
++        // KTP - nasty hack to off-thread playSound
++        final long seed = sound.seed().orElseGet(this::syncSoundSeedOrNextLocalRandom); // KTP - nasty hack to off-thread playSound
+         for (ServerPlayer player : this.getHandle().players()) {
+             player.connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, player.getX(), player.getY(), player.getZ(), seed, null));
+         }
+@@ -1934,7 +1934,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
++        // KTP - nasty hack to off-thread playSound
+         if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
+ 
+         ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
+@@ -1946,14 +1946,14 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public void playSound(final net.kyori.adventure.sound.Sound sound, final double x, final double y, final double z) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
+-        io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, x, y, z, sound.seed().orElseGet(this.world.getRandom()::nextLong), this.playSound0(x, y, z));
++        // KTP - nasty hack to off-thread playSound
++        io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, x, y, z, sound.seed().orElseGet(this::syncSoundSeedOrNextLocalRandom), this.playSound0(x, y, z)); // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+     public void playSound(final net.kyori.adventure.sound.Sound sound, final net.kyori.adventure.sound.Sound.Emitter emitter) {
+-        org.spigotmc.AsyncCatcher.catchOp("play sound"); // Paper
+-        final long seed = sound.seed().orElseGet(this.getHandle().getRandom()::nextLong);
++        // KTP - nasty hack to off-thread playSound
++        final long seed = sound.seed().orElseGet(this::syncSoundSeedOrNextLocalRandom); // KTP - nasty hack to off-thread playSound
+         if (emitter == net.kyori.adventure.sound.Sound.Emitter.self()) {
+             for (ServerPlayer player : this.getHandle().players()) {
+                 player.connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, player, seed, null));
+@@ -1966,6 +1966,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         }
+     }
+ 
++    // KTP start - nasty hack to off-thread playSound
++    private long syncSoundSeedOrNextLocalRandom() {
++        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return this.world.random.nextLong();
++        return java.util.concurrent.ThreadLocalRandom.current().nextLong();
++    }
++    // KTP end - nasty hack to off-thread playSound
++
+     private java.util.function.BiConsumer<net.minecraft.network.protocol.Packet<?>, Float> playSound0(final double x, final double y, final double z) {
+         return (packet, distance) -> this.world.getServer().getPlayerList().broadcast(null, x, y, z, distance, this.world.dimension(), packet);
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 2d153365e8da43bd05de15e1bad83c4e974df1e5..2ef4bd346ebac33281906d6ca0432ed93c531cb1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -3262,7 +3262,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+ 
+     @Override
+     public void playSound(final net.kyori.adventure.sound.Sound sound, final double x, final double y, final double z) {
+-        this.getHandle().connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, x, y, z, sound.seed().orElseGet(this.getHandle().getRandom()::nextLong), null));
++        this.getHandle().connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, x, y, z, sound.seed().orElseGet(this::syncSoundSeedOrNextLocalRandom), null)); // KTP - nasty hack to off-thread playSound
+     }
+ 
+     @Override
+@@ -3275,9 +3275,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+         } else {
+             throw new IllegalArgumentException("Sound emitter must be an Entity or self(), but was: " + emitter);
+         }
+-        this.getHandle().connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, entity, sound.seed().orElseGet(this.getHandle().getRandom()::nextLong), null));
++        this.getHandle().connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, entity, sound.seed().orElseGet(this::syncSoundSeedOrNextLocalRandom), null)); // KTP - nasty hack to off-thread playSound
+     }
+ 
++    // KTP start - nasty hack to off-thread playSound
++    private long syncSoundSeedOrNextLocalRandom() {
++        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return this.getHandle().random.nextLong();
++        return java.util.concurrent.ThreadLocalRandom.current().nextLong();
++    }
++    // KTP end - nasty hack to off-thread playSound
++
+     @Override
+     public void stopSound(final net.kyori.adventure.sound.SoundStop stop) {
+         this.getHandle().connection.send(new ClientboundStopSoundPacket(

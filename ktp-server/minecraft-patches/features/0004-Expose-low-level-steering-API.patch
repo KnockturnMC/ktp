@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 26 May 2025 18:12:08 +0200
+Subject: [PATCH] Expose low level steering API
+
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c049b13df 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -1452,7 +1452,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     }
+ 
+     // Paper start - optimise collisions
+-    private Vec3 collide(Vec3 movement) {
++    // KTP start - expose to static environment
++    public Vec3 collide(Vec3 movement) {
++        return collideStatic(movement, this.level, this.getBoundingBox(), this);
++    }
++    public static Vec3 collideStatic(Vec3 movement, Level level, AABB boundingBox, @javax.annotation.Nullable Entity entity) {
++    // KTP end - expose to static environment
+         final boolean xZero = movement.x == 0.0;
+         final boolean yZero = movement.y == 0.0;
+         final boolean zZero = movement.z == 0.0;
+@@ -1460,7 +1465,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+             return movement;
+         }
+ 
+-        final AABB currentBox = this.getBoundingBox();
++        final AABB currentBox = boundingBox; // KTP - expose to static environment
+ 
+         final List<VoxelShape> potentialCollisionsVoxel = new ArrayList<>();
+         final List<AABB> potentialCollisionsBB = new ArrayList<>();
+@@ -1477,11 +1482,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+ 
+         final List<AABB> entityAABBs = new ArrayList<>();
+         ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getEntityHardCollisions(
+-            this.level, (Entity)(Object)this, initialCollisionBox, entityAABBs, 0, null
++            level, (Entity)(Object)entity, initialCollisionBox, entityAABBs, 0, null // KTP - expose to static environment
+         );
+ 
+         ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(
+-            this.level, (Entity)(Object)this, initialCollisionBox, potentialCollisionsVoxel, potentialCollisionsBB,
++            level, (Entity)(Object)entity, initialCollisionBox, potentialCollisionsVoxel, potentialCollisionsBB, // KTP - expose to static environment
+             ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER, null
+         );
+         potentialCollisionsBB.addAll(entityAABBs);
+@@ -1495,7 +1500,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+ 
+         final double stepHeight;
+ 
+-        if ((!collidedDownwards && !this.onGround) || (!collidedX && !collidedZ) || (stepHeight = (double)this.maxUpStep()) <= 0.0) {
++        if ((!collidedDownwards && !(entity == null ? false : entity.onGround)) || (!collidedX && !collidedZ) || (stepHeight = (double)(entity == null ? 0 : entity.maxUpStep())) <= 0.0) { // KTP - expose to static environment
+             return collided;
+         }
+ 
+@@ -1509,7 +1514,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+         final List<AABB> stepAABBs = entityAABBs;
+ 
+         ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(
+-            this.level, (Entity)(Object)this, stepRetrievalBox, stepVoxels, stepAABBs,
++            level, (Entity)(Object)entity, stepRetrievalBox, stepVoxels, stepAABBs, // KTP - expose to static environment
+             ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER, null
+         );
+ 

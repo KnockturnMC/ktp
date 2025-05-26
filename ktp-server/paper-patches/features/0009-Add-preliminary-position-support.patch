@@ -9,7 +9,7 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 4a405744061b2689a207aa085bec9a6a223342f2..e2fd58dc76fc3fdec3aaa97fdb36066f2dd5fe26 100644
+index 30882415479396e6b53680dc58866eee91a0dddf..9637ead834b22a917a56084a957909691fd741f0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -84,6 +84,7 @@ import org.bukkit.Note;
@@ -29,11 +29,10 @@ index 4a405744061b2689a207aa085bec9a6a223342f2..e2fd58dc76fc3fdec3aaa97fdb36066f
      }
  
      @Override
-@@ -2473,4 +2474,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
-         return this.adventure$pointers;
+@@ -2490,4 +2491,20 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      }
-     // Paper end
-+
+     // KTP end - expose low level steering interceptors
+ 
 +    // KTP start - preliminary position support
 +    @Override
 +    public void playSound(@org.jetbrains.annotations.NotNull final io.papermc.paper.math.Position position,
