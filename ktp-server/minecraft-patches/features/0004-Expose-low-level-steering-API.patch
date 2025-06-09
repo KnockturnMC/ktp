@@ -5,10 +5,10 @@ Subject: [PATCH] Expose low level steering API
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c049b13df 100644
+index af5b95978ea0b2afa4a1cd7aad99b75a9b1ef374..654237281d459ec9eeb06ee9e2dac352e9daf66e 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -1452,7 +1452,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1485,7 +1485,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      }
  
      // Paper start - optimise collisions
@@ -22,7 +22,7 @@ index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
          final boolean zZero = movement.z == 0.0;
-@@ -1460,7 +1465,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1493,7 +1498,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              return movement;
          }
  
@@ -31,7 +31,7 @@ index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c
  
          final List<VoxelShape> potentialCollisionsVoxel = new ArrayList<>();
          final List<AABB> potentialCollisionsBB = new ArrayList<>();
-@@ -1477,11 +1482,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1510,11 +1515,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
  
          final List<AABB> entityAABBs = new ArrayList<>();
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getEntityHardCollisions(
@@ -45,7 +45,7 @@ index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c
              ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER, null
          );
          potentialCollisionsBB.addAll(entityAABBs);
-@@ -1495,7 +1500,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1528,7 +1533,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
  
          final double stepHeight;
  
@@ -54,7 +54,7 @@ index 81a18b8e605bd4c28b48a32c80be231609182970..5d6de8b365bf3f436cfe8adda558850c
              return collided;
          }
  
-@@ -1509,7 +1514,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1542,7 +1547,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          final List<AABB> stepAABBs = entityAABBs;
  
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(

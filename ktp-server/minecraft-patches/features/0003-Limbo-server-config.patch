@@ -7,14 +7,14 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 9ca3c55a3b5b1a532b86b08eb92460df4cb54f2a..1af38d4750e7e482e4c4fc81930b17e303e90ee5 100644
+index 244ee2b7aae6f5ef48657fb4d69d66bf4538a7f7..4216859f109b0bf48282cb3be6110137ed371945 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -278,6 +278,7 @@ public abstract class PlayerList {
-                 this.server.enforceSecureProfile()
-             )
-         );
+@@ -284,6 +284,7 @@ public abstract class PlayerList {
+                     this.server.enforceSecureProfile()
+                 )
+             );
 +        if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.limboServer) return; // KTP - limbo server
-         player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
-         serverGamePacketListenerImpl.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
-         serverGamePacketListenerImpl.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+             player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
+             serverGamePacketListenerImpl.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+             serverGamePacketListenerImpl.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));

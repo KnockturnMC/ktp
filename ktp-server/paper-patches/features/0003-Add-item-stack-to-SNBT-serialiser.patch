@@ -10,16 +10,19 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index a287ad5cce532229f2a514956d34a9358175bc45..4f5f223746f6720b0f482c5bc0d4836ac376480f 100644
+index ff65904cf067900cd1635b6dab0b01b0fe6ef655..04f3b8b7b0df1bcd0e5d8316a54ac858f389a675 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -820,6 +820,11 @@ public final class CraftMagicNumbers implements UnsafeValues {
+@@ -850,6 +850,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
          return lines.stream().map(io.papermc.paper.adventure.PaperAdventure::asAdventure).toList();
      }
      // Paper end
 +    // KTP start
 +    public String itemStackAsString(ItemStack itemStack) {
-+        return org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(itemStack).save(MinecraftServer.getServer().registryAccess()).toString();
++        return net.minecraft.world.item.ItemStack.CODEC.encodeStart(
++            CraftRegistry.getMinecraftRegistry().createSerializationContext(NbtOps.INSTANCE),
++            CraftItemStack.asNMSCopy(itemStack)
++        ).getOrThrow().toString();
 +    }
 +    // KTP stop
  
