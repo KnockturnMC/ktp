@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
     compileOnly(project(":ktp-api"))
+    compileOnly(project(":ktp-server"))
 
     testImplementation(project(":ktp-api"))
 }
