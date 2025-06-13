@@ -78,3 +78,13 @@
  idea {
      module {
          generatedSourceDirs.add(generatedDir.toFile())
+@@ -369,4 +_,9 @@
+     description = "Spin up a test server from the reobf Paperclip jar"
+     classpath(tasks.createReobfPaperclipJar.flatMap { it.outputZip })
+     mainClass.set(null as String?)
++}
++configure<PublishingExtension> {
++    publications.create<MavenPublication>("maven") {
++        from(components["java"])
++    }
+ }
