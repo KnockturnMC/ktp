@@ -11,13 +11,13 @@ WORKDIR /work
 # Copy the minimal amount of files needed to first download and patch a 0 patch fork.
 # This way, buildx can cache the base fork setup/decompilation steps etc.
 # Improves build speeds in case only code was changed.
-COPY --parents gradle.properties gradlew gradle/ build.gradle.kts settings.gradle.kts **/*.kts.patch .
+COPY --parents build-data gradle.properties gradlew gradle/ build.gradle.kts settings.gradle.kts **/*.kts.patch .
 
 # Apply 0 fork patches to cache fork setup
 RUN ./gradlew applyAllPatches --no-daemon
 
 # Copy over the entire rest of the repo needed for a proper build.
-COPY --parents .git build-data ktp-api ktp-server .
+COPY --parents .git ktp-api ktp-server .
 
 # Compile ktp to paperclip jar
 RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createMojmapPaperclipJar --no-daemon
