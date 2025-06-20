@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/io/papermc/paper/math/Position.java b/src/main/java/io/papermc/paper/math/Position.java
-index 0e6a6a6738353b118e0ed093994dda06750700c4..40cf8847f26cd1a1ffd10ab506100631134b370b 100644
+index 0e6a6a6738353b118e0ed093994dda06750700c4..c07c5c7eb2c9ca614d9b3c50a59906e7d715a8c3 100644
 --- a/src/main/java/io/papermc/paper/math/Position.java
 +++ b/src/main/java/io/papermc/paper/math/Position.java
-@@ -189,4 +189,35 @@ public interface Position {
+@@ -189,4 +189,57 @@ public interface Position {
      static FinePosition fine(final Location location) {
          return new FinePositionImpl(location.getX(), location.getY(), location.getZ());
      }
@@ -45,6 +45,28 @@ index 0e6a6a6738353b118e0ed093994dda06750700c4..40cf8847f26cd1a1ffd10ab506100631
 +     */
 +    default double distance(final Position position) {
 +        return Math.sqrt(distanceSquared(position));
++    }
++
++    /**
++     * Creates a position from the vector.
++     *
++     * @param vector the vector to copy the position of
++     * @return a new position at that vector
++     */
++    @Contract(value = "_ -> new", pure = true)
++    static BlockPosition block(final Vector vector) {
++        return new BlockPositionImpl(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
++    }
++
++    /**
++     * Creates a position from the vector.
++     *
++     * @param vector the vector to copy the position of
++     * @return a new position at that vector
++     */
++    @Contract(value = "_ -> new", pure = true)
++    static FinePosition fine(final Vector vector) {
++        return new FinePositionImpl(vector.getX(), vector.getY(), vector.getZ());
 +    }
 +    // KTP end - preliminary position support
  }
