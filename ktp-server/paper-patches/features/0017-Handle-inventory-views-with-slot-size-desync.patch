@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 24 Jun 2025 00:24:38 +0200
+Subject: [PATCH] Handle inventory views with slot/size desync
+
+The player inventory has a size of 41, made up from four
+rows of pure inventory and five slots in armor and offhand content.
+When the server opens a player inventory, it uses a generic 9x4 chest
+menu, which only represents 36 of the 41 items, leaving out armor and
+offhand.
+No network slots are registered for these slots either, meaning that
+slot 37 is already a slot in the bottom inventory, as with any other
+normal inventory that has a dedicated menu type. The server however uses
+Inventory#getSize to split the incoming network slot ids, leading to the
+server treating slot 37 as part of the top player inventory, as it is
+less than 41.
+This patch forces inventory views to also define the network slot
+count in their top inventory, which is for the most part just their
+size. The CraftContainer implementation however, being the only possible
+one wrapping a CraftInventoryPlayer instance, special cases the player
+inventory and now correctly returns 36, allowing a correct split of
+incoming raw network slot ids.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
+index 9dea16f74523b7b4633d7615bf3dfad4d086ab09..cdc68b46692275e73032f17ccd9bfe21b783a790 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
+@@ -220,7 +220,12 @@ public abstract class CraftAbstractInventoryView implements InventoryView {
+ 
+     @Override
+     public int countSlots() {
+-        return this.getTopInventory().getSize() + this.getBottomInventory().getSize();
++    // KTP start - fix desync between inventories in smaller menus
++        return getTopInventoryNetworkSlotCount() + getBottomInventory().getSize(); //
++    }
++    public int getTopInventoryNetworkSlotCount() {
++        return this.getTopInventory().getSize();
++    // KTP end - fix desync between inventories in smaller menus
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
+index c00ddfe41439954fa0fd87c0933f274c8a752eb6..d004965eeaabd716ec810f944e208f8474ca2d67 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
+@@ -100,6 +100,18 @@ public class CraftContainer extends AbstractContainerMenu {
+                 return CraftMenuType.minecraftToBukkit(getNotchInventoryType(inventory));
+             }
+ 
++            // KTP start - fix desync between inventories in smaller menus
++            private final int topInventoryNetworkSlotCount = switch (inventory) {
++                case CraftInventoryPlayer inventoryPlayer -> inventoryPlayer.getSize() / 9 * 9;
++                default -> super.getTopInventoryNetworkSlotCount();
++            };
++            @Override
++            public int getTopInventoryNetworkSlotCount() {
++                // We assume that *every other* inventory type can correctly be matched into a menu type.
++                return this.topInventoryNetworkSlotCount;
++            }
++            // KTP end - fix desync between inventories in smaller menus
++
+         }, player, id);
+     }
+ 
+@@ -123,7 +135,7 @@ public class CraftContainer extends AbstractContainerMenu {
+                     case 27:
+                         return net.minecraft.world.inventory.MenuType.GENERIC_9x3;
+                     case 36:
+-                    case 41: // PLAYER
++                    case 43: // PLAYER // KTP - fix desync between inventories in smaller menus
+                         return net.minecraft.world.inventory.MenuType.GENERIC_9x4;
+                     case 45:
+                         return net.minecraft.world.inventory.MenuType.GENERIC_9x5;
