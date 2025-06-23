@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 23 Jun 2025 14:51:56 +0200
+Subject: [PATCH] Use alternative registry access if level null
+
+
+diff --git a/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java b/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
+index 4f17d5642f04592d8cbb47d9c49707431a3051d9..078720e718c73abe01b5e12a08d9eb1601645c5c 100644
+--- a/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
+@@ -150,7 +150,7 @@ public class JukeboxBlockEntity extends BlockEntity implements ContainerSingleIt
+     public void setTheItem(ItemStack item) {
+         this.item = item;
+         boolean flag = !this.item.isEmpty();
+-        Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(this.level.registryAccess(), this.item);
++        Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(this.level != null ? this.level.registryAccess() : org.bukkit.craftbukkit.CraftRegistry.getMinecraftRegistry(), this.item); // Paper - fallback to other RegistryAccess if no level
+         this.notifyItemChangedInJukebox(flag);
+         if (flag && optional.isPresent()) {
+             this.jukeboxSongPlayer.play(this.level, optional.get());
