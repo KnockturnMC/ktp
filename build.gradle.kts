@@ -79,5 +79,8 @@ subprojects {
                 credentials(PasswordCredentials::class)
             }
         }
+        publications.create<MavenPublication>("local") {
+            from(components["java"])
+        }
     }
 }
