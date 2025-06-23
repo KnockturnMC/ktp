@@ -52,10 +52,10 @@ index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae997
 +    SHULKER;
 +}
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index a8b64f78bf3c453094074b4b4d3c8fd07b9eb273..c8c9cc411ee07e6f246e927ad01d910ac1c95784 100644
+index 04a1379f5fe281ab72610d2f8f18e1355fe3a134..05920175fdac22d52eba998081253aba9d0229e5 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4444,4 +4444,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4462,4 +4462,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -75,7 +75,7 @@ index a8b64f78bf3c453094074b4b4d3c8fd07b9eb273..c8c9cc411ee07e6f246e927ad01d910a
 +    // KTP end - expose low level steering interceptors
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 66a31c5d83b78dddb43e70cfd5ce7c7fb8a551b6..2366b0b1076d0a8a4bd449aca7e2117d5d088ffe 100644
+index 0aa51b777fd28444b53ccc74362798553954c52d..d188b0bf30959a180bc1dd578e5a1225b4d15858 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
 @@ -1261,4 +1261,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent

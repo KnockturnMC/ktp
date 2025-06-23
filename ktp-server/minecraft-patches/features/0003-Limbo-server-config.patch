@@ -7,10 +7,10 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 244ee2b7aae6f5ef48657fb4d69d66bf4538a7f7..4216859f109b0bf48282cb3be6110137ed371945 100644
+index b1524279c02cd3be82338a6bd0320cb125a134d5..8dd18c01ba4e2b6e202854291d483bf911676994 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -284,6 +284,7 @@ public abstract class PlayerList {
+@@ -279,6 +279,7 @@ public abstract class PlayerList {
                      this.server.enforceSecureProfile()
                  )
              );
