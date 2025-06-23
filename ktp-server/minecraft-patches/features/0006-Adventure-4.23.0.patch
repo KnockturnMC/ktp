@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kieran Wallbanks <kieran.wallbanks@gmail.com>
+Date: Mon, 23 Jun 2025 12:44:13 -0400
+Subject: [PATCH] Adventure 4.23.0
+
+Port of Paper PR #12690
+
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index aeb43902a09ef9c1b137964065780be3e87648f4..744f37cf5bb7d8cecadfc27cad8b99d01898809f 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -3679,4 +3679,15 @@ public class ServerGamePacketListenerImpl
+         return event;
+     }
+     // Paper end - Add fail move event
++
++    // Paper start - Implement click callbacks with custom click action
++    @Override
++    public void handleCustomClickAction(final net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket packet) {
++        super.handleCustomClickAction(packet);
++        if (packet.id().equals(io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.CLICK_CALLBACK_RESOURCE_LOCATION)) {
++            packet.payload().ifPresent(tag ->
++            io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.CALLBACK_MANAGER.tryRunCallback(this.player.getBukkitEntity(), tag));
++        }
++    }
++    // Paper end - Implement click callbacks with custom click action
+ }
