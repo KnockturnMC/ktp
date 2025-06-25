@@ -5,7 +5,7 @@ Subject: [PATCH] Correctly track desynced shift key toggle
 
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 744f37cf5bb7d8cecadfc27cad8b99d01898809f..e1bac1ce9866590c97f60ca028f380271cf579d2 100644
+index 625eae18ab13ae27949128f6325b3608a557cf1f..64666c2ce1ef5e761bebd955b9fea85a959ccdc9 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -459,7 +459,7 @@ public class ServerGamePacketListenerImpl

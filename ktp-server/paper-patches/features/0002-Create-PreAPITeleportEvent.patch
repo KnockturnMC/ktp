@@ -14,10 +14,10 @@ executed by spigot which allows plugins to modify potential target
 entities that are teleported by other plugins prior to the checks.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index a41f481a1ee5bbca7dbb3fce29f55fbf7028ec77..20bcbf994eb680b09e3be6888bb8e6a38ec5a07e 100644
+index b38073628d3b1381ccc4e5c6c44b2b7ec8ba1273..fdfef69ad3e14eeb1d717bac8231e406b0309c3a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -291,6 +291,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -296,6 +296,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          // Paper end
          Preconditions.checkArgument(location != null, "location cannot be null");
          location.checkFinite();
@@ -28,10 +28,10 @@ index a41f481a1ee5bbca7dbb3fce29f55fbf7028ec77..20bcbf994eb680b09e3be6888bb8e6a3
          Set<io.papermc.paper.entity.TeleportFlag> flagSet = new HashSet<>(List.of(flags)); // Wrap into list while multiple old flags link to the same new one
          boolean dismount = !flagSet.contains(io.papermc.paper.entity.TeleportFlag.EntityState.RETAIN_VEHICLE);
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 144623d4ef1f795f70846bcd9d60740ae9a93a81..5044718cee3858f6d95c508f339f7993881e125b 100644
+index 3e18819ae23ab5ecd866d61cd0fd62ce1324109e..2a51c96085cf43f3ba3c5b2a6ea32755e42769c2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1449,6 +1449,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1457,6 +1457,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          if (this.getHealth() == 0 || entity.isRemoved()) {
              return false;
          }
