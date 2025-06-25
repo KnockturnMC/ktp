@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Wed, 25 Jun 2025 14:23:39 +0200
+Subject: [PATCH] Correctly track desynced shift key toggle
+
+
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 744f37cf5bb7d8cecadfc27cad8b99d01898809f..e1bac1ce9866590c97f60ca028f380271cf579d2 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -459,7 +459,7 @@ public class ServerGamePacketListenerImpl
+         // Paper start - PlayerToggleSneakEvent
+         net.minecraft.world.entity.player.Input lastInput = this.player.getLastClientInput();
+         boolean shiftKeyDown = packet.input().shift();
+-        if (lastInput.shift() != packet.input().shift()) {
++        if (player.isShiftKeyDown() != packet.input().shift()) { // KTP - correctly track desynced shift key
+             // Has sneak changed
+             org.bukkit.event.player.PlayerToggleSneakEvent event = new org.bukkit.event.player.PlayerToggleSneakEvent(this.getCraftPlayer(), packet.input().shift());
+             this.cserver.getPluginManager().callEvent(event);
