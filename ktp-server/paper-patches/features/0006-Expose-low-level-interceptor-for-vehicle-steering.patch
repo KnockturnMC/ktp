@@ -15,11 +15,11 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 7990382df41824b7a4072fd4a44d02a229a4d9b6..342148f5e67e19b0e371e4e1da5b08f74f29dc34 100644
+index 68351e47609ae06f0a1641b4ad2013ce6261ae4e..7aaeb4854144d35ff45a412035d38b415f593c27 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2491,4 +2491,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
-         return this.adventure$pointers;
+@@ -2488,4 +2488,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         return POINTERS_SUPPLIER.view(this);
      }
      // Paper end
 +    // KTP start - expose low level steering interceptors
@@ -41,10 +41,10 @@ index 7990382df41824b7a4072fd4a44d02a229a4d9b6..342148f5e67e19b0e371e4e1da5b08f7
 +
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 20bcbf994eb680b09e3be6888bb8e6a38ec5a07e..66afa935a08d238f75c1501d541095f6b42b48bc 100644
+index fdfef69ad3e14eeb1d717bac8231e406b0309c3a..c3e17e1f153eaa34e40cb27d98a999627a590697 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -1339,4 +1339,36 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1336,4 +1336,36 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          return this.entity.get(io.papermc.paper.datacomponent.PaperDataComponentType.bukkitToMinecraft(type)) != null;
      }
  
