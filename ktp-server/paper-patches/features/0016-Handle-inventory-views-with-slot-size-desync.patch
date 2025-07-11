@@ -40,7 +40,7 @@ index 9dea16f74523b7b4633d7615bf3dfad4d086ab09..cdc68b46692275e73032f17ccd9bfe21
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-index c00ddfe41439954fa0fd87c0933f274c8a752eb6..d004965eeaabd716ec810f944e208f8474ca2d67 100644
+index 2f41a92465b9da28e026297cc3528898bb1c8412..cc8e9224b24fb2ee92648b9c8681ce6bb356d20a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 @@ -100,6 +100,18 @@ public class CraftContainer extends AbstractContainerMenu {
@@ -62,12 +62,3 @@ index c00ddfe41439954fa0fd87c0933f274c8a752eb6..d004965eeaabd716ec810f944e208f84
          }, player, id);
      }
  
-@@ -123,7 +135,7 @@ public class CraftContainer extends AbstractContainerMenu {
-                     case 27:
-                         return net.minecraft.world.inventory.MenuType.GENERIC_9x3;
-                     case 36:
--                    case 41: // PLAYER
-+                    case 43: // PLAYER // KTP - fix desync between inventories in smaller menus
-                         return net.minecraft.world.inventory.MenuType.GENERIC_9x4;
-                     case 45:
-                         return net.minecraft.world.inventory.MenuType.GENERIC_9x5;

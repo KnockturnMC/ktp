@@ -5,10 +5,10 @@ Subject: [PATCH] Add faked player spectate target change method
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 2a51c96085cf43f3ba3c5b2a6ea32755e42769c2..bbeda7a3357ae333c9e7975bb5639ac142ac8452 100644
+index e71c9f702901bdaf27bbba05099896d155887f66..c8e8df238ccd448f75b4c576a56e64df8ec83cf6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1216,6 +1216,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1276,6 +1276,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          this.getHandle().connection.send(new ClientboundRemoveMobEffectPacket(entity.getEntityId(), CraftPotionEffectType.bukkitToMinecraftHolder(type)));
      }
  
@@ -16,7 +16,7 @@ index 2a51c96085cf43f3ba3c5b2a6ea32755e42769c2..bbeda7a3357ae333c9e7975bb5639ac1
 +    public void sendSpectateTargetChange(org.bukkit.entity.@Nullable Entity target) {
 +        if (this.getHandle().connection == null) return;
 +
-+        this.getHandle().connection.sendPacket(
++        this.getHandle().connection.send(
 +            new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(
 +                target == null ? this.getHandle() :  ((CraftEntity) target).getHandle()
 +            )
