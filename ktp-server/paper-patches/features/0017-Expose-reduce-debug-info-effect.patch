@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Fri, 11 Jul 2025 21:52:23 +0200
+Subject: [PATCH] Expose reduce debug info effect
+
+
+diff --git a/src/test/java/org/bukkit/EntityEffectTest.java b/src/test/java/org/bukkit/EntityEffectTest.java
+index 5e64dfaeba167374dc45c5becfb2e7114657dff6..fa526f8f72c55ffcd25ea6a28c59d0454094c809 100644
+--- a/src/test/java/org/bukkit/EntityEffectTest.java
++++ b/src/test/java/org/bukkit/EntityEffectTest.java
+@@ -25,7 +25,7 @@ public class EntityEffectTest {
+                 events.add((byte) field.get(null));
+             }
+         }
+-        for (int i = 22; i <= 28; i++) {
++        for (int i = 24; i <= 28; i++) { // KTP - expose debug entity flags
+             events.remove(Byte.valueOf((byte) i)); // all have existing API (debug info and op level)
+         }
+         events.remove(Byte.valueOf(EntityEvent.STOP_ATTACKING)); // not used on client anywhere

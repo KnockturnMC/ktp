@@ -50,3 +50,24 @@ index 7aaeb4854144d35ff45a412035d38b415f593c27..5b8c947df9adea00b4d192cdac804ee6
 +    }
 +    // KTP end - preliminary position support
  }
+diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
+index db8d8e2a07296d62c3097f02b03319e2e1ba9394..a477689e61bf447837d4dab6e92598234072eecf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
++++ b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
+@@ -527,6 +527,16 @@ public class MaterialRerouting {
+         return MaterialRerouting.transformFromBlockType(regionAccessor.getType(location), version);
+     }
+ 
++    // KTP start - initial position support
++    public static Material getType(RegionAccessor regionAccessor, io.papermc.paper.math.Position location, @InjectPluginVersion ApiVersion version) {
++        return MaterialRerouting.transformFromBlockType(regionAccessor.getType(location), version);
++    }
++
++    public static void setType(RegionAccessor regionAccessor, io.papermc.paper.math.Position location, Material material) {
++        regionAccessor.setType(location, MaterialRerouting.transformToBlockType(material));
++    }
++    // KTP end - initial position support
++
+     public static Material getType(RegionAccessor regionAccessor, int x, int y, int z, @InjectPluginVersion ApiVersion version) {
+         return MaterialRerouting.transformFromBlockType(regionAccessor.getType(x, y, z), version);
+     }
