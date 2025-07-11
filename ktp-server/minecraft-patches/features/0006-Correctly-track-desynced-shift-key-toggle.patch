@@ -5,10 +5,10 @@ Subject: [PATCH] Correctly track desynced shift key toggle
 
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 625eae18ab13ae27949128f6325b3608a557cf1f..64666c2ce1ef5e761bebd955b9fea85a959ccdc9 100644
+index a2cb70b10440a7026541d81e7d20c91ccb92f563..8e8dc1acc30f438a5d27fe7e11306e00edb9548e 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -459,7 +459,7 @@ public class ServerGamePacketListenerImpl
+@@ -473,7 +473,7 @@ public class ServerGamePacketListenerImpl
          // Paper start - PlayerToggleSneakEvent
          net.minecraft.world.entity.player.Input lastInput = this.player.getLastClientInput();
          boolean shiftKeyDown = packet.input().shift();
