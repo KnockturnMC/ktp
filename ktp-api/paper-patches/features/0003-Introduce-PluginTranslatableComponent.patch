@@ -23,15 +23,16 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..92f3e30a857e9a241e943e47385c76a2047843cc
+index 0000000000000000000000000000000000000000..f0571591d9515853379e8d0f8708d9a04f1a7185
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundle.java
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,50 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
 +import org.jetbrains.annotations.Unmodifiable;
++import org.jspecify.annotations.NullMarked;
 +
 +import java.util.Locale;
 +import java.util.Set;
@@ -42,6 +43,7 @@ index 0000000000000000000000000000000000000000..92f3e30a857e9a241e943e47385c76a2
 + * <p>
 + * The translation bundle to that degree is hence a representation of all registered translations available.
 + */
++@NullMarked
 +public interface PluginTranslationBundle {
 +
 +    /**
@@ -54,7 +56,7 @@ index 0000000000000000000000000000000000000000..92f3e30a857e9a241e943e47385c76a2
 +     *
 +     * @return the translation found in the bundle if the bundled contained both the locale and the locale contained the translation key.
 +     */
-+    @Nullable String findTranslation(@NotNull Locale locale, @NotNull String translationKey);
++    @Nullable String findTranslation(Locale locale, String translationKey);
 +
 +    /**
 +     * A set of all locales present in the translation bundle.
@@ -419,56 +421,3 @@ index 9bab00ab10c78908090c8a1a12d4c84e9324b08b..f1304ba83aaea442dc51029119152d1d
 +    @org.jetbrains.annotations.NotNull dev.lynxplay.ktp.adventure.translation.PluginTranslators pluginTranslators();
 +    // KTP end
  }
-diff --git a/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..c43ed43ef3678c30085d983b0bc459c764c7f337
---- /dev/null
-+++ b/src/test/java/net/kyori/adventure/text/PluginTranslatableComponentImplTest.java
-@@ -0,0 +1,47 @@
-+package net.kyori.adventure.text;
-+
-+import net.kyori.adventure.text.minimessage.MiniMessage;
-+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-+import org.junit.Assert;
-+import org.junit.Test;
-+
-+public class PluginTranslatableComponentImplTest {
-+
-+    @Test
-+    public void key() {
-+        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").build();
-+        Assert.assertEquals("test.key", component.key());
-+
-+        final var updateComponent = component.key("test.updated");
-+        Assert.assertEquals("test.updated", updateComponent.key());
-+    }
-+
-+    @Test(expected = IllegalStateException.class)
-+    public void keyBuilderUnset() {
-+        new PluginTranslatableComponentImpl.BuilderImpl().build();
-+    }
-+
-+    @Test
-+    public void tagResolver() {
-+        final var tagResolverOne = TagResolver.resolver(Placeholder.component("test", Component.text("test")));
-+        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").tagResolver(tagResolverOne).build();
-+        Assert.assertEquals(tagResolverOne, component.tagResolver());
-+
-+        final var tagResolverTwo = TagResolver.standard();
-+        final var updateComponent = component.tagResolver(tagResolverTwo);
-+        Assert.assertEquals(tagResolverTwo, updateComponent.tagResolver());
-+    }
-+
-+    @Test
-+    public void miniMessageInstance() {
-+        final var miniMessageOne = MiniMessage.builder().build();
-+        final var component = new PluginTranslatableComponentImpl.BuilderImpl().key("test.key").miniMessageInstance(miniMessageOne).build();
-+        Assert.assertEquals(miniMessageOne, component.miniMessageInstance());
-+
-+        final var miniMessageTwo = MiniMessage.builder().strict(true).build();
-+        final var updateComponent = component.miniMessageInstance(miniMessageTwo);
-+        Assert.assertEquals(miniMessageTwo, updateComponent.miniMessageInstance());
-+    }
-+
-+}
