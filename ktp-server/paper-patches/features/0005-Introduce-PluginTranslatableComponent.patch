@@ -23,13 +23,14 @@ Co-authored-by: Bjarne Koll <lynxplay101@gmail.com>
 
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6d0bdb91d8babff43e7023e3f34d8593305887af
+index 0000000000000000000000000000000000000000..1a77226d6ad020692d8d4fb5c2084912c59289c2
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslationBundleImpl.java
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,68 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import com.google.common.collect.ImmutableSet;
++import com.google.common.collect.Iterables;
 +import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 +import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -66,6 +67,14 @@ index 0000000000000000000000000000000000000000..6d0bdb91d8babff43e7023e3f34d8593
 +            translationLocale = localeTranslationMappings.get(
 +                Locale.lookup(Collections.singletonList(requestedLocaleRange), localeTranslationMappings.keySet())
 +            );
++        }
++
++        if (translationLocale == null) {
++            translationLocale = localeTranslationMappings.get(Locale.ENGLISH);
++        }
++
++        if (translationLocale == null && !localeTranslationMappings.isEmpty()) {
++            translationLocale = localeTranslationMappings.get(Iterables.getFirst(localeTranslationMappings.keySet(), Locale.ENGLISH));
 +        }
 +
 +        return translationLocale == null ? null : translationLocale.get(translationKey);
