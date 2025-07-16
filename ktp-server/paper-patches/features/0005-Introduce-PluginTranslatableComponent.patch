@@ -97,10 +97,10 @@ index 0000000000000000000000000000000000000000..1a77226d6ad020692d8d4fb5c2084912
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..206ddd28d7dfc4027ea1033f26ec914bea5fe77c
+index 0000000000000000000000000000000000000000..a84d3ab4fa912a88574f44c34ad9a723a326a9d0
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,92 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
@@ -167,6 +167,7 @@ index 0000000000000000000000000000000000000000..206ddd28d7dfc4027ea1033f26ec914b
 +        final Set<String> allKeys = pluginTranslationBundle.joinedKnownKeys();
 +        for (final Locale knownLocale : pluginTranslationBundle.knownLocales()) {
 +            store.registerAll(knownLocale, allKeys, s -> pluginTranslationBundle.findTranslation(knownLocale, s));
++            store.defaultLocale(Locale.ENGLISH);
 +        }
 +        return store;
 +    }
