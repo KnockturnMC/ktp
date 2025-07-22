@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile-upstream:master-labs <- required for --parents in COPY
 
+ARG ALPINE=alpine@sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1
+ARG CORRETTO=amazoncorretto@sha256:670e3459f1bb0491c4a594ec23f8383acf426ee2e54419ac34a827cb276aa5ed
 # The builder image, responsible for building the project from source state.
 # 21
-FROM amazoncorretto@sha256:670e3459f1bb0491c4a594ec23f8383acf426ee2e54419ac34a827cb276aa5ed AS builder
+FROM ${CORRETTO} AS builder
 RUN yum install -y git
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
@@ -24,9 +26,25 @@ RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createMojmapPaperclipJar --
 
 RUN cp ktp-server/build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2)-mojmap.jar server.jar
 
+# Standalone image creating files for installing corretto
+FROM ${ALPINE} AS corretto-installer
+
+ARG CORRETTO_VERSION=amazon-corretto-21-x64-alpine-jdk.tar.gz
+RUN wget https://corretto.aws/downloads/latest/${CORRETTO_VERSION}; \
+    mkdir -p /usr/lib/jvm; \
+    tar -xzvf ${CORRETTO_VERSION} --strip-components=1 -C /usr/lib/jvm;
+
+# Standalone image creating files for installing jetbrains runtime (uses musl as we are running on alpine)
+FROM ${ALPINE} AS jbr-installer
+
+ARG JBR_VERSION=jbr-21.0.7-linux-musl-x64-b1038.58.tar.gz
+RUN wget https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION}; \
+    mkdir -p /usr/lib/jvm; \
+    tar -xzvf ${JBR_VERSION} --strip-components=1 -C /usr/lib/jvm;
+
 # Runtime image
-# 21-alpine3.19
-FROM amazoncorretto@sha256:205526a42c31fe002b54b920362e8c8d6b7d2c07ecf54fa00fbaa54ce49626ab
+# alpine 3.22.1
+FROM ${ALPINE} AS runner-base
 
 # Configure non root user for server
 ARG USERNAME=server
@@ -52,3 +70,11 @@ RUN echo "eula=true" >> eula.txt
 COPY --from=builder /work/server.jar /bin/server.jar
 
 ENTRYPOINT ["bash", "/bin/run.sh"]
+
+# The final image, copying over the jbr binaries
+FROM runner-base AS runner-jbr
+COPY --from=jbr-installer /usr/lib/jvm /usr/lib/jvm
+
+# The final image, copying over the corretto binaries
+FROM runner-base AS runner-corretto
+COPY --from=corretto-installer /usr/lib/jvm /usr/lib/jvm
