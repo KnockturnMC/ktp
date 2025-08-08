@@ -17,10 +17,10 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index c2b53adb5f0fd8207cf13cb6f7249385b1c30f34..ce3ef0d6d250ea36a7523df508f014246848d49e 100644
+index 3f5e76e4df8ff8152060449f89b522910adee834..b1a0d799afe64605bf562eebfcdf10c98b8bc5b4 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -192,6 +192,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -193,6 +193,10 @@ public class GlobalConfiguration extends ConfigurationPart {
              LZ4,
              NONE
          }
