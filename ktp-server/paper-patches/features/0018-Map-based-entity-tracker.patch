@@ -12,10 +12,10 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d4413a6ac001
+index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f712bace0e
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,169 @@
 +package io.papermc.paper.network;
 +
 +import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -28,7 +28,7 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +import org.jspecify.annotations.NullMarked;
 +
 +/**
-+ * The paper seen by tracker aims to expand on vanilla's {@link net.minecraft.server.level.ChunkMap.TrackedEntity#seenBy} set
++ * The paper seen by tracker aims to expand on vanilla's {@link ChunkMap.TrackedEntity#seenBy} set
 + * by instead tracking the entities inside a map.
 + * <p>
 + * While a switch from a set to a map is in itself irrelevant, given most sets are backed by table implementations already, the seen by
@@ -51,13 +51,19 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +
 +    // The tracker data holds the additional metadata for the connection.
 +    public static class TrackerData {
++        public final ServerPlayerConnection connection;
 +        private int effectiveIndex = TRACKER_DATA_NON_INITIALISED_INDEX; // Set to a magic value to quickly check if this entry was just inserted in #add
++
++        public TrackerData(final ServerPlayerConnection connection) {
++            this.connection = connection;
++        }
 +    }
 +
 +    // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
 +    // As such, it is worth to maintain a copy of the theoretical table pre-filtered for visible entities.
 +    private final Reference2ObjectOpenHashMap<ServerPlayerConnection, TrackerData> theoretical = new Reference2ObjectOpenHashMap<>();
 +    private final ObjectArrayList<ServerPlayerConnection> effective = new ObjectArrayList<>();
++    private final ObjectArrayList<TrackerData> effectiveData = new ObjectArrayList<>();
 +
 +    private final ChunkMap.TrackedEntity trackedEntity;
 +
@@ -71,7 +77,7 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +     * @param connection the server player connection instance to add.
 +     */
 +    public void add(final ServerPlayerConnection connection) {
-+        final TrackerData trackerData = theoretical.computeIfAbsent(connection, ignored -> new TrackerData());
++        final TrackerData trackerData = theoretical.computeIfAbsent(connection, ignored -> new TrackerData(connection));
 +
 +        // tracker data was already tracked in the map, yield false.
 +        if (trackerData.effectiveIndex != TRACKER_DATA_NON_INITIALISED_INDEX) return;
@@ -97,6 +103,7 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +
 +        trackerData.effectiveIndex = effective.size();
 +        this.effective.add(connection);
++        this.effectiveData.add(trackerData);
 +
 +        this.trackedEntity.addPairing(connection.getPlayer());
 +    }
@@ -122,12 +129,12 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +        remove.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
 +
 +        final ServerPlayerConnection relocatedLastElement = this.effective.removeLast();
++        final TrackerData relocatedLastElementData = this.effectiveData.removeLast();
 +        if (relocatedLastElement != connection) {
 +            this.effective.set(remove.effectiveIndex, relocatedLastElement);
++            this.effectiveData.set(remove.effectiveIndex, relocatedLastElementData);
 +
-+            // Our only "additional" cost is the one map lookup of the last element.
-+            // The cost is acceptable as iteration is a much more common use case than removal.
-+            this.theoretical.get(relocatedLastElement).effectiveIndex = remove.effectiveIndex;
++            relocatedLastElementData.effectiveIndex = remove.effectiveIndex;
 +        }
 +
 +        this.trackedEntity.removePairing(connection.getPlayer());
@@ -163,6 +170,10 @@ index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d441
 +
 +    public ObjectArrayList<ServerPlayerConnection> effective() {
 +        return effective;
++    }
++
++    public ObjectArrayList<TrackerData> effectiveData() {
++        return effectiveData;
 +    }
 +
 +    /**
