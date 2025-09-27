@@ -1,0 +1,242 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sat, 27 Sep 2025 15:48:47 +0200
+Subject: [PATCH] Map based entity tracker
+
+Replaces the seenBy reference set with a map, allowing the tracker to
+correctly maintain vanilla state, including all players vanilla would be
+tracking.
+
+The visibility api introduced by bukkit is implemented with a
+pre-computed filtered list of effective trackers on the seen by tracker.
+
+diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e66d1a800d42734211240de79f6d4413a6ac001
+--- /dev/null
++++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+@@ -0,0 +1,158 @@
++package io.papermc.paper.network;
++
++import io.papermc.paper.event.player.PlayerTrackEntityEvent;
++import it.unimi.dsi.fastutil.objects.ObjectArrayList;
++import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
++import it.unimi.dsi.fastutil.objects.ReferenceSet;
++import net.minecraft.server.level.ChunkMap;
++import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.server.network.ServerPlayerConnection;
++import org.jspecify.annotations.NullMarked;
++
++/**
++ * The paper seen by tracker aims to expand on vanilla's {@link net.minecraft.server.level.ChunkMap.TrackedEntity#seenBy} set
++ * by instead tracking the entities inside a map.
++ * <p>
++ * While a switch from a set to a map is in itself irrelevant, given most sets are backed by table implementations already, the seen by
++ * tracker also re-implements the bukkit concept of hidden entities.
++ * Previous implementations would keep players that could not see an entity from its seen by tracker, leading to per-tick checks to add
++ * the player in-case the entity was no longer hidden via plugins.
++ * This introduced a rather large hit on the canSee hashmap inside the craftbukkit entity.
++ * <p>
++ * The PaperSeenByTracker proposes a different implementation where entities are tracked after vanilla's rules.
++ * The tracker further maintains an "effective" seen by list which is queried for all sending and tracking purposes into which only those players are added that have not
++ * marked the entity as hidden via the plugin api.
++ * This split into effective and theoretical tracking also enables the attachment of metadata to a players tracking of an entity directly in object, removing the need
++ * for further map lookups in the extremely hot paths.
++ */
++@NullMarked
++public class PaperSeenByTracker {
++
++    private static final int TRACKER_DATA_NON_INITIALISED_INDEX = -2;
++    private static final int TRACKER_DATA_NON_EFFECTIVE = -1;
++
++    // The tracker data holds the additional metadata for the connection.
++    public static class TrackerData {
++        private int effectiveIndex = TRACKER_DATA_NON_INITIALISED_INDEX; // Set to a magic value to quickly check if this entry was just inserted in #add
++    }
++
++    // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
++    // As such, it is worth to maintain a copy of the theoretical table pre-filtered for visible entities.
++    private final Reference2ObjectOpenHashMap<ServerPlayerConnection, TrackerData> theoretical = new Reference2ObjectOpenHashMap<>();
++    private final ObjectArrayList<ServerPlayerConnection> effective = new ObjectArrayList<>();
++
++    private final ChunkMap.TrackedEntity trackedEntity;
++
++    public PaperSeenByTracker(final ChunkMap.TrackedEntity trackedEntity) {
++        this.trackedEntity = trackedEntity;
++    }
++
++    /**
++     * Adds the passed server player to the paper seen by tracker.
++     *
++     * @param connection the server player connection instance to add.
++     */
++    public void add(final ServerPlayerConnection connection) {
++        final TrackerData trackerData = theoretical.computeIfAbsent(connection, ignored -> new TrackerData());
++
++        // tracker data was already tracked in the map, yield false.
++        if (trackerData.effectiveIndex != TRACKER_DATA_NON_INITIALISED_INDEX) return;
++
++        final boolean pluginApiCanSee = connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity());
++        if (!pluginApiCanSee) {
++            trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE; // Not in the effective set, not visible
++            return;
++        }
++
++        // Added *and* visible, we require tracking logic to run.
++        // Add to iterator list.
++        addToEffectiveAndShow(connection, trackerData);
++    }
++
++    private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
++        if (
++            PlayerTrackEntityEvent.getHandlerList().getRegisteredListeners().length != 0
++                && !new PlayerTrackEntityEvent(connection.getPlayer().getBukkitEntity(), this.trackedEntity.entity.getBukkitEntity()).callEvent()
++        ) {
++            return;
++        }
++
++        trackerData.effectiveIndex = effective.size();
++        this.effective.add(connection);
++
++        this.trackedEntity.addPairing(connection.getPlayer());
++    }
++
++    /**
++     * Removes the passed server player to the paper seen by tracker.
++     *
++     * @param connection the server player connection instance to remove.
++     * @return {@code true} if the server player has been remove *and* the player requires removal tracking calls.
++     * The method may return false even if the server player was remove from the tracker incase the player could not see the entity.
++     */
++    public void remove(final ServerPlayerConnection connection) {
++        if (this.theoretical().isEmpty()) return;
++
++        final TrackerData remove = this.theoretical.remove(connection);
++        if (remove == null) return; // Was not in the map in the first place
++        if (remove.effectiveIndex < 0) return; // Was not in the effective list either so, was not visible.
++
++        removeFromEffectiveAndHide(connection, remove);
++    }
++
++    private void removeFromEffectiveAndHide(final ServerPlayerConnection connection, final TrackerData remove) {
++        remove.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
++
++        final ServerPlayerConnection relocatedLastElement = this.effective.removeLast();
++        if (relocatedLastElement != connection) {
++            this.effective.set(remove.effectiveIndex, relocatedLastElement);
++
++            // Our only "additional" cost is the one map lookup of the last element.
++            // The cost is acceptable as iteration is a much more common use case than removal.
++            this.theoretical.get(relocatedLastElement).effectiveIndex = remove.effectiveIndex;
++        }
++
++        this.trackedEntity.removePairing(connection.getPlayer());
++    }
++
++    public boolean isTracking(final ServerPlayerConnection connection) {
++        final TrackerData trackerData = this.theoretical.get(connection);
++        return trackerData != null && trackerData.effectiveIndex >= 0;
++    }
++
++    /**
++     * Edits the visibility of a server player on this tracker.
++     *
++     * @param serverPlayer the server player instance.
++     * @param canSeeEntity {@code true} if the player should be able to see the entity, {@code false} if not.
++     * @return the result of the action, defining what the caller is expected to perform for the player.
++     */
++    public void editVisibility(final ServerPlayer serverPlayer, final boolean canSeeEntity) {
++        final TrackerData trackerData = this.theoretical.get(serverPlayer.connection);
++        if (trackerData == null) return;
++        if (trackerData.effectiveIndex >= 0 == canSeeEntity) return;
++
++        if (canSeeEntity) {
++            addToEffectiveAndShow(serverPlayer.connection, trackerData);
++        } else {
++            removeFromEffectiveAndHide(serverPlayer.connection, trackerData);
++        }
++    }
++
++    public ReferenceSet<ServerPlayerConnection> theoretical() {
++        return theoretical.keySet();
++    }
++
++    public ObjectArrayList<ServerPlayerConnection> effective() {
++        return effective;
++    }
++
++    /**
++     * Yields if the tracker has effectively not entities in it.
++     *
++     * @return {@code true} if no effective player is in the tracker.
++     */
++    public boolean isEmpty() {
++        return this.effective.isEmpty();
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab9207bbc4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -745,7 +745,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
+ 
+         if (entityTracker != null) {
+-            for (ServerPlayerConnection connection : entityTracker.seenBy) {
++            for (ServerPlayerConnection connection : entityTracker.seenBy.effective()) { // KTP - map based tracker
+                 players.add(connection.getPlayer().getBukkitEntity());
+             }
+         }
+@@ -762,7 +762,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+         ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
+         if (entityTracker == null) return false;
+ 
+-        return entityTracker.seenBy.contains(((CraftPlayer) player).getHandle().connection);
++        return entityTracker.seenBy.isTracking(((CraftPlayer) player).getHandle().connection); // KTP - map based tracker
+     }
+ 
+     @Override
+@@ -1076,7 +1076,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+             return;
+         }
+ 
+-        for (final ServerPlayerConnection connection : entityTracker.seenBy) {
++        for (final ServerPlayerConnection connection : entityTracker.seenBy.effective()) { // KTP - map based tracker
+             this.getHandle().resendPossiblyDesyncedEntityData(connection.getPlayer());
+         }
+     }
+@@ -1222,8 +1222,8 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+             return java.util.Collections.emptySet();
+         }
+ 
+-        Set<org.bukkit.entity.Player> set = new java.util.HashSet<>(tracker.seenBy.size());
+-        for (net.minecraft.server.network.ServerPlayerConnection connection : tracker.seenBy) {
++        Set<org.bukkit.entity.Player> set = new java.util.HashSet<>(tracker.seenBy.effective().size());  // KTP - map based tracker
++        for (net.minecraft.server.network.ServerPlayerConnection connection : tracker.seenBy.effective()) {  // KTP - map based tracker
+             set.add(connection.getPlayer().getBukkitEntity().getPlayer());
+         }
+         return set;
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index b2e886effaa1bde1b8548ce23651c237678f1369..ec4abb123804776dd879572b7bb5c27cf0e70fd9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -2043,7 +2043,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
+         ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
+         if (entry != null) {
+-            entry.removePlayer(this.getHandle());
++            entry.seenBy.editVisibility(this.getHandle(), false);  // KTP - map based tracker
+         }
+ 
+         // Remove the hidden entity from this player user list, if they're on it
+@@ -2139,8 +2139,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         }
+ 
+         ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
+-        if (entry != null && !entry.seenBy.contains(this.getHandle().connection)) {
+-            entry.updatePlayer(this.getHandle());
++        if (entry != null && !entry.seenBy.isTracking(this.getHandle().connection)) {  // KTP - map based tracker
++            entry.seenBy.editVisibility(getHandle(), true);  // KTP - map based tracker
+         }
+ 
+         this.server.getPluginManager().callEvent(new PlayerShowEntityEvent(this, entity));

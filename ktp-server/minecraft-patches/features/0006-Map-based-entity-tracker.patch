@@ -1,0 +1,176 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sat, 27 Sep 2025 15:50:07 +0200
+Subject: [PATCH] Map based entity tracker
+
+Replaces the seenBy reference set with a map, allowing the tracker to
+correctly maintain vanilla state, including all players vanilla would be
+tracking.
+
+The visibility api introduced by bukkit is implemented with a
+pre-computed filtered list of effective trackers on the seen by tracker.
+
+diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
+index eb352aa4296abc3ed4cf31c590bc0be66daf4de3..14c3344ebdd4fd207bbfcd1029616c108600212f 100644
+--- a/net/minecraft/server/level/ChunkMap.java
++++ b/net/minecraft/server/level/ChunkMap.java
+@@ -1139,10 +1139,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+ 
+     public class TrackedEntity implements ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerTrackedEntity { // Paper - optimise entity tracker
+         public final ServerEntity serverEntity;
+-        final Entity entity;
++        public final Entity entity; // KTP - map based tracker
+         private final int range;
+         SectionPos lastSectionPos;
+-        public final Set<ServerPlayerConnection> seenBy = new it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet<>(); // Paper - Perf: optimise map impl
++        public final io.papermc.paper.network.PaperSeenByTracker seenBy; // Paper - Perf: optimise map impl // KTP - map based tracker
+ 
+         // Paper start - optimise entity tracker
+         private long lastChunkUpdate = -1L;
+@@ -1177,7 +1177,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+ 
+             if (lastChunkUpdate != currChunkUpdate || lastTrackedChunk != chunk) {
+                 // need to purge any players possible not in the chunk list
+-                for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++                for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.theoretical())) { // KTP - map based tracker
+                     final ServerPlayer player = conn.getPlayer();
+                     if (!players.contains(player)) {
+                         this.removePlayer(player);
+@@ -1189,7 +1189,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         @Override
+         public final void moonrise$removeNonTickThreadPlayers() {
+             boolean foundToRemove = false;
+-            for (final ServerPlayerConnection conn : this.seenBy) {
++            for (final ServerPlayerConnection conn : this.seenBy.theoretical()) { // KTP - map based tracker
+                 if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(conn.getPlayer())) {
+                     foundToRemove = true;
+                     break;
+@@ -1200,7 +1200,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                 return;
+             }
+ 
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.theoretical())) { // KTP - map based tracker
+                 ServerPlayer player = conn.getPlayer();
+                 if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(player)) {
+                     this.removePlayer(player);
+@@ -1215,7 +1215,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+             if (this.seenBy.isEmpty()) {
+                 return;
+             }
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.theoretical())) { // KTP - map based tracker
+                 ServerPlayer player = conn.getPlayer();
+                 this.removePlayer(player);
+             }
+@@ -1228,6 +1228,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         // Paper end - optimise entity tracker
+ 
+         public TrackedEntity(final Entity entity, final int range, final int updateInterval, final boolean trackDelta) {
++            this.seenBy = new io.papermc.paper.network.PaperSeenByTracker(this); // KTP - map based tracker
+             this.serverEntity = new ServerEntity(ChunkMap.this.level, entity, updateInterval, trackDelta, this::broadcast, this::broadcastIgnorePlayers, this.seenBy); // Paper
+             this.entity = entity;
+             this.range = range;
+@@ -1245,13 +1246,13 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         }
+ 
+         public void broadcast(Packet<?> packet) {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy.effective()) { // KTP - map based tracker
+                 serverPlayerConnection.send(packet);
+             }
+         }
+ 
+         public void broadcastIgnorePlayers(Packet<?> packet, List<UUID> ignoredPlayers) {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy.effective()) { // KTP - map based tracker
+                 if (!ignoredPlayers.contains(serverPlayerConnection.getPlayer().getUUID())) {
+                     serverPlayerConnection.send(packet);
+                 }
+@@ -1266,16 +1267,14 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         }
+ 
+         public void broadcastRemoved() {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy.effective()) { // KTP - map based tracker
+                 this.serverEntity.removePairing(serverPlayerConnection.getPlayer());
+             }
+         }
+ 
+         public void removePlayer(ServerPlayer player) {
+             org.spigotmc.AsyncCatcher.catchOp("player tracker clear"); // Spigot
+-            if (this.seenBy.remove(player.connection)) {
+-                this.serverEntity.removePairing(player);
+-            }
++            this.seenBy.remove(player.connection); // KTP - map based tracker
+         }
+ 
+         public void updatePlayer(ServerPlayer player) {
+@@ -1306,21 +1305,24 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                     flag = false;
+                 }
+                 // CraftBukkit end
+-                if (flag) {
+-                    if (this.seenBy.add(player.connection)) {
+-                        // Paper start - entity tracking events
+-                        if (io.papermc.paper.event.player.PlayerTrackEntityEvent.getHandlerList().getRegisteredListeners().length == 0 || new io.papermc.paper.event.player.PlayerTrackEntityEvent(player.getBukkitEntity(), this.entity.getBukkitEntity()).callEvent()) {
+-                        this.serverEntity.addPairing(player);
+-                        }
+-                        // Paper end - entity tracking events
+-                        this.serverEntity.onPlayerAdd(); // Paper - fix desync when a player is added to the tracker
+-                    }
+-                } else if (this.seenBy.remove(player.connection)) {
+-                    this.serverEntity.removePairing(player);
+-                }
++                // KTP start - map based tracker - move into own method
++                if (flag) this.seenBy.add(player.connection);
++                else this.seenBy.remove(player.connection);
++                // KTP end - map based tracker - move into own method
+             }
+         }
+ 
++        // KTP start - map based tracker - move into own method
++        public void addPairing(final ServerPlayer serverPlayer) {
++            this.serverEntity.addPairing(serverPlayer);
++            this.serverEntity.onPlayerAdd(); // Paper - fix desync when a player is added to the tracker
++        }
++
++        public void removePairing(final ServerPlayer serverPlayer) {
++            this.serverEntity.removePairing(serverPlayer);
++        }
++        // KTP end - map based tracker - move into own method
++
+         private int scaledRange(int trackingDistance) {
+             return ChunkMap.this.level.getServer().getScaledTrackingDistance(trackingDistance);
+         }
+diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
+index e96d4dee14c05f2fa329bfb1588ec795d4e3d730..b6932e271bde5b4201eb2d169d971f93dc63d5bc 100644
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -74,7 +74,7 @@ public class ServerEntity {
+     private boolean wasOnGround;
+     @Nullable
+     private List<SynchedEntityData.DataValue<?>> trackedDataValues;
+-    private final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers; // Paper
++    private final io.papermc.paper.network.PaperSeenByTracker trackedPlayers; // KTP - map based tracker
+ 
+     public ServerEntity(
+         ServerLevel level,
+@@ -84,7 +84,7 @@ public class ServerEntity {
+         Consumer<Packet<?>> broadcast,
+         // Paper start
+         BiConsumer<Packet<?>, List<UUID>> broadcastWithIgnore,
+-        final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers
++        final io.papermc.paper.network.PaperSeenByTracker trackedPlayers // KTP - map based tracker
+         // Paper end
+     ) {
+         this.trackedPlayers = trackedPlayers; // Paper
+@@ -134,7 +134,7 @@ public class ServerEntity {
+                 MapId mapId = itemFrame.cachedMapId; // Paper - Perf: Cache map ids on item frames
+                 MapItemSavedData savedData = MapItem.getSavedData(mapId, this.level);
+                 if (savedData != null) {
+-                    for (final net.minecraft.server.network.ServerPlayerConnection connection : this.trackedPlayers) { // Paper
++                    for (final net.minecraft.server.network.ServerPlayerConnection connection : this.trackedPlayers.effective()) { // Paper // KTP - map based tracker
+                         final ServerPlayer serverPlayer = connection.getPlayer(); // Paper
+                         savedData.tickCarriedBy(serverPlayer, item);
+                         Packet<?> updatePacket = savedData.getUpdatePacket(mapId, serverPlayer);
