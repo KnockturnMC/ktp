@@ -230,7 +230,7 @@ index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab
          }
          return set;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index b2e886effaa1bde1b8548ce23651c237678f1369..ec4abb123804776dd879572b7bb5c27cf0e70fd9 100644
+index b2e886effaa1bde1b8548ce23651c237678f1369..f0cfc23b6ea89f4aa32551782acbca3f94709681 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -2043,7 +2043,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
@@ -238,7 +238,7 @@ index b2e886effaa1bde1b8548ce23651c237678f1369..ec4abb123804776dd879572b7bb5c27c
          ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
          if (entry != null) {
 -            entry.removePlayer(this.getHandle());
-+            entry.seenBy.editVisibility(this.getHandle(), false);  // KTP - map based tracker
++            entry.seenBy.editVisibility(this.getHandle().connection, false);  // KTP - map based tracker
          }
  
          // Remove the hidden entity from this player user list, if they're on it
@@ -249,7 +249,7 @@ index b2e886effaa1bde1b8548ce23651c237678f1369..ec4abb123804776dd879572b7bb5c27c
 -        if (entry != null && !entry.seenBy.contains(this.getHandle().connection)) {
 -            entry.updatePlayer(this.getHandle());
 +        if (entry != null && !entry.seenBy.isTracking(this.getHandle().connection)) {  // KTP - map based tracker
-+            entry.seenBy.editVisibility(getHandle(), true);  // KTP - map based tracker
++            entry.seenBy.editVisibility(this.getHandle().connection, true);  // KTP - map based tracker
          }
  
          this.server.getPluginManager().callEvent(new PlayerShowEntityEvent(this, entity));
