@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 28 Sep 2025 20:15:28 +0200
+Subject: [PATCH] Per-player glowing
+
+
+diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
+index b6932e271bde5b4201eb2d169d971f93dc63d5bc..0be92cc785439bd1e622954e8368cb95957fd389 100644
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -409,8 +409,42 @@ public class ServerEntity {
+     private void sendDirtyEntityData() {
+         SynchedEntityData entityData = this.entity.getEntityData();
+         List<SynchedEntityData.DataValue<?>> list = entityData.packDirty();
+-        if (list != null) {
++        sendEntityDataIf: if (list != null) { // KTP - per player glowing
+             this.trackedDataValues = entityData.getNonDefaultValues();
++            // KTP start - per player glowing
++            // Early check that *should* be false for 99% of entities that do not have glow overrides
++            perPlayerGlowingIf: if (this.trackedPlayers.hasAnyGlowOverrides != 0) {
++                int sharedFlagIndex = -1;
++                byte sharedFlagValue = -1;
++                for (int i = 0; i < list.size(); i++) {
++                    final SynchedEntityData.DataValue<?> dataValue = list.get(i);
++                    if (dataValue.id() >= Entity.DATA_SHARED_FLAGS_ID.id()) {
++                        if (dataValue.id() == Entity.DATA_SHARED_FLAGS_ID.id()) {
++                            sharedFlagIndex = i;
++                            sharedFlagValue = (byte) dataValue.value();
++                        }
++                        break;
++                    }
++                }
++                if (sharedFlagIndex == -1) break perPlayerGlowingIf;
++
++                for (final var trackerData : this.trackedPlayers.effectiveData()) {
++                    if (trackerData.glowOverride == net.kyori.adventure.util.TriState.NOT_SET) {
++                        trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
++                        continue;
++                    }
++
++                    final List<SynchedEntityData.DataValue<?>> modifiedCopy = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(list);
++                    modifiedCopy.set(sharedFlagIndex, SynchedEntityData.DataValue.create(
++                        Entity.DATA_SHARED_FLAGS_ID,
++                        trackerData.patchSharedFlagForGlowOverride(sharedFlagValue)
++                    ));
++                    trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), modifiedCopy));
++                }
++
++                break sendEntityDataIf;
++            }
++            // KTP end - per player glowing
+             this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
+         }
+ 
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index d834d20c1c45befe2b5d0520e5c93cf0a512f477..c0c734f5bff6d9edf828ebdeb5fd630a04eddbba 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -291,7 +291,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public int invulnerableTime;
+     protected boolean firstTick = true;
+     protected final SynchedEntityData entityData;
+-    protected static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BYTE);
++    public static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BYTE); // KTP - public
+     protected static final int FLAG_ONFIRE = 0;
+     private static final int FLAG_SHIFT_KEY_DOWN = 1;
+     private static final int FLAG_SPRINTING = 3;

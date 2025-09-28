@@ -12,10 +12,10 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f712bace0e
+index 0000000000000000000000000000000000000000..1b49b2735fe0dac9b364376533dbca0bf711824d
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -0,0 +1,169 @@
+@@ -0,0 +1,171 @@
 +package io.papermc.paper.network;
 +
 +import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -23,7 +23,6 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 +import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 +import it.unimi.dsi.fastutil.objects.ReferenceSet;
 +import net.minecraft.server.level.ChunkMap;
-+import net.minecraft.server.level.ServerPlayer;
 +import net.minecraft.server.network.ServerPlayerConnection;
 +import org.jspecify.annotations.NullMarked;
 +
@@ -38,9 +37,11 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 + * This introduced a rather large hit on the canSee hashmap inside the craftbukkit entity.
 + * <p>
 + * The PaperSeenByTracker proposes a different implementation where entities are tracked after vanilla's rules.
-+ * The tracker further maintains an "effective" seen by list which is queried for all sending and tracking purposes into which only those players are added that have not
++ * The tracker further maintains an "effective" seen by list which is queried for all sending and tracking purposes into which only those players are
++ * added that have not
 + * marked the entity as hidden via the plugin api.
-+ * This split into effective and theoretical tracking also enables the attachment of metadata to a players tracking of an entity directly in object, removing the need
++ * This split into effective and theoretical tracking also enables the attachment of metadata to a players tracking of an entity directly in object,
++ * removing the need
 + * for further map lookups in the extremely hot paths.
 + */
 +@NullMarked
@@ -51,12 +52,15 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 +
 +    // The tracker data holds the additional metadata for the connection.
 +    public static class TrackerData {
++
 +        public final ServerPlayerConnection connection;
-+        private int effectiveIndex = TRACKER_DATA_NON_INITIALISED_INDEX; // Set to a magic value to quickly check if this entry was just inserted in #add
++        // Set to a magic value to quickly check if this entry was just inserted in #add
++        private int effectiveIndex = TRACKER_DATA_NON_INITIALISED_INDEX;
 +
 +        public TrackerData(final ServerPlayerConnection connection) {
 +            this.connection = connection;
 +        }
++
 +    }
 +
 +    // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
@@ -81,16 +85,9 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 +
 +        // tracker data was already tracked in the map, yield false.
 +        if (trackerData.effectiveIndex != TRACKER_DATA_NON_INITIALISED_INDEX) return;
++        trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
 +
-+        final boolean pluginApiCanSee = connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity());
-+        if (!pluginApiCanSee) {
-+            trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE; // Not in the effective set, not visible
-+            return;
-+        }
-+
-+        // Added *and* visible, we require tracking logic to run.
-+        // Add to iterator list.
-+        addToEffectiveAndShow(connection, trackerData);
++        editVisibility(connection, trackerData, connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity()));
 +    }
 +
 +    private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
@@ -112,8 +109,9 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 +     * Removes the passed server player to the paper seen by tracker.
 +     *
 +     * @param connection the server player connection instance to remove.
++     *
 +     * @return {@code true} if the server player has been remove *and* the player requires removal tracking calls.
-+     * The method may return false even if the server player was remove from the tracker incase the player could not see the entity.
++     *     The method may return false even if the server player was remove from the tracker incase the player could not see the entity.
 +     */
 +    public void remove(final ServerPlayerConnection connection) {
 +        if (this.theoretical().isEmpty()) return;
@@ -148,19 +146,23 @@ index 0000000000000000000000000000000000000000..c8c0eda3afa857fd70dbcaa6dbd867f7
 +    /**
 +     * Edits the visibility of a server player on this tracker.
 +     *
-+     * @param serverPlayer the server player instance.
++     * @param connection   the server player instance.
 +     * @param canSeeEntity {@code true} if the player should be able to see the entity, {@code false} if not.
-+     * @return the result of the action, defining what the caller is expected to perform for the player.
 +     */
-+    public void editVisibility(final ServerPlayer serverPlayer, final boolean canSeeEntity) {
-+        final TrackerData trackerData = this.theoretical.get(serverPlayer.connection);
++    public void editVisibility(final ServerPlayerConnection connection, final boolean canSeeEntity) {
++        final TrackerData trackerData = this.theoretical.get(connection);
 +        if (trackerData == null) return;
++
++        editVisibility(connection, trackerData, canSeeEntity);
++    }
++
++    public void editVisibility(final ServerPlayerConnection connection, final TrackerData trackerData, final boolean canSeeEntity) {
 +        if (trackerData.effectiveIndex >= 0 == canSeeEntity) return;
 +
 +        if (canSeeEntity) {
-+            addToEffectiveAndShow(serverPlayer.connection, trackerData);
++            addToEffectiveAndShow(connection, trackerData);
 +        } else {
-+            removeFromEffectiveAndHide(serverPlayer.connection, trackerData);
++            removeFromEffectiveAndHide(connection, trackerData);
 +        }
 +    }
 +
