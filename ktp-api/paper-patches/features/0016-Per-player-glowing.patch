@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 29 Sep 2025 17:34:24 +0200
+Subject: [PATCH] Per-player glowing
+
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 639f2af8c96f90a345eb85dbbd27984bb235b51a..9425d8dce679cd3bbd74652f41e457a2988347f8 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -3939,4 +3939,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+      */
+     @ApiStatus.Experimental
+     PlayerGameConnection getConnection();
++
++    // KTP start - glow override
++    /**
++     * Configures a glow override for the specific entity.
++     *
++     * @param entity       the entity to configure the override for.
++     * @param glowOverride the override, with {@code TRUE} defining the entity to always be glowing, {@code FALSE} defining the entity to never be
++     *                     glowing and {@code NOT_SET} removing any override.
++     */
++    void glowOverride(Entity entity, net.kyori.adventure.util.TriState glowOverride);
++
++    /**
++     * Yields the glow override for the passed entity.
++     *
++     * @param entity the entity instance to check for.
++     *
++     * @return the tri state, {@code NOT_SET} if no override is configured.
++0     */
++    net.kyori.adventure.util.TriState glowOverride(Entity entity);
++    // KTP end - glow override
+ }
