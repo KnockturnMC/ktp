@@ -1,0 +1,140 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 28 Sep 2025 14:59:37 +0200
+Subject: [PATCH] Per-player glowing
+
+
+diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+index 1b49b2735fe0dac9b364376533dbca0bf711824d..c183c5ddf0a6ecfea2fb35d9e3061713189a1189 100644
+--- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
++++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+@@ -43,6 +43,17 @@ public class PaperSeenByTracker {
+             this.connection = connection;
+         }
+ 
++        // KTP start - glow override
++        public net.kyori.adventure.util.TriState glowOverride = net.kyori.adventure.util.TriState.NOT_SET;
++        public byte patchSharedFlagForGlowOverride(final byte b) {
++            return (byte) switch (glowOverride) {
++                case TRUE -> b | (1 << 6);
++                case FALSE -> b & ~(1 << 6);
++                case NOT_SET -> b;
++            };
++        }
++        // KTP end - glow override
++
+     }
+ 
+     // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
+@@ -70,6 +81,7 @@ public class PaperSeenByTracker {
+         trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
+ 
+         editVisibility(connection, trackerData, connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity()));
++        editGlowOverride(connection, trackerData, connection.getPlayer().getBukkitEntity().glowOverride(this.trackedEntity.entity.getBukkitEntity())); // KTP - per player glow
+     }
+ 
+     private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
+@@ -168,4 +180,60 @@ public class PaperSeenByTracker {
+     public boolean isEmpty() {
+         return this.effective.isEmpty();
+     }
++
++    // KTP start - glow override
++    public int hasAnyGlowOverrides = 0;
++
++    /**
++     * Edits the glow override of a server player on this tracker.
++     *
++     * @param connection   the server player instance.
++     * @param glowOverride the override tri state.
++     */
++    public void editGlowOverride(final ServerPlayerConnection connection, final net.kyori.adventure.util.TriState glowOverride) {
++        final TrackerData trackerData = this.theoretical.get(connection);
++        if (trackerData == null) return;
++
++        editGlowOverride(connection, trackerData, glowOverride);
++    }
++
++    public void editGlowOverride(
++        final ServerPlayerConnection connection,
++        final TrackerData trackerData,
++        final net.kyori.adventure.util.TriState glowOverride
++    ) {
++        if (trackerData.glowOverride == glowOverride) return;
++
++        // Two cases where we have to modify the any variable.
++        // Either, we currently are not an override and are editing to be one.
++        // Or we are currently one and are moving to not be one.
++        // THe above check for noop changes allows the following if statements without exhaustive checks for TRUE -> FALSE and FALSE -> TRUE cases.
++        if (trackerData.glowOverride == net.kyori.adventure.util.TriState.NOT_SET) {
++            ++this.hasAnyGlowOverrides;
++        } else if (glowOverride == net.kyori.adventure.util.TriState.NOT_SET) {
++            --this.hasAnyGlowOverrides;
++        }
++
++        // Update cached data
++        trackerData.glowOverride = glowOverride;
++    }
++
++    public void sendUpdatedGlowOverride(
++        final ServerPlayerConnection connection
++    ) {
++        final TrackerData trackerData = this.theoretical.get(connection);
++        if (trackerData == null || trackerData.effectiveIndex < 0) return;
++
++        // Actually send updated faked data to the player
++        final byte value = trackerData.patchSharedFlagForGlowOverride(
++            this.trackedEntity.entity.getEntityData().getItem(net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID).getValue()
++        );
++
++        connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(
++            this.trackedEntity.entity.getId(),
++            java.util.List.of(net.minecraft.network.syncher.SynchedEntityData.DataValue.create(net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID, value))
++        ));
++    }
++
++    // KTP end - glow override
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index ec4abb123804776dd879572b7bb5c27cf0e70fd9..f805eee99b11ad8c211487386a6fa2e8d401612c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -3543,4 +3543,38 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+     public PlayerGameConnection getConnection() {
+         return this.getHandle().connection.playerGameConnection;
+     }
++
++    // KTP start - glow override
++    private final it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap<UUID> glowOverrides = new it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap<>();
++    @Override
++    public void glowOverride(
++        final org.bukkit.entity.@org.jspecify.annotations.NonNull Entity entity,
++        final net.kyori.adventure.util.@org.jspecify.annotations.NonNull TriState glowOverride
++    ) {
++        if (glowOverride == TriState.NOT_SET) {
++            glowOverrides.removeBoolean(entity.getUniqueId());
++        } else {
++            glowOverrides.put(entity.getUniqueId(), Boolean.TRUE.equals(glowOverride.toBoolean()));
++        }
++
++        final Entity handleRaw = ((CraftEntity) entity).getHandleRaw();
++        handleRaw.moonrise$getTrackedEntity().seenBy.editGlowOverride(this.getHandle().connection, glowOverride);
++        handleRaw.moonrise$getTrackedEntity().seenBy.sendUpdatedGlowOverride(this.getHandle().connection);
++    }
++
++    /**
++     * Yields the glow override for the passed entity.
++     *
++     * @param entity the entity instance to check for.
++     *
++     * @return the tri state, {@code NOT_SET} if no override is configured.
++     */
++    @Override
++    public net.kyori.adventure.util.TriState glowOverride(final org.bukkit.entity.Entity entity) {
++        return this.glowOverrides.containsKey(entity.getUniqueId())
++                ? net.kyori.adventure.util.TriState.byBoolean(this.glowOverrides.getBoolean(entity.getUniqueId()))
++                : net.kyori.adventure.util.TriState.NOT_SET;
++    }
++    // KTP end - glow override
++
+ }
