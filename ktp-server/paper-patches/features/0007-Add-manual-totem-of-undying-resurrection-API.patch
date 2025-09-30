@@ -15,10 +15,10 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index 6b4e74b808b4fb6ac0143d5c82571657b2c49683..2d0293a4cac7baf59ed8eea6c9450d3a91dd3ee4 100644
+index 1c2c7fb47c32b840a2967090f6d86cf874697a42..5e46997f754ef296212f5791ab7c805beadfb250 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -1167,4 +1167,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -1132,4 +1132,11 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
      public CombatTracker getCombatTracker() {
          return this.getHandle().getCombatTracker().paperCombatTracker;
      }

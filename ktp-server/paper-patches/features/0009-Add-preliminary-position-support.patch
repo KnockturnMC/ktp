@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index bd3fabe1b27b481ba8a5397802e26811cb11ea57..034b78993b454e1157257b628287a755d926210a 100644
+index b5caa4b88781ed1de8f4209fe283dfceec6f6824..f15d846e70f08999ee9a67dd246e15794dd111a6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -91,6 +91,7 @@ import org.bukkit.Note;
+@@ -92,6 +92,7 @@ import org.bukkit.NamespacedKey;
  import org.bukkit.Particle;
  import org.bukkit.Raid;
  import org.bukkit.Sound;
@@ -20,16 +20,7 @@ index bd3fabe1b27b481ba8a5397802e26811cb11ea57..034b78993b454e1157257b628287a755
  import org.bukkit.TreeType;
  import org.bukkit.World;
  import org.bukkit.WorldBorder;
-@@ -1067,7 +1068,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
- 
-     @Override
-     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
--        return this.getNearbyEntities(location, x, y, z, null);
-+        return this.getNearbyEntities(location, x, y, z, (Predicate<? super Entity>) null); // KTP - preliminary position support
-     }
- 
-     @Override
-@@ -2507,4 +2508,20 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2083,4 +2084,20 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      }
      // KTP end - expose low level steering interceptors
  
@@ -51,10 +42,10 @@ index bd3fabe1b27b481ba8a5397802e26811cb11ea57..034b78993b454e1157257b628287a755
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
-index db8d8e2a07296d62c3097f02b03319e2e1ba9394..a477689e61bf447837d4dab6e92598234072eecf 100644
+index 9bc8055c36322c79077af57ab72d5493f5e65b7d..0ddb995a1c40466987f264905360c4847e43c5ed 100644
 --- a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
 +++ b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
-@@ -527,6 +527,16 @@ public class MaterialRerouting {
+@@ -522,6 +522,16 @@ public class MaterialRerouting {
          return MaterialRerouting.transformFromBlockType(regionAccessor.getType(location), version);
      }
  

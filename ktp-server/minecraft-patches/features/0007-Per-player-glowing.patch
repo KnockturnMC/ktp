@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index b6932e271bde5b4201eb2d169d971f93dc63d5bc..0be92cc785439bd1e622954e8368cb95957fd389 100644
+index a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6..81be569e7bb3b8f0face088c37547175a58a23f2 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -409,8 +409,42 @@ public class ServerEntity {
+@@ -390,8 +390,42 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
          List<SynchedEntityData.DataValue<?>> list = entityData.packDirty();
@@ -49,14 +49,14 @@ index b6932e271bde5b4201eb2d169d971f93dc63d5bc..0be92cc785439bd1e622954e8368cb95
 +                break sendEntityDataIf;
 +            }
 +            // KTP end - per player glowing
-             this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
+             this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index d834d20c1c45befe2b5d0520e5c93cf0a512f477..c0c734f5bff6d9edf828ebdeb5fd630a04eddbba 100644
+index 21627a6f293f6c32ecdd15dfa95382250fddafc5..48f0878d7ee8786138d4a816faacc76890112228 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -291,7 +291,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -293,7 +293,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      public int invulnerableTime;
      protected boolean firstTick = true;
      protected final SynchedEntityData entityData;

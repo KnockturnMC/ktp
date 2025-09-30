@@ -9,7 +9,7 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/io/papermc/paper/math/Position.java b/src/main/java/io/papermc/paper/math/Position.java
-index 0e6a6a6738353b118e0ed093994dda06750700c4..c07c5c7eb2c9ca614d9b3c50a59906e7d715a8c3 100644
+index 2fad6604a0006d12eec484ed3f54ae3ad166fd1c..ab89365ec237a9f8866066bfb3008f07892959e8 100644
 --- a/src/main/java/io/papermc/paper/math/Position.java
 +++ b/src/main/java/io/papermc/paper/math/Position.java
 @@ -189,4 +189,57 @@ public interface Position {
@@ -71,10 +71,10 @@ index 0e6a6a6738353b118e0ed093994dda06750700c4..c07c5c7eb2c9ca614d9b3c50a59906e7
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index 05ecf3cb38ff42c8b52405d900197e6bf47dd1e6..a2e2ea0b1059932abafc3b579ac0112dafad9016 100644
+index f86ed60687bb38d61a878382a9e00a0fc3196400..9c57805709afbbee9407034f767b0d9ca2db9239 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
-@@ -539,4 +539,109 @@ public interface RegionAccessor extends Keyed, io.papermc.paper.world.flag.Featu
+@@ -560,4 +560,109 @@ public interface RegionAccessor extends Keyed, io.papermc.paper.world.flag.Featu
       */
      boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
      // Paper end
@@ -185,10 +185,19 @@ index 05ecf3cb38ff42c8b52405d900197e6bf47dd1e6..a2e2ea0b1059932abafc3b579ac0112d
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index a7010fe945b34eec68837a8d59b849a97e4ba1a8..6920d0563a6e92ac645e8892796b7fb9feea104d 100644
+index 5d761281a01a29f66e53fbff180f76b0afc080c9..339f7f156f99684eb21afb0210b5f8fd6209ac3e 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4487,4 +4487,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -1678,7 +1678,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+      */
+     @NotNull
+     default Collection<Entity> getNearbyEntities(@NotNull Location location, double x, double y, double z) {
+-        return this.getNearbyEntities(location, x, y, z, null);
++        return this.getNearbyEntities(location, x, y, z, (Predicate<? super Entity>) null); // KTP - preliminary position support
+     }
+ 
+     // Paper start - getEntity by UUID API
+@@ -4656,4 +4656,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors
