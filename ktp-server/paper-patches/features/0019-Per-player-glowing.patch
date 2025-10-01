@@ -5,7 +5,7 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-index 1b49b2735fe0dac9b364376533dbca0bf711824d..312bb7541988c57ca7100c2f9e97121f8a62f98b 100644
+index 37d1088e0f719874fffddb7902f7c8c50a284e63..8d10a512c0e2d3e3f5afa2b3b77c7ad7051a9ec9 100644
 --- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 @@ -43,6 +43,18 @@ public class PaperSeenByTracker {
@@ -38,7 +38,7 @@ index 1b49b2735fe0dac9b364376533dbca0bf711824d..312bb7541988c57ca7100c2f9e97121f
      }
  
      private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
-@@ -168,4 +184,65 @@ public class PaperSeenByTracker {
+@@ -169,4 +185,65 @@ public class PaperSeenByTracker {
      public boolean isEmpty() {
          return this.effective.isEmpty();
      }

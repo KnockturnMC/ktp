@@ -12,10 +12,10 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1b49b2735fe0dac9b364376533dbca0bf711824d
+index 0000000000000000000000000000000000000000..37d1088e0f719874fffddb7902f7c8c50a284e63
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -0,0 +1,171 @@
+@@ -0,0 +1,172 @@
 +package io.papermc.paper.network;
 +
 +import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -124,8 +124,6 @@ index 0000000000000000000000000000000000000000..1b49b2735fe0dac9b364376533dbca0b
 +    }
 +
 +    private void removeFromEffectiveAndHide(final ServerPlayerConnection connection, final TrackerData remove) {
-+        remove.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
-+
 +        final ServerPlayerConnection relocatedLastElement = this.effective.removeLast();
 +        final TrackerData relocatedLastElementData = this.effectiveData.removeLast();
 +        if (relocatedLastElement != connection) {
@@ -134,6 +132,8 @@ index 0000000000000000000000000000000000000000..1b49b2735fe0dac9b364376533dbca0b
 +
 +            relocatedLastElementData.effectiveIndex = remove.effectiveIndex;
 +        }
++
++        remove.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE; // Mark element as invalid
 +
 +        this.trackedEntity.removePairing(connection.getPlayer());
 +    }
@@ -157,7 +157,8 @@ index 0000000000000000000000000000000000000000..1b49b2735fe0dac9b364376533dbca0b
 +    }
 +
 +    public void editVisibility(final ServerPlayerConnection connection, final TrackerData trackerData, final boolean canSeeEntity) {
-+        if (trackerData.effectiveIndex >= 0 == canSeeEntity) return;
++        final boolean currentlyTracking = trackerData.effectiveIndex >= 0;
++        if (currentlyTracking == canSeeEntity) return;
 +
 +        if (canSeeEntity) {
 +            addToEffectiveAndShow(connection, trackerData);
