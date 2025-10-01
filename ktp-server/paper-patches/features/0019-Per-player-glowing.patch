@@ -5,15 +5,16 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-index 7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4..baa47c95f7bc3937090a51c449801b12a47f515b 100644
+index 1b49b2735fe0dac9b364376533dbca0bf711824d..312bb7541988c57ca7100c2f9e97121f8a62f98b 100644
 --- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -43,6 +43,17 @@ public class PaperSeenByTracker {
+@@ -43,6 +43,18 @@ public class PaperSeenByTracker {
              this.connection = connection;
          }
  
 +        // KTP start - glow override
 +        public net.kyori.adventure.util.TriState glowOverride = net.kyori.adventure.util.TriState.NOT_SET;
++
 +        public byte patchSharedFlagForGlowOverride(final byte b) {
 +            return (byte) switch (glowOverride) {
 +                case TRUE -> b | (1 << 6);
@@ -26,15 +27,18 @@ index 7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4..baa47c95f7bc3937090a51c449801b12
      }
  
      // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
-@@ -70,6 +81,7 @@ public class PaperSeenByTracker {
+@@ -70,6 +82,10 @@ public class PaperSeenByTracker {
          trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
  
          editVisibility(connection, trackerData, connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity()));
-+        editGlowOverride(connection, trackerData, connection.getPlayer().getBukkitEntity().glowOverride(this.trackedEntity.entity.getBukkitEntity())); // KTP - per player glow
++        // KTP start - per player glow
++        editGlowOverride(trackerData, connection.getPlayer().getBukkitEntity().glowOverride(this.trackedEntity.entity.getBukkitEntity()));
++        sendUpdatedGlowOverride(connection);
++        // KTP end - per player glow
      }
  
      private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
-@@ -168,4 +180,60 @@ public class PaperSeenByTracker {
+@@ -168,4 +184,65 @@ public class PaperSeenByTracker {
      public boolean isEmpty() {
          return this.effective.isEmpty();
      }
@@ -52,11 +56,10 @@ index 7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4..baa47c95f7bc3937090a51c449801b12
 +        final TrackerData trackerData = this.theoretical.get(connection);
 +        if (trackerData == null) return;
 +
-+        editGlowOverride(connection, trackerData, glowOverride);
++        editGlowOverride(trackerData, glowOverride);
 +    }
 +
 +    public void editGlowOverride(
-+        final ServerPlayerConnection connection,
 +        final TrackerData trackerData,
 +        final net.kyori.adventure.util.TriState glowOverride
 +    ) {
@@ -79,8 +82,14 @@ index 7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4..baa47c95f7bc3937090a51c449801b12
 +    public void sendUpdatedGlowOverride(
 +        final ServerPlayerConnection connection
 +    ) {
-+        final TrackerData trackerData = this.theoretical.get(connection);
-+        if (trackerData == null || trackerData.effectiveIndex < 0) return;
++        this.sendUpdatedGlowOverride(connection, this.theoretical.get(connection));
++    }
++
++    public void sendUpdatedGlowOverride(
++        final ServerPlayerConnection connection,
++        final @org.jspecify.annotations.Nullable TrackerData trackerData
++    ) {
++        if (trackerData == null || trackerData.effectiveIndex < 0 || trackerData.glowOverride == net.kyori.adventure.util.TriState.NOT_SET) return;
 +
 +        // Actually send updated faked data to the player
 +        final byte value = trackerData.patchSharedFlagForGlowOverride(
@@ -96,7 +105,7 @@ index 7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4..baa47c95f7bc3937090a51c449801b12
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index fdd70e586bd85c912eb2ce60fff5306f22535929..cbc88fbd38ed7a22ff645a4cad73badf820640de 100644
+index f0cfc23b6ea89f4aa32551782acbca3f94709681..5199c1ea2d0f2f3b7697b1ed2492ba94f8646df2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -3468,4 +3468,37 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
