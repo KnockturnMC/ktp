@@ -105,10 +105,10 @@ index 37d1088e0f719874fffddb7902f7c8c50a284e63..8d10a512c0e2d3e3f5afa2b3b77c7ad7
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index f0cfc23b6ea89f4aa32551782acbca3f94709681..5199c1ea2d0f2f3b7697b1ed2492ba94f8646df2 100644
+index f0cfc23b6ea89f4aa32551782acbca3f94709681..99b10eee328c82376ea523841ef287bea94d0842 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3543,4 +3543,38 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3543,4 +3543,41 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
      public PlayerGameConnection getConnection() {
          return this.getHandle().connection.playerGameConnection;
      }
@@ -127,8 +127,11 @@ index f0cfc23b6ea89f4aa32551782acbca3f94709681..5199c1ea2d0f2f3b7697b1ed2492ba94
 +        }
 +
 +        final Entity handleRaw = ((CraftEntity) entity).getHandleRaw();
-+        handleRaw.moonrise$getTrackedEntity().seenBy.editGlowOverride(this.getHandle().connection, glowOverride);
-+        handleRaw.moonrise$getTrackedEntity().seenBy.sendUpdatedGlowOverride(this.getHandle().connection);
++        final ChunkMap.TrackedEntity trackedEntity = handleRaw.moonrise$getTrackedEntity();
++        if (trackedEntity != null) {
++            trackedEntity.seenBy.editGlowOverride(this.getHandle().connection, glowOverride);
++            trackedEntity.seenBy.sendUpdatedGlowOverride(this.getHandle().connection);
++        }
 +    }
 +
 +    /**
