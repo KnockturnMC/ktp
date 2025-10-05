@@ -12,7 +12,7 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..37d1088e0f719874fffddb7902f7c8c50a284e63
+index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb583234549a8e0c4
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 @@ -0,0 +1,172 @@
@@ -102,7 +102,7 @@ index 0000000000000000000000000000000000000000..37d1088e0f719874fffddb7902f7c8c5
 +        this.effective.add(connection);
 +        this.effectiveData.add(trackerData);
 +
-+        this.trackedEntity.addPairing(connection.getPlayer());
++        this.trackedEntity.addPairing(connection.getPlayer(), trackerData);
 +    }
 +
 +    /**

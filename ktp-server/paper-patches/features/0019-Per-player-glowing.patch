@@ -5,40 +5,51 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-index 37d1088e0f719874fffddb7902f7c8c50a284e63..8d10a512c0e2d3e3f5afa2b3b77c7ad7051a9ec9 100644
+index ae03dac98da20723ebcb664bb583234549a8e0c4..0b2d96352d97ad2d7d8655d45cb4b0e67b221e47 100644
 --- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -43,6 +43,18 @@ public class PaperSeenByTracker {
+@@ -43,6 +43,32 @@ public class PaperSeenByTracker {
              this.connection = connection;
          }
  
 +        // KTP start - glow override
 +        public net.kyori.adventure.util.TriState glowOverride = net.kyori.adventure.util.TriState.NOT_SET;
 +
-+        public byte patchSharedFlagForGlowOverride(final byte b) {
++        public byte patchSharedFlagForGlowOverride(final byte value) {
 +            return (byte) switch (glowOverride) {
-+                case TRUE -> b | (1 << 6);
-+                case FALSE -> b & ~(1 << 6);
-+                case NOT_SET -> b;
++                case TRUE -> value | (1 << 6);
++                case FALSE -> value & ~(1 << 6);
++                case NOT_SET -> value;
 +            };
++        }
++
++        public java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> patch(
++            final java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> input,
++            final int sharedFlagIndex
++        ) {
++            if (sharedFlagIndex == -1) return input;
++
++            final java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> modifiedCopy = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(sharedFlagIndex);
++            modifiedCopy.set(sharedFlagIndex, net.minecraft.network.syncher.SynchedEntityData.DataValue.create(
++                net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID,
++                patchSharedFlagForGlowOverride((byte) modifiedCopy.get(sharedFlagIndex).value())
++            ));
++            return modifiedCopy;
 +        }
 +        // KTP end - glow override
 +
      }
  
      // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
-@@ -70,6 +82,10 @@ public class PaperSeenByTracker {
+@@ -69,6 +95,7 @@ public class PaperSeenByTracker {
+         if (trackerData.effectiveIndex != TRACKER_DATA_NON_INITIALISED_INDEX) return;
          trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
  
++        editGlowOverride(trackerData, connection.getPlayer().getBukkitEntity().glowOverride(this.trackedEntity.entity.getBukkitEntity())); // KTP - per player glow - required before editing visibility to ensure it is in the initial send
          editVisibility(connection, trackerData, connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity()));
-+        // KTP start - per player glow
-+        editGlowOverride(trackerData, connection.getPlayer().getBukkitEntity().glowOverride(this.trackedEntity.entity.getBukkitEntity()));
-+        sendUpdatedGlowOverride(connection);
-+        // KTP end - per player glow
      }
  
-     private void addToEffectiveAndShow(final ServerPlayerConnection connection, final TrackerData trackerData) {
-@@ -169,4 +185,65 @@ public class PaperSeenByTracker {
+@@ -169,4 +196,77 @@ public class PaperSeenByTracker {
      public boolean isEmpty() {
          return this.effective.isEmpty();
      }
@@ -89,7 +100,7 @@ index 37d1088e0f719874fffddb7902f7c8c50a284e63..8d10a512c0e2d3e3f5afa2b3b77c7ad7
 +        final ServerPlayerConnection connection,
 +        final @org.jspecify.annotations.Nullable TrackerData trackerData
 +    ) {
-+        if (trackerData == null || trackerData.effectiveIndex < 0 || trackerData.glowOverride == net.kyori.adventure.util.TriState.NOT_SET) return;
++        if (trackerData == null || trackerData.effectiveIndex < 0) return;
 +
 +        // Actually send updated faked data to the player
 +        final byte value = trackerData.patchSharedFlagForGlowOverride(
@@ -102,6 +113,18 @@ index 37d1088e0f719874fffddb7902f7c8c50a284e63..8d10a512c0e2d3e3f5afa2b3b77c7ad7
 +        ));
 +    }
 +
++    public int findSharedDataValueIndexIn(final java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> list) {
++        for (int i = 0; i < list.size(); i++) {
++            final net.minecraft.network.syncher.SynchedEntityData.DataValue<?> dataValue = list.get(i);
++            if (dataValue.id() >= net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID.id()) {
++                if (dataValue.id() == net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID.id()) {
++                    return i;
++                }
++                break; // We can break here, if the data value id is higher than the shared flag id, the list does not contain the shared flags.
++            }
++        }
++        return -1;
++    }
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java

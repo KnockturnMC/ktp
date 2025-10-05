@@ -11,7 +11,7 @@ The visibility api introduced by bukkit is implemented with a
 pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
-index eb352aa4296abc3ed4cf31c590bc0be66daf4de3..14c3344ebdd4fd207bbfcd1029616c108600212f 100644
+index eb352aa4296abc3ed4cf31c590bc0be66daf4de3..7bac061f48803ce68e313d43a2ca9836e1b463a9 100644
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
 @@ -1139,10 +1139,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
@@ -130,8 +130,8 @@ index eb352aa4296abc3ed4cf31c590bc0be66daf4de3..14c3344ebdd4fd207bbfcd1029616c10
          }
  
 +        // KTP start - map based tracker - move into own method
-+        public void addPairing(final ServerPlayer serverPlayer) {
-+            this.serverEntity.addPairing(serverPlayer);
++        public void addPairing(final ServerPlayer serverPlayer, final io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
++            this.serverEntity.addPairing(serverPlayer, trackerData);
 +            this.serverEntity.onPlayerAdd(); // Paper - fix desync when a player is added to the tracker
 +        }
 +
@@ -144,7 +144,7 @@ index eb352aa4296abc3ed4cf31c590bc0be66daf4de3..14c3344ebdd4fd207bbfcd1029616c10
              return ChunkMap.this.level.getServer().getScaledTrackingDistance(trackingDistance);
          }
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index e96d4dee14c05f2fa329bfb1588ec795d4e3d730..b6932e271bde5b4201eb2d169d971f93dc63d5bc 100644
+index e96d4dee14c05f2fa329bfb1588ec795d4e3d730..d1a45e09b075346db819a9d39244ad08215db4ac 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
 @@ -74,7 +74,7 @@ public class ServerEntity {
@@ -174,3 +174,28 @@ index e96d4dee14c05f2fa329bfb1588ec795d4e3d730..b6932e271bde5b4201eb2d169d971f93
                          final ServerPlayer serverPlayer = connection.getPlayer(); // Paper
                          savedData.tickCarriedBy(serverPlayer, item);
                          Packet<?> updatePacket = savedData.getUpdatePacket(mapId, serverPlayer);
+@@ -325,13 +325,23 @@ public class ServerEntity {
+     }
+ 
+     public void addPairing(ServerPlayer player) {
++    // KTP  start - map based tracker - pass tracker data
++        addPairing(player, null);
++    }
++    public void addPairing(ServerPlayer player, final @Nullable io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
++    // KTP  end - map based tracker - pass tracker data
+         List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
+-        this.sendPairingData(player, list::add);
++        this.sendPairingData(player, list::add, trackerData); // KTP  - map based tracker - pass tracker data
+         player.connection.send(new ClientboundBundlePacket(list));
+         this.entity.startSeenByPlayer(player);
+     }
+ 
+     public void sendPairingData(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> consumer) {
++    // KTP  start - map based tracker - pass tracker data
++        sendPairingData(player, consumer, null);
++    }
++    public void sendPairingData(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> consumer, final @Nullable io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
++    // KTP  start - map based tracker - pass tracker data
+         if (this.entity.isRemoved()) {
+             // CraftBukkit start - Remove useless error spam, just return
+             // LOGGER.warn("Fetching packet for removed entity {}", this.entity);
