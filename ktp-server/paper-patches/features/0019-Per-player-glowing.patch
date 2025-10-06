@@ -5,7 +5,7 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-index ae03dac98da20723ebcb664bb583234549a8e0c4..0b2d96352d97ad2d7d8655d45cb4b0e67b221e47 100644
+index ae03dac98da20723ebcb664bb583234549a8e0c4..850b26c2c3cc89d78a6d7ba1e2ebae47b1fed28e 100644
 --- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 @@ -43,6 +43,32 @@ public class PaperSeenByTracker {
@@ -29,7 +29,7 @@ index ae03dac98da20723ebcb664bb583234549a8e0c4..0b2d96352d97ad2d7d8655d45cb4b0e6
 +        ) {
 +            if (sharedFlagIndex == -1) return input;
 +
-+            final java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> modifiedCopy = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(sharedFlagIndex);
++            final java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> modifiedCopy = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(input);
 +            modifiedCopy.set(sharedFlagIndex, net.minecraft.network.syncher.SynchedEntityData.DataValue.create(
 +                net.minecraft.world.entity.Entity.DATA_SHARED_FLAGS_ID,
 +                patchSharedFlagForGlowOverride((byte) modifiedCopy.get(sharedFlagIndex).value())
