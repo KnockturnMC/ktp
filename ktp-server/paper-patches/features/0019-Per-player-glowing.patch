@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-index ae03dac98da20723ebcb664bb583234549a8e0c4..850b26c2c3cc89d78a6d7ba1e2ebae47b1fed28e 100644
+index ea08eceb04a8d956c11cb73ffbae6391642d3f1c..38192e6373acc6b882faca7c2e0476df71e81e6c 100644
 --- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -43,6 +43,32 @@ public class PaperSeenByTracker {
+@@ -44,6 +44,32 @@ public class PaperSeenByTracker {
              this.connection = connection;
          }
  
@@ -41,7 +41,7 @@ index ae03dac98da20723ebcb664bb583234549a8e0c4..850b26c2c3cc89d78a6d7ba1e2ebae47
      }
  
      // This implementation is based on the assumption that iteration is a far more common use case than addition and removal
-@@ -69,6 +95,7 @@ public class PaperSeenByTracker {
+@@ -70,6 +96,7 @@ public class PaperSeenByTracker {
          if (trackerData.effectiveIndex != TRACKER_DATA_NON_INITIALISED_INDEX) return;
          trackerData.effectiveIndex = TRACKER_DATA_NON_EFFECTIVE;
  
@@ -49,7 +49,7 @@ index ae03dac98da20723ebcb664bb583234549a8e0c4..850b26c2c3cc89d78a6d7ba1e2ebae47
          editVisibility(connection, trackerData, connection.getPlayer().getBukkitEntity().canSee(this.trackedEntity.entity.getBukkitEntity()));
      }
  
-@@ -169,4 +196,77 @@ public class PaperSeenByTracker {
+@@ -174,4 +201,77 @@ public class PaperSeenByTracker {
      public boolean isEmpty() {
          return this.effective.isEmpty();
      }
@@ -128,12 +128,12 @@ index ae03dac98da20723ebcb664bb583234549a8e0c4..850b26c2c3cc89d78a6d7ba1e2ebae47
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index f0cfc23b6ea89f4aa32551782acbca3f94709681..99b10eee328c82376ea523841ef287bea94d0842 100644
+index fdd70e586bd85c912eb2ce60fff5306f22535929..5775dc1f71e7091e11ea8214cc88152e7c94eb7e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3543,4 +3543,41 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
-     public PlayerGameConnection getConnection() {
-         return this.getHandle().connection.playerGameConnection;
+@@ -3468,4 +3468,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+             entity.remove();
+         }
      }
 +
 +    // KTP start - glow override
@@ -171,5 +171,4 @@ index f0cfc23b6ea89f4aa32551782acbca3f94709681..99b10eee328c82376ea523841ef287be
 +                : net.kyori.adventure.util.TriState.NOT_SET;
 +    }
 +    // KTP end - glow override
-+
  }

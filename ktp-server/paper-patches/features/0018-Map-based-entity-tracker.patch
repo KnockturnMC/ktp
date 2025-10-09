@@ -12,10 +12,10 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb583234549a8e0c4
+index 0000000000000000000000000000000000000000..ea08eceb04a8d956c11cb73ffbae6391642d3f1c
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,177 @@
 +package io.papermc.paper.network;
 +
 +import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -25,6 +25,7 @@ index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb5832345
 +import net.minecraft.server.level.ChunkMap;
 +import net.minecraft.server.network.ServerPlayerConnection;
 +import org.jspecify.annotations.NullMarked;
++import org.jspecify.annotations.Nullable;
 +
 +/**
 + * The paper seen by tracker aims to expand on vanilla's {@link ChunkMap.TrackedEntity#seenBy} set
@@ -138,7 +139,7 @@ index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb5832345
 +        this.trackedEntity.removePairing(connection.getPlayer());
 +    }
 +
-+    public boolean isTracking(final ServerPlayerConnection connection) {
++    public boolean contains(final ServerPlayerConnection connection) {
 +        final TrackerData trackerData = this.theoretical.get(connection);
 +        return trackerData != null && trackerData.effectiveIndex >= 0;
 +    }
@@ -171,6 +172,10 @@ index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb5832345
 +        return theoretical.keySet();
 +    }
 +
++    public @Nullable TrackerData theoreticalData(final ServerPlayerConnection serverPlayerConnection) {
++        return this.theoretical.get(serverPlayerConnection);
++    }
++
 +    public ObjectArrayList<ServerPlayerConnection> effective() {
 +        return effective;
 +    }
@@ -189,10 +194,10 @@ index 0000000000000000000000000000000000000000..ae03dac98da20723ebcb664bb5832345
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab9207bbc4 100644
+index 9467bb161386d0af5d2db939acab05b6fcca81bb..3a711988ce137224be2457b2b2deca537d8d2bb3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -745,7 +745,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -744,7 +744,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
  
          if (entityTracker != null) {
@@ -201,16 +206,16 @@ index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab
                  players.add(connection.getPlayer().getBukkitEntity());
              }
          }
-@@ -762,7 +762,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -761,7 +761,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
          if (entityTracker == null) return false;
  
 -        return entityTracker.seenBy.contains(((CraftPlayer) player).getHandle().connection);
-+        return entityTracker.seenBy.isTracking(((CraftPlayer) player).getHandle().connection); // KTP - map based tracker
++        return entityTracker.seenBy.contains(((CraftPlayer) player).getHandle().connection); // KTP - map based tracker
      }
  
      @Override
-@@ -1076,7 +1076,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1079,7 +1079,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
              return;
          }
  
@@ -219,7 +224,7 @@ index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab
              this.getHandle().resendPossiblyDesyncedEntityData(connection.getPlayer());
          }
      }
-@@ -1222,8 +1222,8 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1225,8 +1225,8 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
              return java.util.Collections.emptySet();
          }
  
@@ -231,10 +236,10 @@ index c3e17e1f153eaa34e40cb27d98a999627a590697..4830580676eca80a383df390297f10ab
          }
          return set;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index b2e886effaa1bde1b8548ce23651c237678f1369..f0cfc23b6ea89f4aa32551782acbca3f94709681 100644
+index 505bd0fa88d8186c19c28016cf6dd3062bb6c8a3..fdd70e586bd85c912eb2ce60fff5306f22535929 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -2043,7 +2043,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -1995,7 +1995,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
          ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
          if (entry != null) {
@@ -243,13 +248,13 @@ index b2e886effaa1bde1b8548ce23651c237678f1369..f0cfc23b6ea89f4aa32551782acbca3f
          }
  
          // Remove the hidden entity from this player user list, if they're on it
-@@ -2139,8 +2139,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -2083,8 +2083,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          }
  
          ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
 -        if (entry != null && !entry.seenBy.contains(this.getHandle().connection)) {
 -            entry.updatePlayer(this.getHandle());
-+        if (entry != null && !entry.seenBy.isTracking(this.getHandle().connection)) {  // KTP - map based tracker
++        if (entry != null && !entry.seenBy.contains(this.getHandle().connection)) {  // KTP - map based tracker
 +            entry.seenBy.editVisibility(this.getHandle().connection, true);  // KTP - map based tracker
          }
  

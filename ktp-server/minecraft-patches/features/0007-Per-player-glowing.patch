@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index d1a45e09b075346db819a9d39244ad08215db4ac..2cd581df385f61cd0607b47139ea529148585f20 100644
+index 01cae89a76848f2888dabb5c2c89ba4ea57c6e45..71aa4d8a594736088fb0c536321540d1374af845 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -352,7 +352,26 @@ public class ServerEntity {
+@@ -338,7 +338,27 @@ public class ServerEntity {
          Packet<ClientGamePacketListener> addEntityPacket = this.entity.getAddEntityPacket(this);
          consumer.accept(addEntityPacket);
          if (this.trackedDataValues != null) {
@@ -27,7 +27,8 @@ index d1a45e09b075346db819a9d39244ad08215db4ac..2cd581df385f61cd0607b47139ea5291
 +                    // This case *could* be a bit more complex, but the client does not require sorted order on the data ids. So simply append.
 +                    possiblyModifiedTrackedDataValues = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(this.trackedDataValues);
 +                    possiblyModifiedTrackedDataValues.add(SynchedEntityData.DataValue.create(
-+                        Entity.DATA_SHARED_FLAGS_ID, trackerData.patchSharedFlagForGlowOverride(this.entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID))
++                        Entity.DATA_SHARED_FLAGS_ID,
++                        trackerData.patchSharedFlagForGlowOverride(this.entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID))
 +                    ));
 +                }
 +            }
@@ -36,7 +37,7 @@ index d1a45e09b075346db819a9d39244ad08215db4ac..2cd581df385f61cd0607b47139ea5291
          }
  
          if (this.entity instanceof LivingEntity livingEntity) {
-@@ -419,8 +438,28 @@ public class ServerEntity {
+@@ -405,8 +425,28 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
          List<SynchedEntityData.DataValue<?>> list = entityData.packDirty();
@@ -63,14 +64,14 @@ index d1a45e09b075346db819a9d39244ad08215db4ac..2cd581df385f61cd0607b47139ea5291
 +                break sendEntityDataIf;
 +            }
 +            // KTP end - per player glowing
-             this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
+             this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index d834d20c1c45befe2b5d0520e5c93cf0a512f477..c0c734f5bff6d9edf828ebdeb5fd630a04eddbba 100644
+index c3c032f4581f6fbf8e4845119eac0218030e3fd5..4f6f167e374833f161af3b6a2a0a5b3c44fa49de 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -291,7 +291,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -293,7 +293,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      public int invulnerableTime;
      protected boolean firstTick = true;
      protected final SynchedEntityData entityData;
