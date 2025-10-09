@@ -5,10 +5,39 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6..81be569e7bb3b8f0face088c37547175a58a23f2 100644
+index 01cae89a76848f2888dabb5c2c89ba4ea57c6e45..71aa4d8a594736088fb0c536321540d1374af845 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -390,8 +390,42 @@ public class ServerEntity {
+@@ -338,7 +338,27 @@ public class ServerEntity {
+         Packet<ClientGamePacketListener> addEntityPacket = this.entity.getAddEntityPacket(this);
+         consumer.accept(addEntityPacket);
+         if (this.trackedDataValues != null) {
+-            consumer.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
++            // KTP start - per player glowing - correct initial entity data
++            List<SynchedEntityData.DataValue<?>> possiblyModifiedTrackedDataValues = this.trackedDataValues;
++            // 99% of cases should simply not run this if as their override is NOT_SET.
++            if (trackerData != null && trackerData.glowOverride != net.kyori.adventure.util.TriState.NOT_SET) {
++                // We have tracked data. Two things can happen here.
++                // Either the initial tracked values contains the shared flag, in which case we simply patch it
++                // Or it does not, in which case we need to add it only in case the override is set to true. No entity glows by default.
++                final int sharedDataFlagIndex = this.trackedPlayers.findSharedDataValueIndexIn(this.trackedDataValues);
++                if (sharedDataFlagIndex >= 0) {
++                    possiblyModifiedTrackedDataValues = trackerData.patch(this.trackedDataValues, sharedDataFlagIndex);
++                } else if (trackerData.glowOverride == net.kyori.adventure.util.TriState.TRUE) {
++                    // This case *could* be a bit more complex, but the client does not require sorted order on the data ids. So simply append.
++                    possiblyModifiedTrackedDataValues = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(this.trackedDataValues);
++                    possiblyModifiedTrackedDataValues.add(SynchedEntityData.DataValue.create(
++                        Entity.DATA_SHARED_FLAGS_ID,
++                        trackerData.patchSharedFlagForGlowOverride(this.entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID))
++                    ));
++                }
++            }
++            // KTP end - per player glowing - correct initial entity data
++            consumer.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), possiblyModifiedTrackedDataValues)); // KTP - per player glowing - use possibly modified list
+         }
+ 
+         if (this.entity instanceof LivingEntity livingEntity) {
+@@ -405,8 +425,28 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
          List<SynchedEntityData.DataValue<?>> list = entityData.packDirty();
@@ -18,18 +47,7 @@ index a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6..81be569e7bb3b8f0face088c37547175
 +            // KTP start - per player glowing
 +            // Early check that *should* be false for 99% of entities that do not have glow overrides
 +            perPlayerGlowingIf: if (this.trackedPlayers.hasAnyGlowOverrides != 0) {
-+                int sharedFlagIndex = -1;
-+                byte sharedFlagValue = -1;
-+                for (int i = 0; i < list.size(); i++) {
-+                    final SynchedEntityData.DataValue<?> dataValue = list.get(i);
-+                    if (dataValue.id() >= Entity.DATA_SHARED_FLAGS_ID.id()) {
-+                        if (dataValue.id() == Entity.DATA_SHARED_FLAGS_ID.id()) {
-+                            sharedFlagIndex = i;
-+                            sharedFlagValue = (byte) dataValue.value();
-+                        }
-+                        break;
-+                    }
-+                }
++                final int sharedFlagIndex = this.trackedPlayers.findSharedDataValueIndexIn(list);
 +                if (sharedFlagIndex == -1) break perPlayerGlowingIf;
 +
 +                for (final var trackerData : this.trackedPlayers.effectiveData()) {
@@ -38,12 +56,9 @@ index a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6..81be569e7bb3b8f0face088c37547175
 +                        continue;
 +                    }
 +
-+                    final List<SynchedEntityData.DataValue<?>> modifiedCopy = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(list);
-+                    modifiedCopy.set(sharedFlagIndex, SynchedEntityData.DataValue.create(
-+                        Entity.DATA_SHARED_FLAGS_ID,
-+                        trackerData.patchSharedFlagForGlowOverride(sharedFlagValue)
-+                    ));
-+                    trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), modifiedCopy));
++                    trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), trackerData.patch(
++                        list, sharedFlagIndex
++                    )));
 +                }
 +
 +                break sendEntityDataIf;
@@ -53,7 +68,7 @@ index a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6..81be569e7bb3b8f0face088c37547175
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 21627a6f293f6c32ecdd15dfa95382250fddafc5..48f0878d7ee8786138d4a816faacc76890112228 100644
+index c3c032f4581f6fbf8e4845119eac0218030e3fd5..4f6f167e374833f161af3b6a2a0a5b3c44fa49de 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -293,7 +293,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name

@@ -15,10 +15,10 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index cde848724f24f4175cc3f68301bc842ed574354f..842e3bb5c92c9d00a10f7f5c3adab2b7d39053b2 100644
+index a57e7a7b98b186068a94a75148de2ce7212bcc38..527613892fc36044597530ef2784ea9331f42336 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -1474,4 +1474,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+@@ -1494,4 +1494,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
       */
      @ApiStatus.Experimental
      @NotNull CombatTracker getCombatTracker();

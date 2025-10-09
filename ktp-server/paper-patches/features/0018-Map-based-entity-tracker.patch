@@ -12,10 +12,10 @@ pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..7c243b5b8c94513d6d1dbe3edd15dffcaabd5cd4
+index 0000000000000000000000000000000000000000..ea08eceb04a8d956c11cb73ffbae6391642d3f1c
 --- /dev/null
 +++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,177 @@
 +package io.papermc.paper.network;
 +
 +import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -25,6 +25,7 @@ index 0000000000000000000000000000000000000000..7c243b5b8c94513d6d1dbe3edd15dffc
 +import net.minecraft.server.level.ChunkMap;
 +import net.minecraft.server.network.ServerPlayerConnection;
 +import org.jspecify.annotations.NullMarked;
++import org.jspecify.annotations.Nullable;
 +
 +/**
 + * The paper seen by tracker aims to expand on vanilla's {@link ChunkMap.TrackedEntity#seenBy} set
@@ -102,7 +103,7 @@ index 0000000000000000000000000000000000000000..7c243b5b8c94513d6d1dbe3edd15dffc
 +        this.effective.add(connection);
 +        this.effectiveData.add(trackerData);
 +
-+        this.trackedEntity.addPairing(connection.getPlayer());
++        this.trackedEntity.addPairing(connection.getPlayer(), trackerData);
 +    }
 +
 +    /**
@@ -171,6 +172,10 @@ index 0000000000000000000000000000000000000000..7c243b5b8c94513d6d1dbe3edd15dffc
 +        return theoretical.keySet();
 +    }
 +
++    public @Nullable TrackerData theoreticalData(final ServerPlayerConnection serverPlayerConnection) {
++        return this.theoretical.get(serverPlayerConnection);
++    }
++
 +    public ObjectArrayList<ServerPlayerConnection> effective() {
 +        return effective;
 +    }
@@ -189,10 +194,10 @@ index 0000000000000000000000000000000000000000..7c243b5b8c94513d6d1dbe3edd15dffc
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 5231e10bfd39aa207af2236342d4b0935f568494..972f20501bc1a32fbd0d80849cd4902fa3eea163 100644
+index 9467bb161386d0af5d2db939acab05b6fcca81bb..3a711988ce137224be2457b2b2deca537d8d2bb3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -745,7 +745,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -744,7 +744,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
  
          if (entityTracker != null) {
@@ -201,7 +206,7 @@ index 5231e10bfd39aa207af2236342d4b0935f568494..972f20501bc1a32fbd0d80849cd4902f
                  players.add(connection.getPlayer().getBukkitEntity());
              }
          }
-@@ -762,7 +762,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -761,7 +761,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          ChunkMap.TrackedEntity entityTracker = world.getChunkSource().chunkMap.entityMap.get(this.getEntityId());
          if (entityTracker == null) return false;
  
@@ -210,7 +215,7 @@ index 5231e10bfd39aa207af2236342d4b0935f568494..972f20501bc1a32fbd0d80849cd4902f
      }
  
      @Override
-@@ -1076,7 +1076,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1079,7 +1079,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
              return;
          }
  
@@ -219,7 +224,7 @@ index 5231e10bfd39aa207af2236342d4b0935f568494..972f20501bc1a32fbd0d80849cd4902f
              this.getHandle().resendPossiblyDesyncedEntityData(connection.getPlayer());
          }
      }
-@@ -1222,8 +1222,8 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -1225,8 +1225,8 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
              return java.util.Collections.emptySet();
          }
  

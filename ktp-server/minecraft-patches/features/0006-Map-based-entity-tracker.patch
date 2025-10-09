@@ -11,7 +11,7 @@ The visibility api introduced by bukkit is implemented with a
 pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
-index b7c16eeee03ac1183d3d26bd8ee1b13afd620f61..f7b877dabda47afe3910096087fa60ed11deacf2 100644
+index 09af66f4da588835027f09406c2beb20372eb0e7..cbbbbb3ca323be2502f0846aed7895d297324628 100644
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
 @@ -1176,10 +1176,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
@@ -139,13 +139,13 @@ index b7c16eeee03ac1183d3d26bd8ee1b13afd620f61..f7b877dabda47afe3910096087fa60ed
 -                    this.removePlayer(player);
 -                }
 +        // KTP start - map based tracker - move into own method
-+        public void addPairing(final ServerPlayer serverPlayer) {
++        public void addPairing(final ServerPlayer serverPlayer, final io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
 +            if (this.seenBy.effective().size() == 1) {
 +                ChunkMap.this.level.debugSynchronizers().registerEntity(this.entity);
 +            }
 +
 +            ChunkMap.this.level.debugSynchronizers().startTrackingEntity(serverPlayer, this.entity);
-+            this.serverEntity.addPairing(serverPlayer);
++            this.serverEntity.addPairing(serverPlayer, trackerData);
 +            this.serverEntity.onPlayerAdd(); // Paper - fix desync when a player is added to the tracker
 +        }
 +
@@ -160,7 +160,7 @@ index b7c16eeee03ac1183d3d26bd8ee1b13afd620f61..f7b877dabda47afe3910096087fa60ed
          private int scaledRange(int trackingDistance) {
              return ChunkMap.this.level.getServer().getScaledTrackingDistance(trackingDistance);
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index 638432a2e6506d3db6a25c068a33eeafb13cf0d6..a0bd6f31b810fbbf29cd0c8ca5d8dc6c7a5fd7d6 100644
+index 638432a2e6506d3db6a25c068a33eeafb13cf0d6..01cae89a76848f2888dabb5c2c89ba4ea57c6e45 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
 @@ -70,9 +70,9 @@ public class ServerEntity {
@@ -184,3 +184,47 @@ index 638432a2e6506d3db6a25c068a33eeafb13cf0d6..a0bd6f31b810fbbf29cd0c8ca5d8dc6c
                          final ServerPlayer serverPlayer = connection.getPlayer(); // Paper
                          savedData.tickCarriedBy(serverPlayer, item);
                          Packet<?> updatePacket = savedData.getUpdatePacket(mapId, serverPlayer);
+@@ -305,14 +305,29 @@ public class ServerEntity {
+         player.connection.send(new ClientboundRemoveEntitiesPacket(this.entity.getId()));
+     }
+ 
++    @io.papermc.paper.annotation.DoNotUse
+     public void addPairing(ServerPlayer player) {
++    // KTP  start - map based tracker - pass tracker data
++        addPairing(player, null);
++    }
++
++    public void addPairing(ServerPlayer player, final @Nullable io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
++    // KTP  end - map based tracker - pass tracker data
+         List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
+-        this.sendPairingData(player, list::add);
++        this.sendPairingData(player, list::add, trackerData); // KTP  end - map based tracker - pass tracker data
+         player.connection.send(new ClientboundBundlePacket(list));
+         this.entity.startSeenByPlayer(player);
+     }
+ 
++    @io.papermc.paper.annotation.DoNotUse
+     public void sendPairingData(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> consumer) {
++    // KTP  start - map based tracker - pass tracker data
++        sendPairingData(player, consumer, null);
++    }
++
++    public void sendPairingData(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> consumer,
++                                final @Nullable io.papermc.paper.network.PaperSeenByTracker.TrackerData trackerData) {
++    // KTP  start - map based tracker - pass tracker data
+         if (this.entity.isRemoved()) {
+             // CraftBukkit start - Remove useless error spam, just return
+             // LOGGER.warn("Fetching packet for removed entity {}", this.entity);
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index a05c02a3298f5e57d19e6d9d853428d00158814a..c3c032f4581f6fbf8e4845119eac0218030e3fd5 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -682,7 +682,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+             }
+             final net.minecraft.server.level.ServerEntity serverEntity = tracker.serverEntity;
+             final List<net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>> list = new java.util.ArrayList<>();
+-            serverEntity.sendPairingData(player, list::add);
++            serverEntity.sendPairingData(player, list::add, tracker.seenBy.theoreticalData(player.connection)); // KTP  end - map based tracker - pass tracker data
+             player.connection.send(new net.minecraft.network.protocol.game.ClientboundBundlePacket(list));
+         }
+     }

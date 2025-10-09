@@ -14,10 +14,10 @@ executed by spigot which allows plugins to modify potential target
 entities that are teleported by other plugins prior to the checks.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 316302320b6b4b1b3d0e9545f37dbc5656dc6676..539161012e28c23d59dfd381e8129072b2c0a85d 100644
+index 2d1e007effffdbef3e2f942871d184665c241501..30def82e8c07ccfcb5c2209d7c4cc695f1235789 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -296,6 +296,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -295,6 +295,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          // Paper end
          Preconditions.checkArgument(location != null, "location cannot be null");
          location.checkFinite();
