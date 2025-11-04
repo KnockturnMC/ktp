@@ -5,10 +5,10 @@ Subject: [PATCH] Use alternative registry access if level null
 
 
 diff --git a/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java b/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
-index 4f17d5642f04592d8cbb47d9c49707431a3051d9..078720e718c73abe01b5e12a08d9eb1601645c5c 100644
+index edbd81272bc9acac5efb5847baad6536cef9dee0..c0da255785ba658dbee90245d9ab48b909859b8b 100644
 --- a/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/JukeboxBlockEntity.java
-@@ -150,7 +150,7 @@ public class JukeboxBlockEntity extends BlockEntity implements ContainerSingleIt
+@@ -152,7 +152,7 @@ public class JukeboxBlockEntity extends BlockEntity implements ContainerSingleIt
      public void setTheItem(ItemStack item) {
          this.item = item;
          boolean flag = !this.item.isEmpty();

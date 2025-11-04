@@ -425,7 +425,7 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 51cffc9d2eda3ba1746e7b7d01e2936915e66b7e..eef5af17449bbfb0916022eb2812557f59eda7fc 100644
+index 34d74014fd042f6eeafafadb6237a838b1ddd47c..4465edf004cb76f38cac9ec8307a6ce827553063 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -388,6 +388,7 @@ public final class CraftServer implements Server {
@@ -444,7 +444,7 @@ index 51cffc9d2eda3ba1746e7b7d01e2936915e66b7e..eef5af17449bbfb0916022eb2812557f
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2963,4 +2965,15 @@ public final class CraftServer implements Server {
+@@ -2962,4 +2964,15 @@ public final class CraftServer implements Server {
      public void allowPausing(final Plugin plugin, final boolean value) {
          this.console.addPluginAllowingSleep(plugin.getName(), value);
      }

@@ -128,10 +128,10 @@ index ea08eceb04a8d956c11cb73ffbae6391642d3f1c..38192e6373acc6b882faca7c2e0476df
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index fdd70e586bd85c912eb2ce60fff5306f22535929..5775dc1f71e7091e11ea8214cc88152e7c94eb7e 100644
+index bf5f72497c043ce8a4f67e54911d3ef4f59a461b..df084f3e64be01a444161bfaf27e6335061e86f5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3468,4 +3468,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3353,4 +3353,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
              entity.remove();
          }
      }

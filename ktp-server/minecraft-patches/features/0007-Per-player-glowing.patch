@@ -68,10 +68,10 @@ index 01cae89a76848f2888dabb5c2c89ba4ea57c6e45..71aa4d8a594736088fb0c536321540d1
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index c3c032f4581f6fbf8e4845119eac0218030e3fd5..4f6f167e374833f161af3b6a2a0a5b3c44fa49de 100644
+index 2ea10714da0b35e8bf3836350af8bfd1c2696aff..5c782557c523804cfbdeae2c846ef7c10a03371f 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -293,7 +293,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -292,7 +292,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      public int invulnerableTime;
      protected boolean firstTick = true;
      protected final SynchedEntityData entityData;

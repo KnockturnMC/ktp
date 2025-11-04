@@ -10,7 +10,7 @@ This commit adds the ability to unrestrict potion brewing, so that any
 combination of ingredients is permitted.
 
 diff --git a/net/minecraft/world/item/alchemy/PotionBrewing.java b/net/minecraft/world/item/alchemy/PotionBrewing.java
-index f7826f1ab4985cd7a754c4c550252943e874864e..553fa0ac94da8a393bf3b37378b1cb7936c41829 100644
+index 92d1ac668abb5a16f50567da670a870a43ce1e85..53170886e97c82d70df5a7b4170c568247eb1b19 100644
 --- a/net/minecraft/world/item/alchemy/PotionBrewing.java
 +++ b/net/minecraft/world/item/alchemy/PotionBrewing.java
 @@ -27,8 +27,25 @@ public class PotionBrewing {
@@ -43,10 +43,10 @@ index f7826f1ab4985cd7a754c4c550252943e874864e..553fa0ac94da8a393bf3b37378b1cb79
 @@ -72,6 +89,7 @@ public class PotionBrewing {
      }
  
-     public boolean hasMix(ItemStack reagent, ItemStack potionItem) {
+     public boolean hasMix(ItemStack potion, ItemStack ingredient) {
 +        if (unrestrictedBrewing()) return true; // KTP - allow unrestricted potion brewing
          // Paper start - Custom Potion Mixes
-         if (this.hasCustomMix(reagent, potionItem)) {
+         if (this.hasCustomMix(potion, ingredient)) {
              return true;
 @@ -214,6 +232,7 @@ public class PotionBrewing {
      }
