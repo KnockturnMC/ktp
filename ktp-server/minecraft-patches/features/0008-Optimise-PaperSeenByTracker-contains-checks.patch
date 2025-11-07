@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Fri, 7 Nov 2025 21:44:20 +0000
+Subject: [PATCH] Optimise PaperSeenByTracker#contains checks
+
+Fundamentally, the seen by tracker works on the assumption that
+modifications to its state are rare compared to reads or non-modifying
+calls to add/remove.
+
+Similar to the original replacement of the set, this assumption is based
+on the continuous calls to #add and #remove each tick for entities that
+are or aren't tracking the entity already respectively.
+The ReferenceSet implementation for #add and #remove is not free, as
+it has to compute the table key, resolve possible collisions *and* then
+perform the equality check for the key.
+
+Alternatively, this patch assigns a continuousIdentifier to each
+ServerPlayerConnection on the server, which is guaranteed to be at
+*most* the number of concurrent players on the server during the JVMs
+lifetime.
+The identifier is *near* continuous, as players may leave.
+Open identifiers from players left are allocated to joining players.
+This enables the usage of a BitSet as a mirroring state for the trackers
+map "containing" a player.
+With player counts below 64 players, this is doable in a single long.
+
+! NOTICE !
+The impact of this patch is not *easy* to profile outside of actual
+server workload as the add/remove operations are well below a
+millisecond and hence are easily poisoned by the required state setup
+of the to-be-mutated maps in jmh.
+As such, the impact will only be known once the patch has lived long
+enough in this fork and ran in production for detailed profiling.
+
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index ef7d44ea1c1582bbf1d544819825778c414fe40d..93f18e2031570635783321b5a59752f01ff996f5 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -3715,4 +3715,19 @@ public class ServerGamePacketListenerImpl
+         return this.playerGameConnection;
+     }
+     // Paper end
++    // KTP start - optimise player connection contains calls
++    private final int continuousIdentifier;
++    {
++        final List<ServerPlayer> players = MinecraftServer.getServer().getPlayerList().players;
++        final java.util.BitSet takenIdentifiers = new java.util.BitSet(players.size());
++        for (int i = 0; i < players.size(); i++) {
++            takenIdentifiers.set(players.get(i).connection.continuousIdentifier());
++        }
++        continuousIdentifier = takenIdentifiers.nextClearBit(0);
++    }
++    @Override
++    public int continuousIdentifier() {
++        return this.continuousIdentifier;
++    }
++    // KTP end - optimise player connection contains calls
+ }
+diff --git a/net/minecraft/server/network/ServerPlayerConnection.java b/net/minecraft/server/network/ServerPlayerConnection.java
+index 53ace19c8f261c0d6314bc28504705729c7fc69e..88cb6df5282c3e7d6682b664dece35aa0f4b2661 100644
+--- a/net/minecraft/server/network/ServerPlayerConnection.java
++++ b/net/minecraft/server/network/ServerPlayerConnection.java
+@@ -7,4 +7,6 @@ public interface ServerPlayerConnection {
+     ServerPlayer getPlayer();
+ 
+     void send(Packet<?> packet);
++
++    int continuousIdentifier(); // KTP - optimise player connection contains calls
+ }

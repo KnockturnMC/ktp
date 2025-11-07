@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Fri, 7 Nov 2025 21:34:49 +0000
+Subject: [PATCH] Optimise PaperSeenByTracker#contains checks
+
+Fundamentally, the seen by tracker works on the assumption that
+modifications to its state are rare compared to reads or non-modifying
+calls to add/remove.
+
+Similar to the original replacement of the set, this assumption is based
+on the continuous calls to #add and #remove each tick for entities that
+are or aren't tracking the entity already respectively.
+The ReferenceSet implementation for #add and #remove is not free, as
+it has to compute the table key, resolve possible collisions *and* then
+perform the equality check for the key.
+
+Alternatively, this patch assigns a continuousIdentifier to each
+ServerPlayerConnection on the server, which is guaranteed to be at
+*most* the number of concurrent players on the server during the JVMs
+lifetime.
+The identifier is *near* continuous, as players may leave.
+Open identifiers from players left are allocated to joining players.
+This enables the usage of a BitSet as a mirroring state for the trackers
+map "containing" a player.
+With player counts below 64 players, this is doable in a single long.
+
+! NOTICE !
+The impact of this patch is not *easy* to profile outside of actual
+server workload as the add/remove operations are well below a
+millisecond and hence are easily poisoned by the required state setup
+of the to-be-mutated maps in jmh.
+As such, the impact will only be known once the patch has lived long
+enough in this fork and ran in production for detailed profiling.
+
+diff --git a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+index 38192e6373acc6b882faca7c2e0476df71e81e6c..5c8ce9abc6c9f8a17e093b183b80eba95fb4c5ac 100644
+--- a/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
++++ b/src/main/java/io/papermc/paper/network/PaperSeenByTracker.java
+@@ -77,6 +77,7 @@ public class PaperSeenByTracker {
+     private final Reference2ObjectOpenHashMap<ServerPlayerConnection, TrackerData> theoretical = new Reference2ObjectOpenHashMap<>();
+     private final ObjectArrayList<ServerPlayerConnection> effective = new ObjectArrayList<>();
+     private final ObjectArrayList<TrackerData> effectiveData = new ObjectArrayList<>();
++    private final java.util.BitSet containedPlayers = new java.util.BitSet(); // KTP start - optimise player connection contains calls
+ 
+     private final ChunkMap.TrackedEntity trackedEntity;
+ 
+@@ -90,6 +91,10 @@ public class PaperSeenByTracker {
+      * @param connection the server player connection instance to add.
+      */
+     public void add(final ServerPlayerConnection connection) {
++        // KTP start - optimise player connection contains calls
++        if (containedPlayers.get(connection.continuousIdentifier())) return;
++        containedPlayers.set(connection.continuousIdentifier());
++        // KTP end - optimise player connection contains calls
+         final TrackerData trackerData = theoretical.computeIfAbsent(connection, ignored -> new TrackerData(connection));
+ 
+         // tracker data was already tracked in the map, yield false.
+@@ -125,6 +130,10 @@ public class PaperSeenByTracker {
+      */
+     public void remove(final ServerPlayerConnection connection) {
+         if (this.theoretical().isEmpty()) return;
++        // KTP start - optimise player connection contains calls
++        if (!containedPlayers.get(connection.continuousIdentifier())) return;
++        containedPlayers.clear(connection.continuousIdentifier());
++        // KTP end - optimise player connection contains calls
+ 
+         final TrackerData remove = this.theoretical.remove(connection);
+         if (remove == null) return; // Was not in the map in the first place
