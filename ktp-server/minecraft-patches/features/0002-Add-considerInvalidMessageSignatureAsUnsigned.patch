@@ -17,10 +17,10 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/net/minecraft/network/chat/SignedMessageChain.java b/net/minecraft/network/chat/SignedMessageChain.java
-index f6eed34b2fd72ab74cc9dc4b99ca184d512c0a66..a843530f6fae5da29206879d2dca8f6487357e42 100644
+index 67b2f87f8424c5642010b3d9852b55c40d4947e1..df315172626d0bbea7c209f79f4510d21c1256e7 100644
 --- a/net/minecraft/network/chat/SignedMessageChain.java
 +++ b/net/minecraft/network/chat/SignedMessageChain.java
-@@ -52,6 +52,11 @@ public class SignedMessageChain {
+@@ -51,6 +51,11 @@ public class SignedMessageChain {
                          SignedMessageChain.this.lastTimeStamp = body.timeStamp();
                          PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, null, FilterMask.PASS_THROUGH);
                          if (!playerChatMessage.verify(signatureValidator)) {

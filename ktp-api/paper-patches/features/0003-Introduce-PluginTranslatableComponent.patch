@@ -405,10 +405,10 @@ index 14d81c7b138ebf999d5812d26fbf869209c100f3..a9cb999437cc2468f2bf4420bae12a8a
      // Paper start - Folia region threading API
      /**
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 964b57bb240151ddf4f11c203b67e8be6469e473..4b18a0f69152ec53e714a9733c891772f9577028 100644
+index 0ec885b97d655c03371840d739b47063494ed36f..c0d9d1d663f93c14cefab7f68b73c65294758380 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2760,4 +2760,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2761,4 +2761,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
       */
      void allowPausing(@NotNull org.bukkit.plugin.Plugin plugin, boolean value);
      // Paper end - API to check if the server is sleeping

@@ -26,16 +26,3 @@ index d0554ed6631535815e5932930911e3fe1dee8710..e741b29269750a4a4deb2e5893545894
          }
          final @Nullable Component history = this.getHistory();
  
-diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index 774556a62eb240da42e84db4502e2ed43495be17..49718ceae20bc5c552cc41aadc0901f3050e9a08 100644
---- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-+++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-@@ -11,7 +11,7 @@ public final class Versioning {
-     public static String getBukkitVersion() {
-         String result = "Unknown-Version";
- 
--        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/io.papermc.paper/paper-api/pom.properties");
-+        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.lynxplay.ktp/ktp-api/pom.properties"); // KTP - build changes
-         Properties properties = new Properties();
- 
-         if (stream != null) {

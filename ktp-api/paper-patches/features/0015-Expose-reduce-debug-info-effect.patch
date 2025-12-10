@@ -5,10 +5,10 @@ Subject: [PATCH] Expose reduce debug info effect
 
 
 diff --git a/src/main/java/org/bukkit/EntityEffect.java b/src/main/java/org/bukkit/EntityEffect.java
-index cbf1d7a674f4010b3abb5c7fd3d2d8fcc60497ee..7dd47a862866e6be80da0adb4a7197ec9c8cddf9 100644
+index 84d2a21a68c7f7244fb610103a08db5a4fdd55ce..df615681c639ef885d058fbec9a47b32e877dc6a 100644
 --- a/src/main/java/org/bukkit/EntityEffect.java
 +++ b/src/main/java/org/bukkit/EntityEffect.java
-@@ -245,6 +245,8 @@ public enum EntityEffect {
+@@ -249,6 +249,8 @@ public enum EntityEffect {
       */
      GUARDIAN_TARGET(21, Guardian.class),
      // 22-28 player internal flags
