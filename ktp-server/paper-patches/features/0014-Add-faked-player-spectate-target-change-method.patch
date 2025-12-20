@@ -5,10 +5,10 @@ Subject: [PATCH] Add faked player spectate target change method
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 810f0caedc78fa716b88fabc97624ddfc4536bfc..3eed0c1fe982ffbc09761e897b605daabf521c24 100644
+index d2d864f444bece36d7277fdf7250bd8779e62344..d97291b1d22acc9f3f950d14e1d9507933e2c62f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1120,6 +1120,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -1128,6 +1128,17 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          this.getHandle().connection.send(new ClientboundRemoveMobEffectPacket(entity.getEntityId(), CraftPotionEffectType.bukkitToMinecraftHolder(type)));
      }
  

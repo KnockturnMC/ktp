@@ -28,10 +28,10 @@ index b177e23db960323b901909a3f845a9ae0426d0df..8a4f4254fcde2ef7386e50a00b8cd015
          final Set<net.minecraft.world.entity.Relative> relativeFlags = EnumSet.noneOf(net.minecraft.world.entity.Relative.class);
          for (final TeleportFlag flag : flags) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 436ae42b4ef226b4867abd65086ad0e20ff8598d..810f0caedc78fa716b88fabc97624ddfc4536bfc 100644
+index 7c9f48d22b933b92f21ceea8752b3dfe6ba071b2..d2d864f444bece36d7277fdf7250bd8779e62344 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1300,6 +1300,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -1308,6 +1308,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          if (this.getHandle().connection == null) {
              return false;
          }
