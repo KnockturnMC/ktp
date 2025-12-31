@@ -15,10 +15,10 @@ acceess to the world, it also allows intercepting events to prevent main
 thread sync for these packets.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index af71a4c574323efadf7076888fc7c7205cd62fd3..05b1c1af0804cb343ecb4160936e41196b048020 100644
+index ba5e18ad2755798b702498d185ec312c5218a127..c677be0e292b59a6d7dbadfa53833a514f9ec30d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2045,4 +2045,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2054,4 +2054,21 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return POINTERS_SUPPLIER.view(this);
      }
      // Paper end

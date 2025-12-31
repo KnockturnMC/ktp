@@ -185,7 +185,7 @@ index f86ed60687bb38d61a878382a9e00a0fc3196400..9c57805709afbbee9407034f767b0d9c
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 0198c3be346adddb56688d090b8cd72e23e6b3a1..feed8fc346ba9ec44848066a841269976cd29779 100644
+index 722a9057cb27b67300833d58810b5a7f1ae1546f..98aa15041c8f60aeb5cf81b5d8491a2c22d2884f 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
 @@ -1679,7 +1679,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
@@ -197,7 +197,7 @@ index 0198c3be346adddb56688d090b8cd72e23e6b3a1..feed8fc346ba9ec44848066a84126997
      }
  
      // Paper start - getEntity by UUID API
-@@ -4665,4 +4665,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4633,4 +4633,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors
