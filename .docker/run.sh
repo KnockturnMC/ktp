@@ -18,4 +18,6 @@ exec /usr/lib/jvm/bin/java -Xms"$SERVER_MEMORY" -Xmx"$SERVER_MEMORY" -XX:+UseG1G
 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -XX:G1NewSizePercent=30 \
--XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M "${EXTRA_ARGS[@]}" "${DEBUG_ARG[@]}" -XX:G1ReservePercent=20 -jar /bin/server.jar --nogui
+-XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M "${EXTRA_ARGS[@]}" "${DEBUG_ARG[@]}" -XX:G1ReservePercent=20 -jar \
+-Dpaper.maxChatCommandInputSize=2048 \
+/bin/server.jar --nogui
