@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Wed, 7 Jan 2026 21:56:11 +0000
+Subject: [PATCH] Expose var int writing/reading
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index a007a5aa7baea8e074a2946400672fc598bd3834..fc2c176f8cd80809ed0fba8a439ae190e0b0e97e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -853,6 +853,18 @@ public final class CraftMagicNumbers implements UnsafeValues {
+             CraftItemStack.asNMSCopy(itemStack)
+         ).getOrThrow().toString();
+     }
++
++    @Override
++    public void writeVarInt(final int value, final java.nio.ByteBuffer buffer) {
++        final io.netty.buffer.ByteBuf nettyWrapper = io.netty.buffer.Unpooled.wrappedBuffer(buffer);
++        nettyWrapper.clear();
++        net.minecraft.network.VarInt.write(nettyWrapper, value);
++    }
++
++    @Override
++    public int readVarInt(final java.nio.ByteBuffer buffer) {
++        return net.minecraft.network.VarInt.read(io.netty.buffer.Unpooled.wrappedBuffer(buffer));
++    }
+     // KTP stop
+ 
+     @Override

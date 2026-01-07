@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Wed, 7 Jan 2026 21:56:01 +0000
+Subject: [PATCH] Expose var int writing/reading
+
+
+diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
+index afd8932a89f54b9dd1d79be23d7a94907821685b..7a67c4803adc89707385b747067672b4f91bfee4 100644
+--- a/src/main/java/org/bukkit/UnsafeValues.java
++++ b/src/main/java/org/bukkit/UnsafeValues.java
+@@ -434,5 +434,20 @@ public interface UnsafeValues {
+             throw new java.lang.IllegalArgumentException("The passed entity could not be deserialized", exception);
+         }
+     }
++
++    /**
++     * Writes a var int to the passed data output.
++     *
++     * @param value  the int value to write.
++     * @param buffer the buffer.
++     */
++    void writeVarInt(int value, java.nio.ByteBuffer buffer);
++
++    /**
++     * Reads a var int to the passed data input.
++     *
++     * @param buffer the buffer to read from.
++     */
++    int readVarInt(java.nio.ByteBuffer buffer);
+     // KTP stop
+ }
