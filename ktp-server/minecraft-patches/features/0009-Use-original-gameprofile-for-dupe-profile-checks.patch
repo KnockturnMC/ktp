@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sat, 17 Jan 2026 11:45:51 +0000
+Subject: [PATCH] Use original gameprofile for dupe profile checks
+
+The server checks for the player profiles id when having a new
+player join the server. While in proxy online mode, it also checks based
+on name. This causes players nicked via the player profile API to be
+kicked.
+
+Instead, check the initial game profile of the player during join.
+
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index cd9863ebd322b4e3757182da9f775854be05f54a..349cc9197730b36cc987adee14b812a82e0dffc6 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -576,7 +576,7 @@ public abstract class PlayerList {
+         Set<ServerPlayer> set = Sets.newIdentityHashSet();
+ 
+         for (ServerPlayer serverPlayer : this.players) {
+-            if (serverPlayer.getUUID().equals(profileId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && serverPlayer.getGameProfile().name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames
++            if (serverPlayer.getUUID().equals(profileId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && serverPlayer.originalGameProfile.name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames // KTP - use original game profile for comparison
+                 set.add(serverPlayer);
+             }
+         }
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 7bf160cef8bd772d27d4a71f04d5d9861ef67984..e6b1f85aa18549c7c29e9e08a9d385e343dd7553 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -189,6 +189,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+         return (org.bukkit.craftbukkit.entity.CraftHumanEntity) super.getBukkitEntity();
+     }
+     // CraftBukkit end
++    public final GameProfile originalGameProfile; // KTP - original player profile storage
+ 
+     public Player(Level level, GameProfile gameProfile) {
+         super(EntityType.PLAYER, level);
+@@ -197,6 +198,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+         this.inventory = new Inventory(this, this.equipment);
+         this.inventoryMenu = new InventoryMenu(this.inventory, !level.isClientSide(), this);
+         this.containerMenu = this.inventoryMenu;
++        this.originalGameProfile = gameProfile; // KTP - original player profile storage
+     }
+ 
+     @Override
