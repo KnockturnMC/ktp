@@ -236,10 +236,10 @@ index c8ba851bb2d96fa1df8657808dc214af96c792cd..4448b04d42ff75d2184e4f6cc6a33368
          }
          return set;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 35f7c5495df39b1ec91c4f5f8672b4da5d4e6119..aed888eb7f287fdb7a5f05962129c23f8b99d830 100644
+index d5c454edc964a6ecae791f02d4c8aa69fdca0dc9..b8d5a9b5688dd3b8fc544822cb9352fa3b21a529 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1900,7 +1900,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -1894,7 +1894,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
          ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
          if (entry != null) {
@@ -248,7 +248,7 @@ index 35f7c5495df39b1ec91c4f5f8672b4da5d4e6119..aed888eb7f287fdb7a5f05962129c23f
          }
  
          // Remove the hidden entity from this player user list, if they're on it
-@@ -1988,8 +1988,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -1982,8 +1982,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          }
  
          ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());

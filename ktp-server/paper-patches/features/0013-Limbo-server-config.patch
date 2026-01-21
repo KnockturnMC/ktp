@@ -7,10 +7,10 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index b1a0d799afe64605bf562eebfcdf10c98b8bc5b4..aec3754442d5c86ab21558a7f3aa396b0d9550a9 100644
+index f19f429d14f33fc4e90124c145982272af5f4d6b..d74a5e20893a25ccdb05cedf476552137b72f0f4 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -197,6 +197,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -200,6 +200,10 @@ public class GlobalConfiguration extends ConfigurationPart {
          @Comment("This setting controls if the server should consider a message with an invalid or missing signature as unsigned or not")
          public boolean considerInvalidMessageSignatureAsUnsigned = false;
          // KTP end - invalid signature unsigned message fallback
