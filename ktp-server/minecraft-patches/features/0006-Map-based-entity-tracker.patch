@@ -11,7 +11,7 @@ The visibility api introduced by bukkit is implemented with a
 pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
-index ab8893163ac85971a470e4a4d6fa76bd174e2bae..2e8d0cabc745d85bb1a8b552d9abed7c772e702a 100644
+index ab8893163ac85971a470e4a4d6fa76bd174e2bae..58f373d29f2935bdca0ec4090ea33d99819be1af 100644
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
 @@ -1209,10 +1209,10 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
@@ -111,10 +111,15 @@ index ab8893163ac85971a470e4a4d6fa76bd174e2bae..2e8d0cabc745d85bb1a8b552d9abed7c
          }
  
          public void updatePlayer(ServerPlayer player) {
-@@ -1382,25 +1378,31 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
-                     flag = false;
+@@ -1377,30 +1373,31 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
                  }
-                 // CraftBukkit end
+                 flag = flag && this.entity.broadcastToPlayer(player) && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x, this.entity.chunkPosition().z);
+                 // Paper end - Configurable entity tracking range by Y
+-                // CraftBukkit start - respect vanish API
+-                if (flag && !player.getBukkitEntity().canSee(this.entity.getBukkitEntity())) { // Paper - only consider hits
+-                    flag = false;
+-                }
+-                // CraftBukkit end
 -                if (flag) {
 -                    if (this.seenBy.add(player.connection)) {
 -                        // Paper start - entity tracking events
@@ -222,7 +227,7 @@ index 3a817c92147bb78c60238f3ddc1644b721aed7a2..25de011eb12c97d6b0f105e84e31be04
          if (this.entity.isRemoved()) {
              // CraftBukkit start - Remove useless error spam, just return
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 2e3e901fe4d8a3bb12a8d0ec8c4fdc5e96a5116e..a5cda8ae08e3129f11270a7075d81c8c6d94f05d 100644
+index 42d015bad7cf823adfde450945b01c80801586a6..750e7d505f8bee25ed60ac1e0e577aad6c55c802 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -682,7 +682,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
