@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index b0246135265014cd9f8d6bd4946435d2c9bfeccc..1b2ffda01559a540408bb38e1d27245c59b3f910 100644
+index 8cedafc05f654d4efbc63368d803dfc0a0a6cd74..d72af4bf13532652a5df21c8ec8d1ee795ff2881 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -4011,4 +4011,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -4019,4 +4019,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       */
      @ApiStatus.Experimental
      PlayerGameConnection getConnection();
