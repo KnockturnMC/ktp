@@ -5,11 +5,11 @@ EXTRA_ARGS=()
 if $(/usr/lib/jvm/bin/java --version | grep -q 'JBR'); then
     if [ -f "debug" ]; then
         echo "AllowEnhancedClassRedefinition enabled for jbr"
-        DEBUG_ARG=("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" "-Ddisable.watchdog=true" "-XX:+AllowEnhancedClassRedefinition")
+        DEBUG_ARG=("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" "-Ddisable.watchdog=true" "-XX:+AllowEnhancedClassRedefinition" "-Dpaper.playerconnection.keepalive=3600")
     fi
 else
     if [ -f "debug" ]; then
-        DEBUG_ARG=("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" "-Ddisable.watchdog=true")
+        DEBUG_ARG=("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" "-Ddisable.watchdog=true" "-Dpaper.playerconnection.keepalive=3600")
     fi
     EXTRA_ARGS=("--add-modules=jdk.incubator.vector") # Enable vector support on corretto prod builds
 fi
