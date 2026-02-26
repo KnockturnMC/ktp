@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Thu, 26 Feb 2026 10:25:56 +0000
+Subject: [PATCH] Expose original player profile
+
+When changing a player profile after the player connected, certain
+plugins might be interested in their original, mojang authenticated,
+usernames.
+Expose the original player profile for this usecase.
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index d72af4bf13532652a5df21c8ec8d1ee795ff2881..7811e23af14a22b85818d6da193cc8b1c01e8523 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -4039,4 +4039,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+ 0     */
+     net.kyori.adventure.util.TriState glowOverride(Entity entity);
+     // KTP end - glow override
++    // KTP start - expose original game profile
++    /**
++     * {@return the player profile this player originally logged in with.}
++     */
++    com.destroystokyo.paper.profile.PlayerProfile getOriginalPlayerProfile();
++    // KTP end - expose original game profile
+ }
