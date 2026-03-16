@@ -5,10 +5,10 @@ Subject: [PATCH] Expose var int writing/reading
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index a007a5aa7baea8e074a2946400672fc598bd3834..fc2c176f8cd80809ed0fba8a439ae190e0b0e97e 100644
+index 2b2ae8c1397af65e8658d7e1f897463435dba9dc..91efd3258ae8add021f5e493ab7e28f106c9ad45 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -853,6 +853,18 @@ public final class CraftMagicNumbers implements UnsafeValues {
+@@ -851,6 +851,18 @@ public final class CraftMagicNumbers implements UnsafeValues {
              CraftItemStack.asNMSCopy(itemStack)
          ).getOrThrow().toString();
      }
