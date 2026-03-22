@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 22 Mar 2026 03:12:38 +0000
+Subject: [PATCH] Fix item meta inconsistencies
+
+The order of the set of data components hidden via the
+HIDE_ADDITIONAL_TOOLTIP is not consistent in paper as it uses a plain
+set over items with non defined hashcodes.
+
+As the mojang implementation of the TooltipDisplay makes use of a
+LinkedSet for storing the data components, this leads to non consistent
+set order for tooltip displays across different JVMs.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+index 3825cd713a42397204b13212a47d63626985b71b..dab8f5841f1b6ea851102afab4d086cf26cc3f6d 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+@@ -306,7 +306,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+     private List<net.minecraft.advancements.criterion.BlockPredicate> canBreakPredicates;
+ 
+     // hide_additional_tooltip backward compatibility based on TooltipDisplayComponentFix#CONVERTED_ADDITIONAL_TOOLTIP_TYPES
+-    private static final Set<DataComponentType<?>> HIDDEN_COMPONENTS_PREVIOUSLY = Set.of(
++    private static final Set<DataComponentType<?>> HIDDEN_COMPONENTS_PREVIOUSLY = new ReferenceLinkedOpenHashSet<>(List.of( // KTP - consistent order of hide additional tooltip entries
+         DataComponents.BANNER_PATTERNS,
+         DataComponents.BEES,
+         DataComponents.BLOCK_ENTITY_DATA,
+@@ -325,7 +325,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+         DataComponents.POTION_CONTENTS,
+         DataComponents.TROPICAL_FISH_PATTERN,
+         DataComponents.WRITTEN_BOOK_CONTENT
+-    );
++    )); // KTP - consistent order of hide additional tooltip entries
+ 
+     private static final Map<ItemFlag, Set<DataComponentType<?>>> ITEM_FLAG_EQUIVALENTS = ImmutableMap.<ItemFlag, Set<DataComponentType<?>>>builder()
+         .put(ItemFlag.HIDE_ATTRIBUTES, Set.of(DataComponents.ATTRIBUTE_MODIFIERS))
