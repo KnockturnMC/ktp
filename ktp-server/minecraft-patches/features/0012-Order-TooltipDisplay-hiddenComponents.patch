@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 22 Mar 2026 16:14:14 +0000
+Subject: [PATCH] Order TooltipDisplay hiddenComponents
+
+The usage of ReferenceLinkedOpenHashSet is rather questionable as it
+maintains a specific iteration order while completely ignoring it for
+comparison purposes.
+As such, it breaks any form of consistent serialisation of itemstacks as
+the encoder cache considers two ReferenceLinkedOpenHashSet instances
+with different iteration orders equal even if they would not produce an
+equal nbt output.
+
+Replace it with the RegistrySinkSortedSet, which uses the registry id of
+each data component to enforce order.
+
+diff --git a/net/minecraft/world/item/component/TooltipDisplay.java b/net/minecraft/world/item/component/TooltipDisplay.java
+index cee4f73f530d2497c642465049ba16465dff2f79..e12bc7b1f556287b680e5c49c9dadc2c101ff72e 100644
+--- a/net/minecraft/world/item/component/TooltipDisplay.java
++++ b/net/minecraft/world/item/component/TooltipDisplay.java
+@@ -14,7 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
+ public record TooltipDisplay(boolean hideTooltip, SequencedSet<DataComponentType<?>> hiddenComponents) {
+     private static final Codec<SequencedSet<DataComponentType<?>>> COMPONENT_SET_CODEC = DataComponentType.CODEC
+         .listOf()
+-        .xmap(ReferenceLinkedOpenHashSet::new, List::copyOf);
++        .xmap(dev.lynxplay.ktp.item.component.DataComponentSequencedSet::new, List::copyOf); // KTP - order tooltip display hiddenComponents
+     public static final Codec<TooltipDisplay> CODEC = RecordCodecBuilder.create(
+         instance -> instance.group(
+                 Codec.BOOL.optionalFieldOf("hide_tooltip", false).forGetter(TooltipDisplay::hideTooltip),
+@@ -35,7 +35,7 @@ public record TooltipDisplay(boolean hideTooltip, SequencedSet<DataComponentType
+         if (this.hiddenComponents.contains(component) == isHidden) {
+             return this;
+         } else {
+-            SequencedSet<DataComponentType<?>> set = new ReferenceLinkedOpenHashSet<>(this.hiddenComponents);
++            SequencedSet<DataComponentType<?>> set = new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(this.hiddenComponents); // KTP - order tooltip display hiddenComponents
+             if (isHidden) {
+                 set.add(component);
+             } else {

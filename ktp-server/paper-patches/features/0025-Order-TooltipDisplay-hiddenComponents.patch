@@ -1,0 +1,99 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 22 Mar 2026 16:09:49 +0000
+Subject: [PATCH] Order TooltipDisplay hiddenComponents
+
+The usage of ReferenceLinkedOpenHashSet is rather questionable as it
+maintains a specific iteration order while completely ignoring it for
+comparison purposes.
+As such, it breaks any form of consistent serialisation of itemstacks as
+the encoder cache considers two ReferenceLinkedOpenHashSet instances
+with different iteration orders equal even if they would not produce an
+equal nbt output.
+
+Replace it with the RegistrySinkSortedSet, which uses the registry id of
+each data component to enforce order.
+
+diff --git a/src/main/java/dev/lynxplay/ktp/item/component/DataComponentSequencedSet.java b/src/main/java/dev/lynxplay/ktp/item/component/DataComponentSequencedSet.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c91cb72a4a0e4b3a68ae2b78017621e0f52bb8ff
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/item/component/DataComponentSequencedSet.java
+@@ -0,0 +1,19 @@
++package dev.lynxplay.ktp.item.component;
++
++import dev.lynxplay.ktp.core.RegistrySinkSequencedSet;
++import net.minecraft.core.component.DataComponentType;
++import net.minecraft.core.registries.BuiltInRegistries;
++
++import java.util.Collection;
++
++public class DataComponentSequencedSet extends RegistrySinkSequencedSet<DataComponentType<?>> {
++
++    public DataComponentSequencedSet() {
++        super(BuiltInRegistries.DATA_COMPONENT_TYPE);
++    }
++
++    public DataComponentSequencedSet(final Collection<? extends DataComponentType<?>> other) {
++        super(BuiltInRegistries.DATA_COMPONENT_TYPE, other);
++    }
++
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b10f13a778 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+@@ -376,7 +376,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+ 
+         this.repairCost = meta.repairCost;
+         if (meta.tooltipDisplay != null) {
+-            this.tooltipDisplay = new TooltipDisplay(meta.tooltipDisplay.hideTooltip(), new ReferenceLinkedOpenHashSet<>(meta.tooltipDisplay.hiddenComponents()));
++            this.tooltipDisplay = new TooltipDisplay(meta.tooltipDisplay.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(meta.tooltipDisplay.hiddenComponents()));  // KTP - order tooltip display hiddenComponents
+         }
+         this.tooltipStyle = meta.tooltipStyle;
+         this.itemModel = meta.itemModel;
+@@ -456,7 +456,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+         });
+ 
+         CraftMetaItem.getOrEmpty(tag, CraftMetaItem.TOOLTIP_DISPLAY).ifPresent((en) -> {
+-            this.tooltipDisplay = new TooltipDisplay(en.hideTooltip(), new ReferenceLinkedOpenHashSet<>(en.hiddenComponents()));
++            this.tooltipDisplay = new TooltipDisplay(en.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(en.hiddenComponents()));  // KTP - order tooltip display hiddenComponents
+         });
+ 
+         CraftMetaItem.getOrEmpty(tag, CraftMetaItem.TOOLTIP_STYLE).ifPresent((key) -> {
+@@ -962,7 +962,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+         }
+ 
+         if (this.tooltipDisplay != null) {
+-            tag.put(CraftMetaItem.TOOLTIP_DISPLAY, new TooltipDisplay(this.tooltipDisplay.hideTooltip(), new ReferenceLinkedOpenHashSet<>(this.tooltipDisplay.hiddenComponents())));
++            tag.put(CraftMetaItem.TOOLTIP_DISPLAY, new TooltipDisplay(this.tooltipDisplay.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(this.tooltipDisplay.hiddenComponents())));  // KTP - order tooltip display hiddenComponents
+         }
+ 
+         if (this.hasTooltipStyle()) {
+@@ -1293,7 +1293,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+     @Override
+     public void addItemFlags(ItemFlag... hideFlags) {
+         if (this.tooltipDisplay == null) {
+-            this.tooltipDisplay = new TooltipDisplay(false, new ReferenceLinkedOpenHashSet<>());
++            this.tooltipDisplay = new TooltipDisplay(false, new dev.lynxplay.ktp.item.component.DataComponentSequencedSet());  // KTP - order tooltip display hiddenComponents
+         }
+         for (ItemFlag f : hideFlags) {
+             this.tooltipDisplay.hiddenComponents().addAll(ITEM_FLAG_EQUIVALENTS.get(f));
+@@ -1469,7 +1469,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+     @Override
+     public void setHideTooltip(boolean hideTooltip) {
+         if (this.tooltipDisplay == null) {
+-            this.tooltipDisplay = new TooltipDisplay(hideTooltip, new ReferenceLinkedOpenHashSet<>());
++            this.tooltipDisplay = new TooltipDisplay(hideTooltip, new dev.lynxplay.ktp.item.component.DataComponentSequencedSet());  // KTP - order tooltip display hiddenComponents
+         } else {
+             this.tooltipDisplay = new TooltipDisplay(hideTooltip, this.tooltipDisplay.hiddenComponents());
+         }
+@@ -2066,7 +2066,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+             clone.removedTags = Sets.newHashSet(this.removedTags);
+             clone.persistentDataContainer = new CraftPersistentDataContainer(this.persistentDataContainer.getTagsCloned(), CraftMetaItem.DATA_TYPE_REGISTRY); // Paper - deep clone NBT tags
+             if (this.tooltipDisplay != null) {
+-                clone.tooltipDisplay = new TooltipDisplay(this.tooltipDisplay.hideTooltip(), new ReferenceLinkedOpenHashSet<>(this.tooltipDisplay.hiddenComponents()));
++                clone.tooltipDisplay = new TooltipDisplay(this.tooltipDisplay.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(this.tooltipDisplay.hiddenComponents()));  // KTP - order tooltip display hiddenComponents
+             }
+             clone.tooltipStyle = this.tooltipStyle;
+             clone.itemModel = this.itemModel;

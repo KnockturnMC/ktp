@@ -1,0 +1,229 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 22 Mar 2026 15:19:52 +0000
+Subject: [PATCH] Registry ID sinks
+
+Add registry id sinks which may be implemented by objects stored in
+minecrafts registries in order for them to access their network integer
+ids.
+The main usage for this is map and set implementations for these
+types, which can be based on BitSet and Object arrays respectively.
+
+diff --git a/src/main/java/dev/lynxplay/ktp/core/RegistryIDSink.java b/src/main/java/dev/lynxplay/ktp/core/RegistryIDSink.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..109ab4b68b26bfad41916eceb15bd40c9b7ad196
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/core/RegistryIDSink.java
+@@ -0,0 +1,11 @@
++package dev.lynxplay.ktp.core;
++
++/**
++ * The registry id sink interface may be implemented by objects inserted into a minecraft registry if they can store
++ * their assigned network id for non network usages.
++ */
++public interface RegistryIDSink {
++
++    RegistryIDSinkState idSinkState();
++
++}
+diff --git a/src/main/java/dev/lynxplay/ktp/core/RegistryIDSinkState.java b/src/main/java/dev/lynxplay/ktp/core/RegistryIDSinkState.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..dacd2dacb91d290b5f3502f02a58d8dcf0303fd8
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/core/RegistryIDSinkState.java
+@@ -0,0 +1,37 @@
++package dev.lynxplay.ktp.core;
++
++import com.google.common.base.Preconditions;
++import net.minecraft.resources.ResourceKey;
++
++public class RegistryIDSinkState {
++
++    private int registryId = -1;
++    private ResourceKey<?> registryKey;
++
++    public RegistryIDSinkState() {
++    }
++
++    public RegistryIDSinkState(final int registryId, final ResourceKey<?> registryKey) {
++        this.registryId = registryId;
++        this.registryKey = registryKey;
++    }
++
++    public RegistryIDSinkState requireBound() {
++        Preconditions.checkState(registryId != -1, "ID sink is not bound");
++        return this;
++    }
++
++    public int registryId() {
++        return registryId;
++    }
++
++    public ResourceKey<?> registryKey() {
++        return registryKey;
++    }
++
++    public <T> void bind(final ResourceKey<T> key, final int id) {
++        this.registryKey = key;
++        this.registryId = id;
++    }
++
++}
+diff --git a/src/main/java/dev/lynxplay/ktp/core/RegistrySinkSequencedSet.java b/src/main/java/dev/lynxplay/ktp/core/RegistrySinkSequencedSet.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4c9b76536cb433429d6d29a789ebfa1bb164c7d8
+--- /dev/null
++++ b/src/main/java/dev/lynxplay/ktp/core/RegistrySinkSequencedSet.java
+@@ -0,0 +1,152 @@
++package dev.lynxplay.ktp.core;
++
++import net.minecraft.core.Registry;
++import org.jspecify.annotations.NonNull;
++
++import java.util.AbstractSet;
++import java.util.BitSet;
++import java.util.Collection;
++import java.util.Iterator;
++import java.util.NoSuchElementException;
++import java.util.SequencedSet;
++
++/**
++ * A sequenced set implementation for {@link RegistryIDSink} objects based on a {@link java.util.BitSet}.
++ * It is up to the caller to ensure this set does not outlive the registry it is bound to across reloads.
++ */
++public class RegistrySinkSequencedSet<T extends RegistryIDSink> extends AbstractSet<T> implements SequencedSet<T> {
++
++    private final Registry<T> registry;
++    private final BitSet bits;
++    private final boolean forward;
++
++    public RegistrySinkSequencedSet(final Registry<T> registry) {
++        this(registry, new BitSet(), true);
++    }
++
++    public RegistrySinkSequencedSet(final Registry<T> registry, final Collection<? extends T> collection) {
++        this(registry);
++        this.addAll(collection);
++    }
++
++    private RegistrySinkSequencedSet(final Registry<T> registry, final BitSet values, final boolean forward) {
++        this.registry = registry;
++        this.bits = values;
++        this.forward = forward;
++    }
++
++    private int id(final Object o) {
++        if (!(o instanceof final RegistryIDSink s)) return -1;
++        final RegistryIDSinkState state = s.idSinkState().requireBound();
++        return registry.key().equals(state.registryKey()) ? state.registryId() : -1;
++    }
++
++    @Override
++    public boolean add(final T t) {
++        final int id = id(t);
++        if (id < 0) return false;
++        final boolean exists = bits.get(id);
++        bits.set(id);
++        return !exists;
++    }
++
++    @Override
++    public boolean contains(final Object o) {
++        final int id = id(o);
++        return id >= 0 && bits.get(id);
++    }
++
++    @Override
++    public boolean remove(final Object o) {
++        final int id = id(o);
++        final boolean exists = id >= 0 && bits.get(id);
++        bits.clear(id);
++        return exists;
++    }
++
++    @Override
++    public int size() {
++        return bits.cardinality();
++    }
++
++    @Override
++    public void clear() {
++        bits.clear();
++    }
++
++    @Override
++    public SequencedSet<T> reversed() {
++        return new RegistrySinkSequencedSet<>(registry, bits, !forward);
++    }
++
++    @Override
++    public @NonNull Iterator<T> iterator() {
++        return forward ? new ForwardIterator() : new ReverseIterator();
++    }
++
++    class ForwardIterator implements Iterator<T> {
++
++        private int nextIndex = bits.nextSetBit(0);
++        private int lastRet = -1;
++
++        @Override
++        public boolean hasNext() {
++            return nextIndex != -1;
++        }
++
++        @Override
++        public T next() {
++            if (nextIndex == -1) throw new NoSuchElementException();
++            lastRet = nextIndex;
++            nextIndex = bits.nextSetBit(nextIndex + 1);
++            return registry.byId(lastRet);
++        }
++
++        @Override
++        public void remove() {
++            if (lastRet == -1) throw new IllegalStateException();
++            bits.clear(lastRet);
++            lastRet = -1;
++        }
++
++    }
++
++    class ReverseIterator implements Iterator<T> {
++
++        private int nextIndex = bits.previousSetBit(bits.length() - 1);
++        private int lastRet = -1;
++
++        @Override
++        public boolean hasNext() {
++            return nextIndex != -1;
++        }
++
++        @Override
++        public T next() {
++            if (nextIndex == -1) throw new NoSuchElementException();
++            lastRet = nextIndex;
++            nextIndex = bits.previousSetBit(nextIndex - 1);
++            return registry.byId(lastRet);
++        }
++
++        @Override
++        public void remove() {
++            if (lastRet == -1) throw new IllegalStateException("next() not called or remove() already called");
++            bits.clear(lastRet);
++            lastRet = -1;
++        }
++
++    }
++
++    // SequencedSet methods
++    @Override
++    public void addFirst(final T t) {
++        add(t);
++    }
++
++    @Override
++    public void addLast(final T t) {
++        add(t);
++    }
++
++}
