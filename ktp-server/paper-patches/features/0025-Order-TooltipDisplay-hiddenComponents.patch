@@ -97,3 +97,16 @@ index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b1
              }
              clone.tooltipStyle = this.tooltipStyle;
              clone.itemModel = this.itemModel;
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/YamlSerializationTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/YamlSerializationTest.java
+index a525e4b10d667596f1823608ab11066554f8bae4..c729dc0fe8f174b98ec0f0a2f1647b2e36b06fc4 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/YamlSerializationTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/YamlSerializationTest.java
+@@ -98,7 +98,7 @@ public class YamlSerializationTest {
+               count: 1
+               components:
+                 minecraft:unbreakable: '{}'
+-                minecraft:tooltip_display: '{hidden_components:["minecraft:enchantments","minecraft:unbreakable"]}'
++                minecraft:tooltip_display: '{hidden_components:["minecraft:unbreakable","minecraft:enchantments"]}' # KTP - sort hidden components set
+                 minecraft:enchantments: '{"minecraft:sharpness":2}'
+               schema_version: 1
+             """.formatted(Bukkit.getUnsafe().getDataVersion()));
