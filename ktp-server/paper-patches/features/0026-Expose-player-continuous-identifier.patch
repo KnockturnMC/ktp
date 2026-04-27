@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 27 Apr 2026 12:59:01 +0100
+Subject: [PATCH] Expose player continuous identifier
+
+Exposes the internally maintained identifier int of a player for plugin
+mapping purposes.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 8d4055c2f5a317f9de91f217424b5497e750822f..398414b07d650336ee2ac6f17720621428363510 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -3426,4 +3426,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         return com.destroystokyo.paper.profile.CraftPlayerProfile.asBukkitCopy(this.getHandle().originalGameProfile);
+     }
+     // KTP end - expose original game profile
++    // KTP start - expose continuous identifier to API
++    /**
++     * {@return an integer uniqily identifier this player instance among all other, currently online players.}
++     */
++    @Override
++    public int continuousIdentifier() {
++        return this.getHandle().connection.continuousIdentifier();
++    }
++    // KTP end - expose continuous identifier to API
+ }
