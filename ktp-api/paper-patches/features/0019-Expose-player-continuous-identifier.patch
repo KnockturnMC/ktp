@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 27 Apr 2026 12:58:21 +0100
+Subject: [PATCH] Expose player continuous identifier
+
+Exposes the internally maintained identifier int of a player for plugin
+mapping purposes.
+
+diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
+index 7811e23af14a22b85818d6da193cc8b1c01e8523..9652e908529865dde840ad47f88008624eb639c5 100644
+--- a/src/main/java/org/bukkit/entity/Player.java
++++ b/src/main/java/org/bukkit/entity/Player.java
+@@ -4045,4 +4045,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+      */
+     com.destroystokyo.paper.profile.PlayerProfile getOriginalPlayerProfile();
+     // KTP end - expose original game profile
++    // KTP start - expose continuous identifier to API
++    /**
++     * {@return an integer uniqily identifier this player instance among all other, currently online players.}
++     */
++    int continuousIdentifier();
++    // KTP end - expose continuous identifier to API
+ }
