@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile-upstream:master-labs <- required for --parents in COPY
 
-ARG ALPINE=alpine@sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1
-ARG CORRETTO=amazoncorretto@sha256:670e3459f1bb0491c4a594ec23f8383acf426ee2e54419ac34a827cb276aa5ed
+ARG ALPINE=alpine@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+ARG CORRETTO=amazoncorretto@sha256:76fc623b7bece48dc080b105a68aab4bf54037443e669a78c8599b325368e046
 # The builder image, responsible for building the project from source state.
-# 21
+# 25
 FROM ${CORRETTO} AS builder
-RUN yum install -y git
+RUN yum install -y git findutils
 RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
 
 WORKDIR /work
@@ -29,7 +29,7 @@ RUN cp ktp-server/build/libs/ktp-paperclip-$(cat gradle.properties | grep 'versi
 # Standalone image creating files for installing corretto
 FROM ${ALPINE} AS corretto-installer
 
-ARG CORRETTO_VERSION=amazon-corretto-21-x64-alpine-jdk.tar.gz
+ARG CORRETTO_VERSION=amazon-corretto-25-x64-alpine-jdk.tar.gz
 RUN wget https://corretto.aws/downloads/latest/${CORRETTO_VERSION}; \
     mkdir -p /usr/lib/jvm; \
     tar -xzvf ${CORRETTO_VERSION} --strip-components=1 -C /usr/lib/jvm;
@@ -37,7 +37,7 @@ RUN wget https://corretto.aws/downloads/latest/${CORRETTO_VERSION}; \
 # Standalone image creating files for installing jetbrains runtime (uses musl as we are running on alpine)
 FROM ${ALPINE} AS jbr-installer
 
-ARG JBR_VERSION=jbr-21.0.7-linux-musl-x64-b1038.58.tar.gz
+ARG JBR_VERSION=jbr-25.0.2-linux-musl-x64-b432.48.tar.gz
 RUN wget https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION}; \
     mkdir -p /usr/lib/jvm; \
     tar -xzvf ${JBR_VERSION} --strip-components=1 -C /usr/lib/jvm;
