@@ -8,6 +8,51 @@ to improve its speed as much as possible, allowing for a large amount of
 events to be published by the server without impacting the overall
 performance too much.
 
+diff --git a/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperPluginClassLoader.java b/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperPluginClassLoader.java
+index 18401ede9cd1fc7094c6b74859929938e01795ca..ffb8ac4a90db38f7499a2f92ff81ea53511b91b7 100644
+--- a/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperPluginClassLoader.java
++++ b/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperPluginClassLoader.java
+@@ -195,6 +195,13 @@ public class PaperPluginClassLoader extends PaperSimplePluginClassLoader impleme
+             '}';
+     }
+ 
++    // KTP start - expose addURL
++    @Override
++    public void addURL(final URL url) {
++        super.addURL(url);
++    }
++    // KTP end - expose addURL
++
+     @Override
+     public void close() throws IOException {
+         try (this.jar; this.libraryLoader) {
+diff --git a/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperSimplePluginClassLoader.java b/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperSimplePluginClassLoader.java
+index d97f63347cda6ad398709dd584c9b623b01f1284..d305c44acfe21881bfd0562b130e11cf2c68b81a 100644
+--- a/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperSimplePluginClassLoader.java
++++ b/src/main/java/io/papermc/paper/plugin/entrypoint/classloader/PaperSimplePluginClassLoader.java
+@@ -68,7 +68,7 @@ public class PaperSimplePluginClassLoader extends URLClassLoader {
+             throw new IllegalStateException("The paper plugin classloader for " + pluginName + " has thrown a zip file error.", zipFileClosed);
+         }
+         if (entry == null) {
+-            throw new ClassNotFoundException(name);
++            return super.findClass(name); // KTP start - default back to possibly modified parent classloader.
+         }
+ 
+         // See URLClassLoader#defineClass(String, Resource)
+@@ -110,6 +110,13 @@ public class PaperSimplePluginClassLoader extends URLClassLoader {
+         return this.defineClass(name, classBytes, 0, classBytes.length, source);
+     }
+ 
++    // KTP start - expose addURL
++    @Override
++    public void addURL(final URL url) {
++        super.addURL(url);
++    }
++    // KTP end - expose addURL
++
+     @Override
+     public String toString() {
+         return "PaperSimplePluginClassLoader{" +
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..760535e1d6335cf07b6222525610a11318d2596f 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
