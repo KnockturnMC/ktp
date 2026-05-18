@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Mon, 18 May 2026 23:52:39 +0100
+Subject: [PATCH] Pick sane language default in case of malformed client data
+
+
+diff --git a/net/minecraft/network/PacketEncoder.java b/net/minecraft/network/PacketEncoder.java
+index 546bfd09c703a2cb7cb39d6ca3e503a4ad3d79cb..70698e2cb60eaf2bcf62ad1ce784a9c39210af16 100644
+--- a/net/minecraft/network/PacketEncoder.java
++++ b/net/minecraft/network/PacketEncoder.java
+@@ -17,7 +17,7 @@ public class PacketEncoder<T extends PacketListener> extends MessageToByteEncode
+         this.protocolInfo = protocolInfo;
+     }
+ 
+-    static final ThreadLocal<java.util.Locale> ADVENTURE_LOCALE = ThreadLocal.withInitial(() -> null); // Paper - adventure; set player's locale
++    static final ThreadLocal<java.util.Locale> ADVENTURE_LOCALE = ThreadLocal.withInitial(() -> java.util.Locale.US); // Paper - adventure; set player's locale // KTP - sane defaults
+     @Override
+     protected void encode(ChannelHandlerContext channelHandlerContext, Packet<T> packet, ByteBuf byteBuf) throws Exception {
+         PacketType<? extends Packet<? super T>> packetType = packet.type();
+diff --git a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+index a3645322be006d5501fa7fb8944509a9c6b58e32..f35a46f77a29a6787f531573b64271430d5657f2 100644
+--- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+@@ -157,7 +157,7 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+     @Override
+     public void handleClientInformation(ServerboundClientInformationPacket packet) {
+         this.clientInformation = packet.information();
+-        this.connection.channel.attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).set(net.kyori.adventure.translation.Translator.parseLocale(packet.information().language())); // Paper
++        this.connection.channel.attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).set(java.util.Objects.requireNonNullElse(net.kyori.adventure.translation.Translator.parseLocale(packet.information().language()), java.util.Locale.US)); // Paper // KTP - default to sane locale
+     }
+ 
+     @Override
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index bc86ba964e1cd8700b13bd19921b2ebbd0639ceb..838e75d9aca2520c67886b2a2179b1b2a0cfc783 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -3558,7 +3558,7 @@ public class ServerGamePacketListenerImpl
+         // Paper end - do not accept invalid information
+         boolean isModelPartShown = this.player.isModelPartShown(PlayerModelPart.HAT);
+         this.player.updateOptions(packet.information());
+-        this.connection.channel.attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).set(net.kyori.adventure.translation.Translator.parseLocale(packet.information().language())); // Paper
++        this.connection.channel.attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).set(java.util.Objects.requireNonNullElse(net.kyori.adventure.translation.Translator.parseLocale(packet.information().language()), java.util.Locale.US)); // Paper // KTP - default to sane default
+         if (this.player.isModelPartShown(PlayerModelPart.HAT) != isModelPartShown) {
+             this.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_HAT, this.player));
+         }
