@@ -97,10 +97,10 @@ index 0000000000000000000000000000000000000000..1a77226d6ad020692d8d4fb5c2084912
 +}
 diff --git a/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..a84d3ab4fa912a88574f44c34ad9a723a326a9d0
+index 0000000000000000000000000000000000000000..8749ea8325f0a2ecb5bda7cb9b52dc73fe09837f
 --- /dev/null
 +++ b/src/main/java/dev/lynxplay/ktp/adventure/translation/PluginTranslatorsImpl.java
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,93 @@
 +package dev.lynxplay.ktp.adventure.translation;
 +
 +import dev.lynxplay.ktp.adventure.translation.exception.TranslationParseException;
@@ -167,6 +167,7 @@ index 0000000000000000000000000000000000000000..a84d3ab4fa912a88574f44c34ad9a723
 +        final Set<String> allKeys = pluginTranslationBundle.joinedKnownKeys();
 +        for (final Locale knownLocale : pluginTranslationBundle.knownLocales()) {
 +            store.registerAll(knownLocale, allKeys, s -> pluginTranslationBundle.findTranslation(knownLocale, s));
++            store.registerAll(Locale.US, allKeys, s -> pluginTranslationBundle.findTranslation(Locale.ENGLISH, s));
 +            store.defaultLocale(Locale.ENGLISH);
 +        }
 +        return store;
@@ -425,7 +426,7 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index b2961752b50e98d95adf3af4f658e2fdb2127d43..769744da84f340918c006ae75d1934a7be575736 100644
+index da49c8005592a154946750591ce082796f24dd3b..e108d1455b22445b70b5c2fdc53036d2ead0639a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -388,6 +388,7 @@ public final class CraftServer implements Server {
