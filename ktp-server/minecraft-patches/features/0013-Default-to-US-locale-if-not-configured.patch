@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Wed, 20 May 2026 17:51:41 +0100
+Subject: [PATCH] Default to US locale if not configured
+
+
+diff --git a/net/minecraft/network/PacketEncoder.java b/net/minecraft/network/PacketEncoder.java
+index 546bfd09c703a2cb7cb39d6ca3e503a4ad3d79cb..0ffe1a5a6e20084fbca294d4616a37aee28b0c00 100644
+--- a/net/minecraft/network/PacketEncoder.java
++++ b/net/minecraft/network/PacketEncoder.java
+@@ -23,7 +23,7 @@ public class PacketEncoder<T extends PacketListener> extends MessageToByteEncode
+         PacketType<? extends Packet<? super T>> packetType = packet.type();
+ 
+         try {
+-            ADVENTURE_LOCALE.set(channelHandlerContext.channel().attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).get()); // Paper - adventure; set player's locale
++            ADVENTURE_LOCALE.set(java.util.Objects.requireNonNullElse(channelHandlerContext.channel().attr(io.papermc.paper.adventure.PaperAdventure.LOCALE_ATTRIBUTE).get(), java.util.Locale.US)); // Paper - adventure; set player's locale
+             this.protocolInfo.codec().encode(byteBuf, packet);
+             int i = byteBuf.readableBytes();
+             if (LOGGER.isDebugEnabled()) {
