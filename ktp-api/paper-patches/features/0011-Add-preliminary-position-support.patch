@@ -71,13 +71,13 @@ index 2fad6604a0006d12eec484ed3f54ae3ad166fd1c..ab89365ec237a9f8866066bfb3008f07
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index f86ed60687bb38d61a878382a9e00a0fc3196400..9c57805709afbbee9407034f767b0d9ca2db9239 100644
+index 32132eba3ccfca571be0914c243b6ca0b947b87e..8a54099a9c0c6b3e92eca2f6b8101f42751e47ed 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
 @@ -560,4 +560,109 @@ public interface RegionAccessor extends Keyed, io.papermc.paper.world.flag.Featu
+      * @return collides or not
       */
      boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
-     // Paper end
 +
 +    // KTP start - preliminary position support
 +    /**
@@ -185,10 +185,10 @@ index f86ed60687bb38d61a878382a9e00a0fc3196400..9c57805709afbbee9407034f767b0d9c
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 722a9057cb27b67300833d58810b5a7f1ae1546f..98aa15041c8f60aeb5cf81b5d8491a2c22d2884f 100644
+index d06b163d520c20522eb3ab6f3538f9e35e7bbc1b..c66fa18b6001654e1c80f3aa4a40c2b34a456cab 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -1679,7 +1679,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -1682,7 +1682,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
       */
      @NotNull
      default Collection<Entity> getNearbyEntities(@NotNull Location location, double x, double y, double z) {
@@ -197,7 +197,7 @@ index 722a9057cb27b67300833d58810b5a7f1ae1546f..98aa15041c8f60aeb5cf81b5d8491a2c
      }
  
      // Paper start - getEntity by UUID API
-@@ -4633,4 +4633,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4705,4 +4705,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors

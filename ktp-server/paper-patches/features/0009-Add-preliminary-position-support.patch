@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 70fedb57da8141075e5b5ea16ed22820056d8b9f..09f67ac436d16d42e91cb33b5ef1113b87c855be 100644
+index c2cdb115c57a268ffb9ea8de003d3a702cc69678..4edc7e53d4712dc622fd1756b62e0f1f3bfc8014 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -94,6 +94,7 @@ import org.bukkit.NamespacedKey;
+@@ -99,6 +99,7 @@ import org.bukkit.NamespacedKey;
  import org.bukkit.Particle;
  import org.bukkit.Raid;
  import org.bukkit.Sound;
@@ -20,7 +20,7 @@ index 70fedb57da8141075e5b5ea16ed22820056d8b9f..09f67ac436d16d42e91cb33b5ef1113b
  import org.bukkit.TreeType;
  import org.bukkit.World;
  import org.bukkit.WorldBorder;
-@@ -2055,4 +2056,20 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2077,4 +2078,20 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      }
      // KTP end - expose low level steering interceptors
  
@@ -42,10 +42,10 @@ index 70fedb57da8141075e5b5ea16ed22820056d8b9f..09f67ac436d16d42e91cb33b5ef1113b
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
-index 9bc8055c36322c79077af57ab72d5493f5e65b7d..0ddb995a1c40466987f264905360c4847e43c5ed 100644
+index a76e89c12afdf68aadc2742136d008a3f1b2e9aa..6605039f07d8b6deeadc535e793e3fa90ca040b5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
 +++ b/src/main/java/org/bukkit/craftbukkit/legacy/MaterialRerouting.java
-@@ -522,6 +522,16 @@ public class MaterialRerouting {
+@@ -521,6 +521,16 @@ public class MaterialRerouting {
          return MaterialRerouting.transformFromBlockType(regionAccessor.getType(location), version);
      }
  

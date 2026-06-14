@@ -33,10 +33,10 @@ As such, the impact will only be known once the patch has lived long
 enough in this fork and ran in production for detailed profiling.
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index e158d614abed8d16e80192c0c9abd8537c92b9dc..bc86ba964e1cd8700b13bd19921b2ebbd0639ceb 100644
+index 810b352503cdf56091ec6340ad72edde238fe359..293546794d83f783c1101fccd7d5fd5f7664d9e7 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -3821,4 +3821,19 @@ public class ServerGamePacketListenerImpl
+@@ -3879,4 +3879,19 @@ public class ServerGamePacketListenerImpl
          return this.playerGameConnection;
      }
      // Paper end
@@ -57,13 +57,13 @@ index e158d614abed8d16e80192c0c9abd8537c92b9dc..bc86ba964e1cd8700b13bd19921b2ebb
 +    // KTP end - optimise player connection contains calls
  }
 diff --git a/net/minecraft/server/network/ServerPlayerConnection.java b/net/minecraft/server/network/ServerPlayerConnection.java
-index 53ace19c8f261c0d6314bc28504705729c7fc69e..88cb6df5282c3e7d6682b664dece35aa0f4b2661 100644
+index 2283bcdf8d188ea4f777960ec071530a0e8af40d..e7e7f1dccbbbc3834ce9878d0c23a2ecc3a2fec8 100644
 --- a/net/minecraft/server/network/ServerPlayerConnection.java
 +++ b/net/minecraft/server/network/ServerPlayerConnection.java
 @@ -7,4 +7,6 @@ public interface ServerPlayerConnection {
      ServerPlayer getPlayer();
  
-     void send(Packet<?> packet);
+     void send(final Packet<?> packet);
 +
 +    int continuousIdentifier(); // KTP - optimise player connection contains calls
  }

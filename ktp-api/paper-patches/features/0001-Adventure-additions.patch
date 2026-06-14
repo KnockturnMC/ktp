@@ -7,10 +7,10 @@ This commit contains any form of adventure additions done by the ktp
 server software.
 
 diff --git a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-index 08fd7877df04833c0330b64ecd518b2ee3057804..6ab5e7120e9118212ba7c54803cbe3c98c1c9d3f 100644
+index d4ca244f38556df1ecafee0d2ce0ad703e828524..655816664b5f0319b07e926aa9371c48f349e968 100644
 --- a/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
 +++ b/src/main/java/org/bukkit/inventory/meta/ItemMeta.java
-@@ -102,6 +102,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -103,6 +103,18 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      }
      // Paper end
  
@@ -29,7 +29,7 @@ index 08fd7877df04833c0330b64ecd518b2ee3057804..6ab5e7120e9118212ba7c54803cbe3c9
      /**
       * Gets the display name that is set.
       * <p>
-@@ -268,6 +280,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
+@@ -269,6 +281,28 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      void lore(final @Nullable List<? extends net.kyori.adventure.text.Component> lore);
      // Paper end
  

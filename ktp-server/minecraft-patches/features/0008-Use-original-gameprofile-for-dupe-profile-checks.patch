@@ -11,31 +11,31 @@ kicked.
 Instead, check the initial game profile of the player during join.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index cd9863ebd322b4e3757182da9f775854be05f54a..349cc9197730b36cc987adee14b812a82e0dffc6 100644
+index ecbce36f971aeb4b93f64d893c66e01802b329f0..b19f76ebe20fdbf65f2f814f669f87861bd74c1a 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -576,7 +576,7 @@ public abstract class PlayerList {
-         Set<ServerPlayer> set = Sets.newIdentityHashSet();
+@@ -575,7 +575,7 @@ public abstract class PlayerList {
+         Set<ServerPlayer> dupes = Sets.newIdentityHashSet();
  
-         for (ServerPlayer serverPlayer : this.players) {
--            if (serverPlayer.getUUID().equals(profileId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && serverPlayer.getGameProfile().name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames
-+            if (serverPlayer.getUUID().equals(profileId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && serverPlayer.originalGameProfile.name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames // KTP - use original game profile for comparison
-                 set.add(serverPlayer);
+         for (ServerPlayer player : this.players) {
+-            if (player.getUUID().equals(playerId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && player.getGameProfile().name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames
++            if (player.getUUID().equals(playerId) || (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && player.originalGameProfile.name().equalsIgnoreCase(profile.name()))) { // Paper - validate usernames // KTP - use original game profile for comparison
+                 dupes.add(player);
              }
          }
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index 7bf160cef8bd772d27d4a71f04d5d9861ef67984..e6b1f85aa18549c7c29e9e08a9d385e343dd7553 100644
+index e34b050cfeb9d9afa1869b19ff862627d27d60f7..c5075eb1fa054ee0125563db7526e953a37840fd 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
-@@ -189,6 +189,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+@@ -183,6 +183,7 @@ public abstract class Player extends Avatar implements ContainerUser {
          return (org.bukkit.craftbukkit.entity.CraftHumanEntity) super.getBukkitEntity();
      }
      // CraftBukkit end
 +    public final GameProfile originalGameProfile; // KTP - original player profile storage
  
-     public Player(Level level, GameProfile gameProfile) {
+     public Player(final Level level, final GameProfile gameProfile) {
          super(EntityType.PLAYER, level);
-@@ -197,6 +198,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+@@ -191,6 +192,7 @@ public abstract class Player extends Avatar implements ContainerUser {
          this.inventory = new Inventory(this, this.equipment);
          this.inventoryMenu = new InventoryMenu(this.inventory, !level.isClientSide(), this);
          this.containerMenu = this.inventoryMenu;

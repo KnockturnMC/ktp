@@ -5,24 +5,24 @@ Subject: [PATCH] Expose low level steering API
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index ad4322950726f86e250927f097a4214ed25ddce0..2e3e901fe4d8a3bb12a8d0ec8c4fdc5e96a5116e 100644
+index 74a2b3dcd303b25e9c26f3e4d4220b390b32f1d5..aa583dad42528bf523dd83f9f1e4f790aa0442cd 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -1523,7 +1523,12 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -1553,7 +1553,12 @@ public abstract class Entity
+         return colliders.isEmpty() ? maxDistance : -Shapes.collide(Direction.Axis.Y, aabb, colliders, -maxDistance);
      }
  
-     // Paper start - optimise collisions
--    private Vec3 collide(Vec3 movement) {
+-    private Vec3 collide(final Vec3 movement) {
 +    // KTP start - expose to static environment
-+    public Vec3 collide(Vec3 movement) {
++    public Vec3 collide(final Vec3 movement) {
 +        return collideStatic(movement, this.level, this.getBoundingBox(), this);
 +    }
-+    public static Vec3 collideStatic(Vec3 movement, Level level, AABB boundingBox, @javax.annotation.Nullable Entity entity) {
++    public static Vec3 collideStatic(final Vec3 movement, final Level level, final AABB boundingBox, final @javax.annotation.Nullable Entity entity) {
 +    // KTP end - expose to static environment
+         // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
-         final boolean zZero = movement.z == 0.0;
-@@ -1531,7 +1536,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -1562,7 +1567,7 @@ public abstract class Entity
              return movement;
          }
  
@@ -31,7 +31,7 @@ index ad4322950726f86e250927f097a4214ed25ddce0..2e3e901fe4d8a3bb12a8d0ec8c4fdc5e
  
          final List<VoxelShape> potentialCollisionsVoxel = new ArrayList<>();
          final List<AABB> potentialCollisionsBB = new ArrayList<>();
-@@ -1548,11 +1553,11 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -1579,11 +1584,11 @@ public abstract class Entity
  
          final List<AABB> entityAABBs = new ArrayList<>();
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getEntityHardCollisions(
@@ -45,7 +45,7 @@ index ad4322950726f86e250927f097a4214ed25ddce0..2e3e901fe4d8a3bb12a8d0ec8c4fdc5e
              ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER, null
          );
          potentialCollisionsBB.addAll(entityAABBs);
-@@ -1566,7 +1571,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -1597,7 +1602,7 @@ public abstract class Entity
  
          final double stepHeight;
  
@@ -54,7 +54,7 @@ index ad4322950726f86e250927f097a4214ed25ddce0..2e3e901fe4d8a3bb12a8d0ec8c4fdc5e
              return collided;
          }
  
-@@ -1580,7 +1585,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -1611,7 +1616,7 @@ public abstract class Entity
          final List<AABB> stepAABBs = entityAABBs;
  
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(

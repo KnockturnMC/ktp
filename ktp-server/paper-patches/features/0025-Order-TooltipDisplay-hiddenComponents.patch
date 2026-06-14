@@ -40,10 +40,10 @@ index 0000000000000000000000000000000000000000..c91cb72a4a0e4b3a68ae2b78017621e0
 +
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b10f13a778 100644
+index 3072f8baf54b479793c174eafc3e5daac91dceca..d6eb654ed898d664829f3cca80a6e1765547bfa9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-@@ -376,7 +376,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -383,7 +383,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
  
          this.repairCost = meta.repairCost;
          if (meta.tooltipDisplay != null) {
@@ -52,16 +52,16 @@ index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b1
          }
          this.tooltipStyle = meta.tooltipStyle;
          this.itemModel = meta.itemModel;
-@@ -456,7 +456,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -463,7 +463,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
          });
  
-         CraftMetaItem.getOrEmpty(tag, CraftMetaItem.TOOLTIP_DISPLAY).ifPresent((en) -> {
--            this.tooltipDisplay = new TooltipDisplay(en.hideTooltip(), new ReferenceLinkedOpenHashSet<>(en.hiddenComponents()));
-+            this.tooltipDisplay = new TooltipDisplay(en.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(en.hiddenComponents()));  // KTP - order tooltip display hiddenComponents
+         getOrEmpty(patch, CraftMetaItem.TOOLTIP_DISPLAY).ifPresent((tooltipDisplay) -> {
+-            this.tooltipDisplay = new TooltipDisplay(tooltipDisplay.hideTooltip(), new ReferenceLinkedOpenHashSet<>(tooltipDisplay.hiddenComponents()));
++            this.tooltipDisplay = new TooltipDisplay(tooltipDisplay.hideTooltip(), new dev.lynxplay.ktp.item.component.DataComponentSequencedSet(tooltipDisplay.hiddenComponents()));  // KTP - order tooltip display hiddenComponents
          });
  
-         CraftMetaItem.getOrEmpty(tag, CraftMetaItem.TOOLTIP_STYLE).ifPresent((key) -> {
-@@ -962,7 +962,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+         getOrEmpty(patch, CraftMetaItem.TOOLTIP_STYLE).ifPresent((tooltipStyle) -> {
+@@ -960,7 +960,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
          }
  
          if (this.tooltipDisplay != null) {
@@ -70,7 +70,7 @@ index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b1
          }
  
          if (this.hasTooltipStyle()) {
-@@ -1293,7 +1293,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -1291,7 +1291,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
      @Override
      public void addItemFlags(ItemFlag... hideFlags) {
          if (this.tooltipDisplay == null) {
@@ -88,7 +88,7 @@ index dab8f5841f1b6ea851102afab4d086cf26cc3f6d..8c49b1c345af10b63a9b61dc66b5f0b1
          } else {
              this.tooltipDisplay = new TooltipDisplay(hideTooltip, this.tooltipDisplay.hiddenComponents());
          }
-@@ -2066,7 +2066,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -2087,7 +2087,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
              clone.removedTags = Sets.newHashSet(this.removedTags);
              clone.persistentDataContainer = new CraftPersistentDataContainer(this.persistentDataContainer.getTagsCloned(), CraftMetaItem.DATA_TYPE_REGISTRY); // Paper - deep clone NBT tags
              if (this.tooltipDisplay != null) {

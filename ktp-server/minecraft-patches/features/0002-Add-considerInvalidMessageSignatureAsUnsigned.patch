@@ -17,18 +17,18 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/net/minecraft/network/chat/SignedMessageChain.java b/net/minecraft/network/chat/SignedMessageChain.java
-index 67b2f87f8424c5642010b3d9852b55c40d4947e1..df315172626d0bbea7c209f79f4510d21c1256e7 100644
+index 9395c6a58ba37fb00c492065b8045f54de0a2246..c9e1bcebe6554d6c6f0d6a05df8874c410cd8555 100644
 --- a/net/minecraft/network/chat/SignedMessageChain.java
 +++ b/net/minecraft/network/chat/SignedMessageChain.java
-@@ -51,6 +51,11 @@ public class SignedMessageChain {
-                         SignedMessageChain.this.lastTimeStamp = body.timeStamp();
-                         PlayerChatMessage playerChatMessage = new PlayerChatMessage(signedMessageLink, signature, body, null, FilterMask.PASS_THROUGH);
-                         if (!playerChatMessage.verify(signatureValidator)) {
-+                            // KTP start - invalid signature unsigned message fallback
-+                            if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.considerInvalidMessageSignatureAsUnsigned) {
-+                                return new PlayerChatMessage(signedMessageLink, null, body, null, FilterMask.PASS_THROUGH);
-+                            }
-+                            // KTP end - invalid signature unsigned message fallback
-                             this.setChainBroken();
-                             throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
-                         } else {
+@@ -57,6 +57,11 @@ public class SignedMessageChain {
+                 SignedMessageChain.this.lastTimeStamp = body.timeStamp();
+                 PlayerChatMessage unpacked = new PlayerChatMessage(link, signature, body, null, FilterMask.PASS_THROUGH);
+                 if (!unpacked.verify(signatureValidator)) {
++                    // KTP start - invalid signature unsigned message fallback
++                    if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.considerInvalidMessageSignatureAsUnsigned) {
++                        return new PlayerChatMessage(link, null, body, null, FilterMask.PASS_THROUGH);
++                    }
++                    // KTP end - invalid signature unsigned message fallback
+                     this.setChainBroken();
+                     throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
+                 }

@@ -5,14 +5,14 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index 25de011eb12c97d6b0f105e84e31be040031bddc..bf599fb447d9910df01ee0aad06a36e4042c40eb 100644
+index e7c2246025fa2d42387b86b2b324687179b71452..ec021eefd1bd805b945edc2da0f1c6194ff392b5 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
 @@ -345,7 +345,27 @@ public class ServerEntity {
-         Packet<ClientGamePacketListener> addEntityPacket = this.entity.getAddEntityPacket(this);
-         consumer.accept(addEntityPacket);
+         Packet<ClientGamePacketListener> packet = this.entity.getAddEntityPacket(this);
+         broadcast.accept(packet);
          if (this.trackedDataValues != null) {
--            consumer.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
+-            broadcast.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
 +            // KTP start - per player glowing - correct initial entity data
 +            List<SynchedEntityData.DataValue<?>> possiblyModifiedTrackedDataValues = this.trackedDataValues;
 +            // 99% of cases should simply not run this if as their override is NOT_SET.
@@ -33,45 +33,45 @@ index 25de011eb12c97d6b0f105e84e31be040031bddc..bf599fb447d9910df01ee0aad06a36e4
 +                }
 +            }
 +            // KTP end - per player glowing - correct initial entity data
-+            consumer.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), possiblyModifiedTrackedDataValues)); // KTP - per player glowing - use possibly modified list
++            broadcast.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), possiblyModifiedTrackedDataValues)); // KTP - per player glowing - use possibly modified list
          }
  
          if (this.entity instanceof LivingEntity livingEntity) {
 @@ -412,8 +432,28 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
-         List<SynchedEntityData.DataValue<?>> list = entityData.packDirty();
--        if (list != null) {
-+        sendEntityDataIf: if (list != null) { // KTP - per player glowing
+         List<SynchedEntityData.DataValue<?>> packedValues = entityData.packDirty();
+-        if (packedValues != null) {
++        sendEntityDataIf: if (packedValues != null) { // KTP - per player glowing
              this.trackedDataValues = entityData.getNonDefaultValues();
 +            // KTP start - per player glowing
 +            // Early check that *should* be false for 99% of entities that do not have glow overrides
 +            perPlayerGlowingIf: if (this.trackedPlayers.hasAnyGlowOverrides != 0) {
-+                final int sharedFlagIndex = this.trackedPlayers.findSharedDataValueIndexIn(list);
++                final int sharedFlagIndex = this.trackedPlayers.findSharedDataValueIndexIn(packedValues);
 +                if (sharedFlagIndex == -1) break perPlayerGlowingIf;
 +
 +                for (final var trackerData : this.trackedPlayers.effectiveData()) {
 +                    if (trackerData.glowOverride == net.kyori.adventure.util.TriState.NOT_SET) {
-+                        trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
++                        trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), packedValues));
 +                        continue;
 +                    }
 +
 +                    trackerData.connection.send(new ClientboundSetEntityDataPacket(this.entity.getId(), trackerData.patch(
-+                        list, sharedFlagIndex
++                        packedValues, sharedFlagIndex
 +                    )));
 +                }
 +
 +                break sendEntityDataIf;
 +            }
 +            // KTP end - per player glowing
-             this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundSetEntityDataPacket(this.entity.getId(), list));
+             this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundSetEntityDataPacket(this.entity.getId(), packedValues));
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index a5cda8ae08e3129f11270a7075d81c8c6d94f05d..cbb5e25747ce7ee928be8280914375a138964765 100644
+index afbb18e69a1916777d47282ca0a259bfa94066c5..2d343696261dc7460dd662e38e56ba1499ee4b29 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -293,7 +293,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -307,7 +307,7 @@ public abstract class Entity
      public int invulnerableTime;
      protected boolean firstTick = true;
      protected final SynchedEntityData entityData;

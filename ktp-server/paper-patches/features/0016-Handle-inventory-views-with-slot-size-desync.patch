@@ -22,10 +22,10 @@ inventory and now correctly returns 36, allowing a correct split of
 incoming raw network slot ids.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
-index 981a4ab3afc06687f2fa8032a71d18aa1afc9185..a654238306bc8551e0508a752e65665a2b0b15fb 100644
+index 48c0a876fd54b44023416d15994e2b5a88c435e0..f379e64e85c0c710ae71c6e0f3463a3da7ef8b32 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftAbstractInventoryView.java
-@@ -280,7 +280,12 @@ public abstract class CraftAbstractInventoryView implements InventoryView {
+@@ -229,7 +229,12 @@ public abstract class CraftAbstractInventoryView implements InventoryView {
  
      @Override
      public int countSlots() {

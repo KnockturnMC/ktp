@@ -5,7 +5,7 @@ Subject: [PATCH] Increase command input limit default
 
 
 diff --git a/net/minecraft/network/protocol/game/ServerboundChatCommandPacket.java b/net/minecraft/network/protocol/game/ServerboundChatCommandPacket.java
-index 073e369fc21d1e098cb680638859a37b154895a4..2892043cf942e3b8121c80edda8cbff47024a0de 100644
+index 491af2413a4e793a121fec368259ff8211ed031e..2f4380416c82db820370e0430beabe5f256d0de8 100644
 --- a/net/minecraft/network/protocol/game/ServerboundChatCommandPacket.java
 +++ b/net/minecraft/network/protocol/game/ServerboundChatCommandPacket.java
 @@ -6,7 +6,7 @@ import net.minecraft.network.protocol.Packet;

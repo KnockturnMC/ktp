@@ -128,12 +128,12 @@ index ea08eceb04a8d956c11cb73ffbae6391642d3f1c..38192e6373acc6b882faca7c2e0476df
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index b8d5a9b5688dd3b8fc544822cb9352fa3b21a529..811d6fb2289cac26f2a25e52e2920b7d9065761e 100644
+index 2a6deb7b218224b5c4d3316ded46631a37913545..965273600df2e137269384d75363268649d70723 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3381,4 +3381,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
-             entity.remove();
-         }
+@@ -3388,4 +3388,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         super.knockback(strength, directionX, directionZ);
+         this.entity.hurtMarked = true;
      }
 +
 +    // KTP start - glow override
@@ -167,8 +167,8 @@ index b8d5a9b5688dd3b8fc544822cb9352fa3b21a529..811d6fb2289cac26f2a25e52e2920b7d
 +    @Override
 +    public net.kyori.adventure.util.TriState glowOverride(final org.bukkit.entity.Entity entity) {
 +        return this.glowOverrides.containsKey(entity.getUniqueId())
-+                ? net.kyori.adventure.util.TriState.byBoolean(this.glowOverrides.getBoolean(entity.getUniqueId()))
-+                : net.kyori.adventure.util.TriState.NOT_SET;
++            ? net.kyori.adventure.util.TriState.byBoolean(this.glowOverrides.getBoolean(entity.getUniqueId()))
++            : net.kyori.adventure.util.TriState.NOT_SET;
 +    }
 +    // KTP end - glow override
  }

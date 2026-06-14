@@ -7,14 +7,14 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 9f86d1fc4ea4c6987fa207644573565aea7edead..0797b4a7405b355d7b13193f6440e659ae61f2df 100644
+index 5bea5dcdaf8ee0a38cd8587a55845e940d8f4cac..ecbce36f971aeb4b93f64d893c66e01802b329f0 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -190,6 +190,7 @@ public abstract class PlayerList {
+@@ -191,6 +191,7 @@ public abstract class PlayerList {
                  this.server.enforceSecureProfile()
              )
          );
 +        if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.limboServer) return; // KTP - limbo server
          player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
-         serverGamePacketListenerImpl.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
-         serverGamePacketListenerImpl.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+         playerConnection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+         playerConnection.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));

@@ -10,19 +10,19 @@ The main usage for this is map and set implementations for these
 types, which can be based on BitSet and Object arrays respectively.
 
 diff --git a/net/minecraft/core/MappedRegistry.java b/net/minecraft/core/MappedRegistry.java
-index ad1558693564ebd18f5e16b85ae552d2af95efef..b5ac3c9ec54c1390f67542900980cd85331ea412 100644
+index c79206e0eb455081f63cf4de2c97413638fd6596..a1f2eaf8d7e39d5492f1a59b3e3f25b6b78f8952 100644
 --- a/net/minecraft/core/MappedRegistry.java
 +++ b/net/minecraft/core/MappedRegistry.java
-@@ -135,6 +135,7 @@ public class MappedRegistry<T> implements WritableRegistry<T> {
-             this.registryLifecycle = this.registryLifecycle.add(registrationInfo.lifecycle());
-             this.temporaryUnfrozenMap.put(key.identifier(), value); // Paper - support pre-filling in registry mod API
-             this.injectFluidRegister(key, value); // Paper - fluid method optimisations
-+            if (value instanceof final dev.lynxplay.ktp.core.RegistryIDSink sink) sink.idSinkState().bind(this.key(), size); // KTP - registry id sinks
-             return reference;
-         }
+@@ -140,6 +140,7 @@ public class MappedRegistry<T> implements WritableRegistry<T> {
+         this.registryLifecycle = this.registryLifecycle.add(registrationInfo.lifecycle());
+         this.temporaryUnfrozenMap.put(key.identifier(), value); // Paper - support pre-filling in registry mod API
+         this.injectFluidRegister(key, value); // Paper - fluid method optimisations
++        if (value instanceof final dev.lynxplay.ktp.core.RegistryIDSink sink) sink.idSinkState().bind(this.key(), newId); // KTP - registry id sinks
+         return holder;
      }
+ 
 diff --git a/net/minecraft/core/component/DataComponentType.java b/net/minecraft/core/component/DataComponentType.java
-index 3016f983496eac78eb074ae74577b8a6bdc80b29..accaf2c71bbc830a3d3a4e682a1f61eb40349837 100644
+index 1bd3b43d10e4ce198271526a74e571cc6b3a46df..c6817ec8c491f0b08e49c469cb79485872b5398c 100644
 --- a/net/minecraft/core/component/DataComponentType.java
 +++ b/net/minecraft/core/component/DataComponentType.java
 @@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
@@ -41,18 +41,18 @@ index 3016f983496eac78eb074ae74577b8a6bdc80b29..accaf2c71bbc830a3d3a4e682a1f61eb
 -public interface DataComponentType<T> {
 +public interface DataComponentType<T> extends dev.lynxplay.ktp.core.RegistryIDSink { // KTP - registry id sinks
      Codec<DataComponentType<?>> CODEC = Codec.lazyInitialized(() -> BuiltInRegistries.DATA_COMPONENT_TYPE.byNameCodec());
-     StreamCodec<RegistryFriendlyByteBuf, DataComponentType<?>> STREAM_CODEC = StreamCodec.recursive(
-         streamCodec -> ByteBufCodecs.registry(Registries.DATA_COMPONENT_TYPE)
-@@ -83,6 +83,12 @@ public interface DataComponentType<T> {
-         }
- 
-         static class SimpleType<T> implements DataComponentType<T> {
+     StreamCodec<RegistryFriendlyByteBuf, DataComponentType<?>> STREAM_CODEC = StreamCodec.recursive(c -> ByteBufCodecs.registry(Registries.DATA_COMPONENT_TYPE));
+     Codec<DataComponentType<?>> PERSISTENT_CODEC = CODEC.validate(
+@@ -84,6 +84,12 @@ public interface DataComponentType<T> {
+             private final @Nullable Codec<T> codec;
+             private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
+             private final boolean ignoreSwapAnimation;
 +            // KTP start - registry id sinks
 +            private final dev.lynxplay.ktp.core.RegistryIDSinkState idSinkState = new dev.lynxplay.ktp.core.RegistryIDSinkState();
 +            public dev.lynxplay.ktp.core.RegistryIDSinkState idSinkState() {
 +                return idSinkState;
 +            }
 +            // KTP end - registry id sinks
-             private final @Nullable Codec<T> codec;
-             private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
-             private final boolean ignoreSwapAnimation;
+ 
+             private SimpleType(
+                 final @Nullable Codec<T> codec, final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, final boolean ignoreSwapAnimation

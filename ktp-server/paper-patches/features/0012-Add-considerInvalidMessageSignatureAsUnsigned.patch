@@ -17,13 +17,13 @@ the production environment ktp is deployed in, but works as a quick and
 dirty fix for the issue.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index e47f279b66b169e2cdf762bb739a261f2acebeb1..f19f429d14f33fc4e90124c145982272af5f4d6b 100644
+index 232bc5e8b7cbb528b96f8048ba683705cddc436e..193e4e3ea59439a9cebfd2f6e5dbb51962cf4df0 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -196,6 +196,10 @@ public class GlobalConfiguration extends ConfigurationPart {
-             LZ4,
-             NONE
-         }
+@@ -186,6 +186,10 @@ public class GlobalConfiguration extends ConfigurationPart {
+         public boolean updateEquipmentOnPlayerActions = true;
+         @Comment("This setting controls what item data components don't need to be sanitized in oversized item obfuscation. Adding them re-enables exploits, but may be needed for certain resource packs. (Expected: minecraft:container, minecraft:charged_projectiles and minecraft:bundle_contents)")
+         public OversizedItemComponentSanitizer.AssetOversizedItemComponentSanitizerConfiguration oversizedItemComponentSanitizer = new OversizedItemComponentSanitizer.AssetOversizedItemComponentSanitizerConfiguration(Set.of());
 +        // KTP start - invalid signature unsigned message fallback
 +        @Comment("This setting controls if the server should consider a message with an invalid or missing signature as unsigned or not")
 +        public boolean considerInvalidMessageSignatureAsUnsigned = false;
