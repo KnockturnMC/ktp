@@ -11,10 +11,10 @@ kicked.
 Instead, check the initial game profile of the player during join.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index ecbce36f971aeb4b93f64d893c66e01802b329f0..b19f76ebe20fdbf65f2f814f669f87861bd74c1a 100644
+index 53522a015a49e46533b5862f251d0ea1ffcce7db..e22d74ab9388941cbd2787ef28b6b5c004c95c47 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -575,7 +575,7 @@ public abstract class PlayerList {
+@@ -576,7 +576,7 @@ public abstract class PlayerList {
          Set<ServerPlayer> dupes = Sets.newIdentityHashSet();
  
          for (ServerPlayer player : this.players) {
@@ -24,18 +24,18 @@ index ecbce36f971aeb4b93f64d893c66e01802b329f0..b19f76ebe20fdbf65f2f814f669f8786
              }
          }
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index e34b050cfeb9d9afa1869b19ff862627d27d60f7..c5075eb1fa054ee0125563db7526e953a37840fd 100644
+index 5d4b3ed09fe10f545d0720b2919f0d6c822d5196..cc658403cdcb2ba52ee2dd1ff5eb5bc7164da079 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
-@@ -183,6 +183,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+@@ -184,6 +184,7 @@ public abstract class Player extends Avatar implements ContainerUser {
          return (org.bukkit.craftbukkit.entity.CraftHumanEntity) super.getBukkitEntity();
      }
      // CraftBukkit end
 +    public final GameProfile originalGameProfile; // KTP - original player profile storage
  
      public Player(final Level level, final GameProfile gameProfile) {
-         super(EntityType.PLAYER, level);
-@@ -191,6 +192,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+         super(EntityTypes.PLAYER, level);
+@@ -192,6 +193,7 @@ public abstract class Player extends Avatar implements ContainerUser {
          this.inventory = new Inventory(this, this.equipment);
          this.inventoryMenu = new InventoryMenu(this.inventory, !level.isClientSide(), this);
          this.containerMenu = this.inventoryMenu;

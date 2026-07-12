@@ -52,10 +52,10 @@ index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae997
 +    SHULKER;
 +}
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index ace05559319506ab1f20dee8b4050cd797ca695b..d06b163d520c20522eb3ab6f3538f9e35e7bbc1b 100644
+index c66cd17fd037b73d8ff04dd2ed328ca25e8b0f1a..b734ca22ae96ac9fd846259c661fcead16e143cd 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4691,4 +4691,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4708,4 +4708,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -75,10 +75,10 @@ index ace05559319506ab1f20dee8b4050cd797ca695b..d06b163d520c20522eb3ab6f3538f9e3
 +    // KTP end - expose low level steering interceptors
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 2c68aae864a74adf70683eb3b17109aa96572413..d66a14ab9a8b67696e5e90f157489cc4761d74ab 100644
+index e24744cc523f1ce3c7c8e27b14d3337a3f17f4bb..2b578c1a469858b11464a9477d297b8f63bf0c2f 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1322,4 +1322,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1332,4 +1332,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
       */
      void broadcastHurtAnimation(@NotNull java.util.Collection<Player> players);
      // Paper end - broadcast hurt animation

@@ -71,10 +71,10 @@ index 2fad6604a0006d12eec484ed3f54ae3ad166fd1c..ab89365ec237a9f8866066bfb3008f07
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/RegionAccessor.java b/src/main/java/org/bukkit/RegionAccessor.java
-index 32132eba3ccfca571be0914c243b6ca0b947b87e..8a54099a9c0c6b3e92eca2f6b8101f42751e47ed 100644
+index d33ec8f850eb24e484aa19b0e02849f26ece4abe..c665de6b4f78562e82abbe09caba8dae84bc2443 100644
 --- a/src/main/java/org/bukkit/RegionAccessor.java
 +++ b/src/main/java/org/bukkit/RegionAccessor.java
-@@ -560,4 +560,109 @@ public interface RegionAccessor extends Keyed, io.papermc.paper.world.flag.Featu
+@@ -593,4 +593,109 @@ public interface RegionAccessor extends Keyed, io.papermc.paper.world.flag.Featu
       * @return collides or not
       */
      boolean hasCollisionsIn(@NotNull org.bukkit.util.BoundingBox boundingBox);
@@ -185,7 +185,7 @@ index 32132eba3ccfca571be0914c243b6ca0b947b87e..8a54099a9c0c6b3e92eca2f6b8101f42
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index d06b163d520c20522eb3ab6f3538f9e35e7bbc1b..c66fa18b6001654e1c80f3aa4a40c2b34a456cab 100644
+index b734ca22ae96ac9fd846259c661fcead16e143cd..cab1aeccfce45beedbce5f4a897763fabe7e2f40 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
 @@ -1682,7 +1682,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
@@ -197,7 +197,7 @@ index d06b163d520c20522eb3ab6f3538f9e35e7bbc1b..c66fa18b6001654e1c80f3aa4a40c2b3
      }
  
      // Paper start - getEntity by UUID API
-@@ -4705,4 +4705,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4722,4 +4722,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors

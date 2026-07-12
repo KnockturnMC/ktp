@@ -33,17 +33,17 @@ As such, the impact will only be known once the patch has lived long
 enough in this fork and ran in production for detailed profiling.
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 810b352503cdf56091ec6340ad72edde238fe359..293546794d83f783c1101fccd7d5fd5f7664d9e7 100644
+index f936da2a1ffef5fd84d8d63be3575fd06ac9a7b2..3ef672186010766598128d19e4ec30980b40906f 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -3879,4 +3879,19 @@ public class ServerGamePacketListenerImpl
+@@ -3866,4 +3866,19 @@ public class ServerGamePacketListenerImpl
          return this.playerGameConnection;
      }
      // Paper end
 +    // KTP start - optimise player connection contains calls
 +    private final int continuousIdentifier;
 +    {
-+        final List<ServerPlayer> players = MinecraftServer.getServer().getPlayerList().players;
++        final List<ServerPlayer> players = MinecraftServer.getServer().getPlayerList().getPlayers();
 +        final java.util.BitSet takenIdentifiers = new java.util.BitSet(players.size());
 +        for (int i = 0; i < players.size(); i++) {
 +            takenIdentifiers.set(players.get(i).connection.continuousIdentifier());

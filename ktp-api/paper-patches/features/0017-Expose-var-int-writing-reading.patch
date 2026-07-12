@@ -5,10 +5,10 @@ Subject: [PATCH] Expose var int writing/reading
 
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 954b02e09589b09491fccb945c841a51a1678e28..2a123a3bf9333d5837e16254543a41eb01426db2 100644
+index 91eecf69975bd12eeba960c258bd096b32469307..8e42d9a4070fde982f4f3a83ac9b23ee9caf2552 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -433,5 +433,20 @@ public interface UnsafeValues {
+@@ -282,5 +282,20 @@ public interface UnsafeValues {
              throw new java.lang.IllegalArgumentException("The passed entity could not be deserialized", exception);
          }
      }

@@ -426,10 +426,10 @@ index 0000000000000000000000000000000000000000..454b0e47c14103e05b5efdf88ccce965
 +
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index ab2224ecebc5ea185472b418f0bde6eddfa4f287..08047514a1361a05ac059c1607d8c8837660f204 100644
+index 83b8d44c7c8fc3cabb371c4e6ab9e1a9320ead35..ba712c7ad8aff28c86fb9ce74005c2135ef144a6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -386,6 +386,7 @@ public final class CraftServer implements Server {
+@@ -387,6 +387,7 @@ public final class CraftServer implements Server {
      }
      // Paper end - Folia reagion threading API
  
@@ -437,7 +437,7 @@ index ab2224ecebc5ea185472b418f0bde6eddfa4f287..08047514a1361a05ac059c1607d8c883
      static {
          ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
          ConfigurationSerialization.registerClass(CraftPlayerProfile.class);
-@@ -483,6 +484,7 @@ public final class CraftServer implements Server {
+@@ -479,6 +480,7 @@ public final class CraftServer implements Server {
          this.potionBrewer = new io.papermc.paper.potion.PaperPotionBrewer(console); // Paper - custom potion mixes
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
          this.spark = new io.papermc.paper.SparksFly(this); // Paper - spark
@@ -445,7 +445,7 @@ index ab2224ecebc5ea185472b418f0bde6eddfa4f287..08047514a1361a05ac059c1607d8c883
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -2960,4 +2962,15 @@ public final class CraftServer implements Server {
+@@ -2962,4 +2964,15 @@ public final class CraftServer implements Server {
      public void allowPausing(final Plugin plugin, final boolean value) {
          this.console.addPluginAllowingSleep(plugin.getName(), value);
      }

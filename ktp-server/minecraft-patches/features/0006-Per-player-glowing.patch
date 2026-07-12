@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index e7c2246025fa2d42387b86b2b324687179b71452..ec021eefd1bd805b945edc2da0f1c6194ff392b5 100644
+index da1e7df920a2ebdfdd4897393a3507b9993093a2..a4d43ed0286160353ef3f46fef4e7911ded8f48d 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -345,7 +345,27 @@ public class ServerEntity {
+@@ -350,7 +350,27 @@ public class ServerEntity {
          Packet<ClientGamePacketListener> packet = this.entity.getAddEntityPacket(this);
          broadcast.accept(packet);
          if (this.trackedDataValues != null) {
@@ -37,7 +37,7 @@ index e7c2246025fa2d42387b86b2b324687179b71452..ec021eefd1bd805b945edc2da0f1c619
          }
  
          if (this.entity instanceof LivingEntity livingEntity) {
-@@ -412,8 +432,28 @@ public class ServerEntity {
+@@ -417,8 +437,28 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
          List<SynchedEntityData.DataValue<?>> packedValues = entityData.packDirty();
@@ -68,7 +68,7 @@ index e7c2246025fa2d42387b86b2b324687179b71452..ec021eefd1bd805b945edc2da0f1c619
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index afbb18e69a1916777d47282ca0a259bfa94066c5..2d343696261dc7460dd662e38e56ba1499ee4b29 100644
+index 516373758ea6e462b0bbf546d296f306df5e169e..5e04c29e7995a8aabd448e0a1a15a8badf42bf63 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -307,7 +307,7 @@ public abstract class Entity

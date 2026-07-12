@@ -12,11 +12,11 @@ LinkedSet for storing the data components, this leads to non consistent
 set order for tooltip displays across different JVMs.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-index e8aa3f1100e279909b1056890f79b9258d66e568..3072f8baf54b479793c174eafc3e5daac91dceca 100644
+index 405d9367e3959c715d73505fd85fac3602e26116..68a020fc4637646e04c164379515994912fd6fd1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-@@ -313,7 +313,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
-     private List<net.minecraft.advancements.criterion.BlockPredicate> canBreakPredicates;
+@@ -315,7 +315,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+     private List<net.minecraft.advancements.predicates.BlockPredicate> canBreakPredicates;
  
      // hide_additional_tooltip backward compatibility based on TooltipDisplayComponentFix#CONVERTED_ADDITIONAL_TOOLTIP_TYPES
 -    private static final Set<DataComponentType<?>> HIDDEN_COMPONENTS_PREVIOUSLY = Set.of(
@@ -24,7 +24,7 @@ index e8aa3f1100e279909b1056890f79b9258d66e568..3072f8baf54b479793c174eafc3e5daa
          DataComponents.BANNER_PATTERNS,
          DataComponents.BEES,
          DataComponents.BLOCK_ENTITY_DATA,
-@@ -332,7 +332,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -334,7 +334,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
          DataComponents.POTION_CONTENTS,
          DataComponents.TROPICAL_FISH_PATTERN,
          DataComponents.WRITTEN_BOOK_CONTENT

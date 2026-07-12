@@ -10,11 +10,11 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-index 3f903315d3c0b31a06fe90406f290b828967991b..cbf6621449690e0961979564052fcc8b5596c4ab 100644
+index 3ac6c7571a204b0d48995945985a252a495920d6..12271d2f885cf857d0a59d43a147ab9dfa39aaa7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
-@@ -848,6 +848,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
-         return lines.stream().map(io.papermc.paper.adventure.PaperAdventure::asAdventure).toList();
+@@ -595,6 +595,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
+         return net.minecraft.SharedConstants.getCurrentVersion().protocolVersion();
      }
      // Paper end
 +    // KTP start
@@ -27,4 +27,4 @@ index 3f903315d3c0b31a06fe90406f290b828967991b..cbf6621449690e0961979564052fcc8b
 +    // KTP stop
  
      @Override
-     public org.bukkit.Color getSpawnEggLayerColor(final EntityType entityType, final int layer) {
+     public ItemStack deserializeItemHover(final HoverEvent.ShowItem itemHover) {

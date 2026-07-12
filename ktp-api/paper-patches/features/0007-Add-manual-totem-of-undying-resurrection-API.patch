@@ -15,10 +15,10 @@ simulates a resurrection including bukkit event calls and potion
 effects.
 
 diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
-index 19a48dce7c2fa7cdfd9947aaff8f3a13ecb65932..97f330bfe19c0d13b47c84f137cc434445505efd 100644
+index ff0d1dd7a1ea3930ba11bd1ce5ea1e1851507bab..99b13bdc34d7067436a6d46c2bd8cf4a840c1368 100644
 --- a/src/main/java/org/bukkit/entity/LivingEntity.java
 +++ b/src/main/java/org/bukkit/entity/LivingEntity.java
-@@ -1538,4 +1538,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+@@ -1562,4 +1562,35 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
       */
      @Nullable
      Color getWaypointColor();

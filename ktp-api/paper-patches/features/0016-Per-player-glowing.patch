@@ -5,14 +5,14 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index 2d2391fb0aba3f7cac2e8ca9089f651607633c42..d81a8479eb2293626ad1826bc5e9ded6a488986a 100644
+index ad416589a0b1001baef1f5cb517ec64cf7683081..b69e0307b8b66158fbee74248e0bab2aabd13898 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -4020,4 +4020,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
-      */
-     @ApiStatus.Experimental
-     PlayerGameConnection getConnection();
-+
+@@ -4027,4 +4027,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+     default ObjectContents asObjectContents() {
+         return this.getPlayerProfile().asObjectContents();
+     }
++    
 +    // KTP start - glow override
 +    /**
 +     * Configures a glow override for the specific entity.

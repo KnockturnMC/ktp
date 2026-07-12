@@ -10,14 +10,13 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index 020ee30c0a7d96944c22ffa447994747c7e13ea2..ac4ba8dbb9ccaa35529db5c6a8a1839e0006f41b 100644
+index bb29c4c7237542e343db28c1a2f7d0fda12a7dc9..bfb0ee3c3448fb0bac3174b4fd7276c5e64cc887 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -392,4 +392,8 @@ public interface UnsafeValues {
-      * @return the deserialized {@code ItemStack}
+@@ -242,4 +242,7 @@ public interface UnsafeValues {
       */
      @NotNull ItemStack deserializeItemHover(HoverEvent.@NotNull ShowItem itemHover);
-+
+ 
 +    // KTP start
 +    String itemStackAsString(@org.jetbrains.annotations.NotNull ItemStack itemStack);
 +    // KTP stop

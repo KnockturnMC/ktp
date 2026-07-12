@@ -15,10 +15,10 @@ Iteration over the player list is thread safe due to it being a
 COWArrayList.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5cd73e3750 100644
+index 326feec0a93d85dda531ffcce008869edd054b59..379d8e285c081b10116b2fe376c0f1bdc97331c9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -1545,17 +1545,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1546,17 +1546,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
@@ -39,7 +39,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          if (loc == null || sound == null || category == null) return;
  
          double x = loc.getX();
-@@ -1567,7 +1567,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1568,7 +1568,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
@@ -48,7 +48,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          if (loc == null || sound == null || category == null) return;
  
          double x = loc.getX();
-@@ -1580,17 +1580,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1581,17 +1581,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void playSound(Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
@@ -69,7 +69,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
  
          ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(CraftSound.bukkitToMinecraftHolder(sound), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
-@@ -1602,8 +1602,8 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1603,8 +1603,8 @@ public class CraftWorld extends CraftRegionAccessor implements World {
      // Paper start - Adventure
      @Override
      public void playSound(final net.kyori.adventure.sound.Sound sound) {
@@ -80,7 +80,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          for (ServerPlayer player : this.getHandle().players()) {
              player.connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, player.getX(), player.getY(), player.getZ(), seed, null));
          }
-@@ -1611,7 +1611,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1612,7 +1612,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
@@ -89,7 +89,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
  
          ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
-@@ -1623,14 +1623,14 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1624,14 +1624,14 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void playSound(final net.kyori.adventure.sound.Sound sound, final double x, final double y, final double z) {
@@ -108,7 +108,7 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          if (emitter == net.kyori.adventure.sound.Sound.Emitter.self()) {
              for (ServerPlayer player : this.getHandle().players()) {
                  player.connection.send(io.papermc.paper.adventure.PaperAdventure.asSoundPacket(sound, player, seed, null));
-@@ -1643,6 +1643,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1644,6 +1644,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          }
      }
  
@@ -123,10 +123,10 @@ index 4edc7e53d4712dc622fd1756b62e0f1f3bfc8014..ca79e54affc7e8246b911586da361c5c
          return (packet, distance) -> this.world.getServer().getPlayerList().broadcast(null, x, y, z, distance, this.world.dimension(), packet);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 4ab4abf9e417f7c128bc202c42295f1bc49dd830..fa1f7aff0c81ded7b6a44bef5a4addb52ad2be67 100644
+index 81cd68f7156e7f5f4a9f426ff77c9816cd6e41a1..06e4ed6ebc3fb449426b9ee14c13b4a9952baff0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -2959,7 +2959,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -2955,7 +2955,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
  
      @Override
      public void playSound(final net.kyori.adventure.sound.Sound sound, final double x, final double y, final double z) {
@@ -135,7 +135,7 @@ index 4ab4abf9e417f7c128bc202c42295f1bc49dd830..fa1f7aff0c81ded7b6a44bef5a4addb5
      }
  
      @Override
-@@ -2972,9 +2972,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -2968,9 +2968,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          } else {
              throw new IllegalArgumentException("Sound emitter must be an Entity or self(), but was: " + emitter);
          }
