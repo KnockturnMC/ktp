@@ -24,7 +24,7 @@ COPY --parents .git ktp-api ktp-server .
 # Compile ktp to paperclip jar
 RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createPaperclipJar --no-daemon
 
-RUN cp ktp-server/build/libs/ktp-paperclip-$(cat gradle.properties | grep 'version=' | cut -d'=' -f2).jar server.jar
+RUN cp ktp-server/build/libs/ktp-paperclip-$(./gradlew printPaperVersion --quiet).jar server.jar
 
 # Standalone image creating files for installing corretto
 FROM ${ALPINE} AS corretto-installer
