@@ -5,13 +5,13 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index ad416589a0b1001baef1f5cb517ec64cf7683081..b69e0307b8b66158fbee74248e0bab2aabd13898 100644
+index 756d831870b2e198f39b290bdc50dae9816a0b0f..a6ed6ad7884f7541d5711c203a5ef4f97c40384e 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -4027,4 +4027,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
-     default ObjectContents asObjectContents() {
-         return this.getPlayerProfile().asObjectContents();
-     }
+@@ -4083,4 +4083,24 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+      * clearing any fixed pose in the process.
+      */
+     void unsetFixedPose();
 +    
 +    // KTP start - glow override
 +    /**

@@ -11,10 +11,10 @@ kicked.
 Instead, check the initial game profile of the player during join.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 53522a015a49e46533b5862f251d0ea1ffcce7db..e22d74ab9388941cbd2787ef28b6b5c004c95c47 100644
+index 171d0b855540b6ff6a577b2361985a77362fe75d..2ffde8bfd34362c819607ffb309868b7f3504454 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -576,7 +576,7 @@ public abstract class PlayerList {
+@@ -579,7 +579,7 @@ public abstract class PlayerList {
          Set<ServerPlayer> dupes = Sets.newIdentityHashSet();
  
          for (ServerPlayer player : this.players) {
@@ -24,7 +24,7 @@ index 53522a015a49e46533b5862f251d0ea1ffcce7db..e22d74ab9388941cbd2787ef28b6b5c0
              }
          }
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index 5d4b3ed09fe10f545d0720b2919f0d6c822d5196..cc658403cdcb2ba52ee2dd1ff5eb5bc7164da079 100644
+index 4068dc1cea4edca196dc0c58b4804e94dd07881e..93844308a679ca47fad8581dab5af54126d1d71a 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
 @@ -184,6 +184,7 @@ public abstract class Player extends Avatar implements ContainerUser {

@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index bd8df9355fa20a7e9e81f0fa2cfc5cd430002805..326feec0a93d85dda531ffcce008869edd054b59 100644
+index 71511e45ae4fdb7304995dc6ad32d6c46513f06e..47ab1c2bb22568b6af4e86cbce83b344fbceec4e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -96,6 +96,7 @@ import org.bukkit.NamespacedKey;
+@@ -97,6 +97,7 @@ import org.bukkit.NamespacedKey;
  import org.bukkit.Particle;
  import org.bukkit.Raid;
  import org.bukkit.Sound;

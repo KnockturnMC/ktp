@@ -5,10 +5,10 @@ Subject: [PATCH] Per-player glowing
 
 
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index da1e7df920a2ebdfdd4897393a3507b9993093a2..a4d43ed0286160353ef3f46fef4e7911ded8f48d 100644
+index 1e0728e4a62ed6cb73cc41ce8f29aa2b4f66d336..8072bb6cbdd6b506d6afb07de60f23937f34e82b 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -350,7 +350,27 @@ public class ServerEntity {
+@@ -386,7 +386,27 @@ public class ServerEntity {
          Packet<ClientGamePacketListener> packet = this.entity.getAddEntityPacket(this);
          broadcast.accept(packet);
          if (this.trackedDataValues != null) {
@@ -37,7 +37,7 @@ index da1e7df920a2ebdfdd4897393a3507b9993093a2..a4d43ed0286160353ef3f46fef4e7911
          }
  
          if (this.entity instanceof LivingEntity livingEntity) {
-@@ -417,8 +437,28 @@ public class ServerEntity {
+@@ -453,8 +473,28 @@ public class ServerEntity {
      private void sendDirtyEntityData() {
          SynchedEntityData entityData = this.entity.getEntityData();
          List<SynchedEntityData.DataValue<?>> packedValues = entityData.packDirty();
@@ -68,11 +68,11 @@ index da1e7df920a2ebdfdd4897393a3507b9993093a2..a4d43ed0286160353ef3f46fef4e7911
          }
  
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 516373758ea6e462b0bbf546d296f306df5e169e..5e04c29e7995a8aabd448e0a1a15a8badf42bf63 100644
+index dac627047036a1b6ecec1403ccac5541bf6a2213..7eec2379782b8c17afddbe676ab06b1994971a9f 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -307,7 +307,7 @@ public abstract class Entity
-     public int invulnerableTime;
+@@ -310,7 +310,7 @@ public abstract class Entity
+     private int invulnerableTime;
      protected boolean firstTick = true;
      protected final SynchedEntityData entityData;
 -    protected static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BYTE);

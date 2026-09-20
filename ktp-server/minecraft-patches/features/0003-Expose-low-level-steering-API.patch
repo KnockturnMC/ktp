@@ -5,10 +5,10 @@ Subject: [PATCH] Expose low level steering API
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 2c46788be7d8d78a30e5aea0d0f9a45e67adf074..e93d14b64dd4c60f23b742ad36d99a766e1adee3 100644
+index 1732a7c8061ccd519df36e6910c40e76d42c0cc4..d90d7c21bc51252a486799b1a0b018fcb12a8c00 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -1615,7 +1615,12 @@ public abstract class Entity
+@@ -1653,7 +1653,12 @@ public abstract class Entity
          return colliders.isEmpty() ? maxDistance : -Shapes.collide(Direction.Axis.Y, aabb, colliders, -maxDistance);
      }
  
@@ -22,7 +22,7 @@ index 2c46788be7d8d78a30e5aea0d0f9a45e67adf074..e93d14b64dd4c60f23b742ad36d99a76
          // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
          final boolean yZero = movement.y == 0.0;
-@@ -1624,7 +1629,7 @@ public abstract class Entity
+@@ -1662,7 +1667,7 @@ public abstract class Entity
              return movement;
          }
  
@@ -31,12 +31,15 @@ index 2c46788be7d8d78a30e5aea0d0f9a45e67adf074..e93d14b64dd4c60f23b742ad36d99a76
  
          final List<VoxelShape> potentialCollisionsVoxel = new ArrayList<>();
          final List<AABB> potentialCollisionsBB = new ArrayList<>();
-@@ -1641,11 +1646,11 @@ public abstract class Entity
- 
-         final List<AABB> entityAABBs = new ArrayList<>();
+@@ -1682,13 +1687,13 @@ public abstract class Entity
+         // entities fully above this entity's hitbox must be fetched for those checks (MC-310289). When
+         // there is no horizontal movement the step logic cannot run, so keep the smaller query.
+         final AABB entityQueryBox = (xZero & zZero) ? initialCollisionBox
+-            : initialCollisionBox.expandTowards(0.0, (double)this.maxUpStep(), 0.0);
++            : initialCollisionBox.expandTowards(0.0, (double)entity.maxUpStep(), 0.0); // KTP - expose to static environment
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getEntityHardCollisions(
--            this.level, (Entity)(Object)this, initialCollisionBox, entityAABBs, 0, null
-+            level, (Entity)(Object)entity, initialCollisionBox, entityAABBs, 0, null // KTP - expose to static environment
+-            this.level, (Entity)(Object)this, entityQueryBox, entityAABBs, 0, null
++            level, (Entity)(Object)entity, entityQueryBox, entityAABBs, 0, null // KTP - expose to static environment
          );
  
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(
@@ -45,7 +48,7 @@ index 2c46788be7d8d78a30e5aea0d0f9a45e67adf074..e93d14b64dd4c60f23b742ad36d99a76
              ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER, null
          );
          potentialCollisionsBB.addAll(entityAABBs);
-@@ -1659,7 +1664,7 @@ public abstract class Entity
+@@ -1702,7 +1707,7 @@ public abstract class Entity
  
          final double stepHeight;
  
@@ -54,7 +57,7 @@ index 2c46788be7d8d78a30e5aea0d0f9a45e67adf074..e93d14b64dd4c60f23b742ad36d99a76
              return collided;
          }
  
-@@ -1673,7 +1678,7 @@ public abstract class Entity
+@@ -1716,7 +1721,7 @@ public abstract class Entity
          final List<AABB> stepAABBs = entityAABBs;
  
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisionsForBlocksOrWorldBorder(

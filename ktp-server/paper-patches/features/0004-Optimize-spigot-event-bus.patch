@@ -54,10 +54,10 @@ index d97f63347cda6ad398709dd584c9b623b01f1284..d305c44acfe21881bfd0562b130e11cf
      public String toString() {
          return "PaperSimplePluginClassLoader{" +
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..760535e1d6335cf07b6222525610a11318d2596f 100644
+index 8b7a15af1eb2cc0318e26d7199c8e684de63cd72..473ced7a899175958df669b41ac4fbabab3041c5 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-@@ -36,11 +36,17 @@ class PaperEventManager {
+@@ -34,11 +34,17 @@ class PaperEventManager {
  
      // SimplePluginManager
      public void callEvent(@NotNull Event event) {

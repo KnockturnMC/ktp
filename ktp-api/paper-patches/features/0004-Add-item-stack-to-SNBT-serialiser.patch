@@ -10,10 +10,10 @@ readable compared to the existing ItemStack#toString() method that does
 only expose metadata known to the ItemMeta.
 
 diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
-index bb29c4c7237542e343db28c1a2f7d0fda12a7dc9..bfb0ee3c3448fb0bac3174b4fd7276c5e64cc887 100644
+index 39cc2b9dd517dee19f09b7839a92b1119077369a..ed2f0719bf2869ed98b881af278d632767b44b5c 100644
 --- a/src/main/java/org/bukkit/UnsafeValues.java
 +++ b/src/main/java/org/bukkit/UnsafeValues.java
-@@ -242,4 +242,7 @@ public interface UnsafeValues {
+@@ -277,4 +277,7 @@ public interface UnsafeValues {
       */
      @NotNull ItemStack deserializeItemHover(HoverEvent.@NotNull ShowItem itemHover);
  

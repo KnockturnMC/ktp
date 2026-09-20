@@ -12,10 +12,10 @@ LinkedSet for storing the data components, this leads to non consistent
 set order for tooltip displays across different JVMs.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-index 405d9367e3959c715d73505fd85fac3602e26116..68a020fc4637646e04c164379515994912fd6fd1 100644
+index b623a882a1bd04380e379a2662ab77e9247ceeff..001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-@@ -315,7 +315,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -316,7 +316,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
      private List<net.minecraft.advancements.predicates.BlockPredicate> canBreakPredicates;
  
      // hide_additional_tooltip backward compatibility based on TooltipDisplayComponentFix#CONVERTED_ADDITIONAL_TOOLTIP_TYPES
@@ -24,7 +24,7 @@ index 405d9367e3959c715d73505fd85fac3602e26116..68a020fc4637646e04c1643795159949
          DataComponents.BANNER_PATTERNS,
          DataComponents.BEES,
          DataComponents.BLOCK_ENTITY_DATA,
-@@ -334,7 +334,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -335,7 +335,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
          DataComponents.POTION_CONTENTS,
          DataComponents.TROPICAL_FISH_PATTERN,
          DataComponents.WRITTEN_BOOK_CONTENT

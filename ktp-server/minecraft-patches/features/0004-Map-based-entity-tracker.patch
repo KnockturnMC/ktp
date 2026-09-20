@@ -11,10 +11,10 @@ The visibility api introduced by bukkit is implemented with a
 pre-computed filtered list of effective trackers on the seen by tracker.
 
 diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
-index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031b7b2f374 100644
+index 3ed912fb19e1dfda7987fcf4b504aff5abccc46c..735a2c642e48b4bee48801907144f97aab77878b 100644
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
-@@ -1209,10 +1209,10 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1226,10 +1226,10 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
  
      public class TrackedEntity implements ServerEntity.Synchronizer, ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerTrackedEntity { // Paper - optimise entity tracker
          public final ServerEntity serverEntity;
@@ -27,7 +27,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
  
          // Paper start - optimise entity tracker
          private long lastChunkUpdate = -1L;
-@@ -1247,7 +1247,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1264,7 +1264,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
  
              if (lastChunkUpdate != currChunkUpdate || lastTrackedChunk != chunk) {
                  // need to purge any players possible not in the chunk list
@@ -36,7 +36,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                      final ServerPlayer player = conn.getPlayer();
                      if (!players.contains(player)) {
                          this.removePlayer(player);
-@@ -1259,7 +1259,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1276,7 +1276,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
          @Override
          public final void moonrise$removeNonTickThreadPlayers() {
              boolean foundToRemove = false;
@@ -45,7 +45,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                  if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(conn.getPlayer())) {
                      foundToRemove = true;
                      break;
-@@ -1270,7 +1270,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1287,7 +1287,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
                  return;
              }
  
@@ -54,7 +54,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                  ServerPlayer player = conn.getPlayer();
                  if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(player)) {
                      this.removePlayer(player);
-@@ -1285,7 +1285,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1302,7 +1302,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
              if (this.seenBy.isEmpty()) {
                  return;
              }
@@ -63,15 +63,15 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                  ServerPlayer player = conn.getPlayer();
                  this.removePlayer(player);
              }
-@@ -1298,6 +1298,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1315,6 +1315,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
          // Paper end - optimise entity tracker
  
-         public TrackedEntity(final Entity entity, final int range, final int updateInterval, final boolean trackDelta) {
+         public TrackedEntity(final Entity entity, final int range, final UpdateInterval updateInterval, final boolean trackDelta) {
 +            this.seenBy = new io.papermc.paper.network.PaperSeenByTracker(this); // KTP - map based tracker
              this.serverEntity = new ServerEntity(ChunkMap.this.level, entity, updateInterval, trackDelta, this, this.seenBy); // Paper
              this.entity = entity;
              this.range = range;
-@@ -1316,7 +1317,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1333,7 +1334,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
  
          @Override
          public void sendToTrackingPlayers(final Packet<? super ClientGamePacketListener> packet) {
@@ -80,7 +80,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                  connection.send(packet);
              }
          }
-@@ -1331,7 +1332,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1348,7 +1349,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
  
          @Override
          public void sendToTrackingPlayersFiltered(final Packet<? super ClientGamePacketListener> packet, final Predicate<ServerPlayer> targetPredicate) {
@@ -89,7 +89,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
                  if (targetPredicate.test(connection.getPlayer())) {
                      connection.send(packet);
                  }
-@@ -1339,19 +1340,14 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1356,19 +1357,14 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
          }
  
          public void broadcastRemoved() {
@@ -111,7 +111,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
          }
  
          public void updatePlayer(final ServerPlayer player) {
-@@ -1379,28 +1375,10 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1396,28 +1392,10 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
                      && this.entity.broadcastToPlayer(player)
                      && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x(), this.entity.chunkPosition().z());
                  // Paper end - Configurable entity tracking range by Y
@@ -144,7 +144,7 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
              }
          }
  
-@@ -1408,6 +1386,25 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+@@ -1425,6 +1403,25 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
              return ChunkMap.this.level.getServer().getScaledTrackingDistance(range);
          }
  
@@ -171,10 +171,10 @@ index 7f0df1c26f93d53b5925c564374f3e5fa6d966b3..a1a4c0782bfe88f5c6eea03dbb06b031
              // Paper start - optimise entity tracker
              final Entity entity = this.entity;
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index 60af82925d2f7e605bf7340cf01f1a5668f4d725..da1e7df920a2ebdfdd4897393a3507b9993093a2 100644
+index e46f95b19da1c14f240ec6697f22b5e220e0a835..1e0728e4a62ed6cb73cc41ce8f29aa2b4f66d336 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -69,10 +69,10 @@ public class ServerEntity {
+@@ -76,7 +76,7 @@ public class ServerEntity {
      private boolean wasRiding;
      private boolean wasOnGround;
      private @Nullable List<SynchedEntityData.DataValue<?>> trackedDataValues;
@@ -182,12 +182,17 @@ index 60af82925d2f7e605bf7340cf01f1a5668f4d725..da1e7df920a2ebdfdd4897393a3507b9
 +    private final io.papermc.paper.network.PaperSeenByTracker trackedPlayers; // KTP - map based tracker
  
      public ServerEntity(
--        final ServerLevel level, final Entity entity, final int updateInterval, final boolean trackDelta, final ServerEntity.Synchronizer synchronizer, final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers // Paper
-+        final ServerLevel level, final Entity entity, final int updateInterval, final boolean trackDelta, final ServerEntity.Synchronizer synchronizer, final io.papermc.paper.network.PaperSeenByTracker trackedPlayers // KTP - map based tracker
+         final ServerLevel level,
+@@ -84,7 +84,7 @@ public class ServerEntity {
+         final UpdateInterval updateInterval,
+         final boolean trackDelta,
+         final ServerEntity.Synchronizer synchronizer
+-        , final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers // Paper
++        , final io.papermc.paper.network.PaperSeenByTracker trackedPlayers // KTP - map based tracker
      ) {
          this.trackedPlayers = trackedPlayers; // Paper
          this.level = level;
-@@ -123,7 +123,7 @@ public class ServerEntity {
+@@ -133,7 +133,7 @@ public class ServerEntity {
                  MapId id = frame.cachedMapId; // Paper - Perf: Cache map ids on item frames
                  MapItemSavedData data = MapItem.getSavedData(id, this.level);
                  if (data != null) {
@@ -196,7 +201,7 @@ index 60af82925d2f7e605bf7340cf01f1a5668f4d725..da1e7df920a2ebdfdd4897393a3507b9
                          final ServerPlayer player = connection.getPlayer(); // Paper
                          data.tickCarriedBy(player, itemStack, frame);
                          Packet<?> packet = data.getUpdatePacket(id, player);
-@@ -310,14 +310,35 @@ public class ServerEntity {
+@@ -346,14 +346,35 @@ public class ServerEntity {
          player.connection.send(new ClientboundRemoveEntitiesPacket(this.entity.getId()));
      }
  
@@ -234,10 +239,10 @@ index 60af82925d2f7e605bf7340cf01f1a5668f4d725..da1e7df920a2ebdfdd4897393a3507b9
          if (this.entity.isRemoved()) {
              // CraftBukkit start - Remove useless error spam, just return
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index e93d14b64dd4c60f23b742ad36d99a766e1adee3..516373758ea6e462b0bbf546d296f306df5e169e 100644
+index d90d7c21bc51252a486799b1a0b018fcb12a8c00..dac627047036a1b6ecec1403ccac5541bf6a2213 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -706,7 +706,7 @@ public abstract class Entity
+@@ -713,7 +713,7 @@ public abstract class Entity
              }
              final ServerEntity serverEntity = tracker.serverEntity;
              final List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();

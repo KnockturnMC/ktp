@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile-upstream:master-labs <- required for --parents in COPY
 
-ARG ALPINE=alpine@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
-ARG CORRETTO=amazoncorretto@sha256:76fc623b7bece48dc080b105a68aab4bf54037443e669a78c8599b325368e046
+ARG ALPINE=alpine@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+ARG CORRETTO=amazoncorretto@sha256:0e4efd9e1cea5ff517e97e23c526a626fbf57ca272d12ff26c6b8e402832f9f3
 # The builder image, responsible for building the project from source state.
 # 25
 FROM ${CORRETTO} AS builder
@@ -29,7 +29,7 @@ RUN cp ktp-server/build/libs/ktp-paperclip-$(./gradlew printPaperVersion --quiet
 # Standalone image creating files for installing corretto
 FROM ${ALPINE} AS corretto-installer
 
-ARG CORRETTO_VERSION=amazon-corretto-25-x64-alpine-jdk.tar.gz
+ARG CORRETTO_VERSION=amazon-corretto-27-x64-alpine-jdk.tar.gz
 RUN wget https://corretto.aws/downloads/latest/${CORRETTO_VERSION}; \
     mkdir -p /usr/lib/jvm; \
     tar -xzvf ${CORRETTO_VERSION} --strip-components=1 -C /usr/lib/jvm;

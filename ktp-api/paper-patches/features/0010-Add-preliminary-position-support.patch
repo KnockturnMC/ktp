@@ -9,10 +9,10 @@ For this, this patch adds fundamental support to the API for position
 usage.
 
 diff --git a/src/main/java/io/papermc/paper/math/Position.java b/src/main/java/io/papermc/paper/math/Position.java
-index 2fad6604a0006d12eec484ed3f54ae3ad166fd1c..ab89365ec237a9f8866066bfb3008f07892959e8 100644
+index 0e9d8ab38e1f20cdd1ba639950adb30256cddd9b..eba21d6d88410b48ef19b54d87d341a405ad9a1a 100644
 --- a/src/main/java/io/papermc/paper/math/Position.java
 +++ b/src/main/java/io/papermc/paper/math/Position.java
-@@ -189,4 +189,57 @@ public interface Position {
+@@ -195,4 +195,57 @@ public interface Position {
      static FinePosition fine(final Location location) {
          return new FinePositionImpl(location.getX(), location.getY(), location.getZ());
      }
@@ -185,10 +185,10 @@ index d33ec8f850eb24e484aa19b0e02849f26ece4abe..c665de6b4f78562e82abbe09caba8dae
 +    // KTP end - preliminary position support
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index b734ca22ae96ac9fd846259c661fcead16e143cd..cab1aeccfce45beedbce5f4a897763fabe7e2f40 100644
+index 8a38daeb2939acc590e83c658180c27dc4405fe4..e60e18ca9cf93bcd39f14f0f705665172c7d2714 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -1682,7 +1682,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -1683,7 +1683,7 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
       */
      @NotNull
      default Collection<Entity> getNearbyEntities(@NotNull Location location, double x, double y, double z) {
@@ -197,7 +197,7 @@ index b734ca22ae96ac9fd846259c661fcead16e143cd..cab1aeccfce45beedbce5f4a897763fa
      }
  
      // Paper start - getEntity by UUID API
-@@ -4722,4 +4722,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4759,4 +4759,149 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      Vector computeCollisionCorrectedMovementFor(@NotNull Vector movement, @NotNull BoundingBox boundingBox);
      // KTP end - expose low level steering interceptors

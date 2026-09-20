@@ -33,10 +33,10 @@ As such, the impact will only be known once the patch has lived long
 enough in this fork and ran in production for detailed profiling.
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index f936da2a1ffef5fd84d8d63be3575fd06ac9a7b2..3ef672186010766598128d19e4ec30980b40906f 100644
+index 572b28fa8df0f441c07c5728e5b95c0337b189c0..27442888b744a36ccb7dc62cdd5dfcb80feccfe7 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -3866,4 +3866,19 @@ public class ServerGamePacketListenerImpl
+@@ -3922,4 +3922,19 @@ public class ServerGamePacketListenerImpl
          return this.playerGameConnection;
      }
      // Paper end

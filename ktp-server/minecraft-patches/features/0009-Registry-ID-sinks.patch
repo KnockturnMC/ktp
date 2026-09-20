@@ -10,7 +10,7 @@ The main usage for this is map and set implementations for these
 types, which can be based on BitSet and Object arrays respectively.
 
 diff --git a/net/minecraft/core/MappedRegistry.java b/net/minecraft/core/MappedRegistry.java
-index c79206e0eb455081f63cf4de2c97413638fd6596..a1f2eaf8d7e39d5492f1a59b3e3f25b6b78f8952 100644
+index 6405c8c92795232fd2ac3a4d7e2fb5e460c18d02..3bacec28cf410c5a3ec113d426449a95d78b682f 100644
 --- a/net/minecraft/core/MappedRegistry.java
 +++ b/net/minecraft/core/MappedRegistry.java
 @@ -140,6 +140,7 @@ public class MappedRegistry<T> implements WritableRegistry<T> {

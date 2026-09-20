@@ -9,19 +9,19 @@ events to be published by the server without impacting the overall
 performance too much.
 
 diff --git a/src/main/java/org/bukkit/event/Event.java b/src/main/java/org/bukkit/event/Event.java
-index f37826211bb40b92160695c39e2dff58c9adab20..96da6675876c0df0cbdd676676a95456917b3170 100644
+index 9a65ea2c349be17d6e5e1a1a07066ce2c395aa91..a2fa37c27964cbffabc349b7ceef698219fc641b 100644
 --- a/src/main/java/org/bukkit/event/Event.java
 +++ b/src/main/java/org/bukkit/event/Event.java
-@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
+@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
+  */
  public abstract class Event {
  
-     private String name;
 -    private final boolean isAsync;
 +    private final net.kyori.adventure.util.TriState isAsync; // KTP - optimize spigot event bus
  
      /**
       * The default constructor is defined for cleaner code. This constructor
-@@ -34,9 +34,36 @@ public abstract class Event {
+@@ -33,9 +33,36 @@ public abstract class Event {
       *     by default from default constructor
       */
      public Event(boolean isAsync) {
@@ -58,7 +58,7 @@ index f37826211bb40b92160695c39e2dff58c9adab20..96da6675876c0df0cbdd676676a95456
      /**
       * Calls the event and tests if cancelled.
       *
-@@ -91,7 +118,7 @@ public abstract class Event {
+@@ -87,7 +114,7 @@ public abstract class Event {
       * @return {@code false} by default, {@code true} if the event fires asynchronously
       */
      public final boolean isAsynchronous() {

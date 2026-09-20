@@ -7,10 +7,10 @@ Exposes the internally maintained identifier int of a player for plugin
 mapping purposes.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 741b99dd25d924331b808a1bd4007ae5c5f241b4..0d87a07a1182aabc55bab83ee7a0ddc5944d990f 100644
+index 1585bca050a91a7f9f5548e1c1de3ccc62b2aa01..d384d87ce2f2d416341008e044bf0860f09d7c8f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3430,4 +3430,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3458,4 +3458,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          return com.destroystokyo.paper.profile.CraftPlayerProfile.asBukkitCopy(this.getHandle().originalGameProfile);
      }
      // KTP end - expose original game profile
