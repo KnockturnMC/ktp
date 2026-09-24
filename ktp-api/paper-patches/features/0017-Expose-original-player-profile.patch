@@ -9,10 +9,10 @@ usernames.
 Expose the original player profile for this usecase.
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index a6ed6ad7884f7541d5711c203a5ef4f97c40384e..c1a87d207e26ac36f439b3b0e600a922506bdcaf 100644
+index 3e53a99a65357a38b28e0d311374dc0a18632503..a570a593d623652eef86d44ab8401a7df445ae18 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -4103,4 +4103,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -4111,4 +4111,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
  0     */
      net.kyori.adventure.util.TriState glowOverride(Entity entity);
      // KTP end - glow override

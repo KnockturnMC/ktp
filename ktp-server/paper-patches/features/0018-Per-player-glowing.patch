@@ -128,14 +128,14 @@ index ea08eceb04a8d956c11cb73ffbae6391642d3f1c..38192e6373acc6b882faca7c2e0476df
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index c195476c1a97952a2017187e100c81dfb22d3d12..fc768eb251ded0495afc4b9ebfbc3d8447e15081 100644
+index 4b0a95a6dbf1e2ae6c8b8f8626ba619708b750f7..72e0c625d9e4e4b98b383e2a2547cf66249bda1c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3416,4 +3416,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
-         this.getHandle().fixedPose = false;
-         this.getHandle().updatePlayerPose();
+@@ -3423,4 +3423,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+     public PlayerPostEffects postEffects() {
+         return new PaperPlayerPostEffects(this.getHandle());
      }
-+
++    
 +    // KTP start - glow override
 +    private final it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap<UUID> glowOverrides = new it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap<>();
 +    @Override

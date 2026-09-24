@@ -123,10 +123,10 @@ index 47ab1c2bb22568b6af4e86cbce83b344fbceec4e..1c5f8b0c536c9acef78cf767d5b98b1d
          return (packet, distance) -> this.world.getServer().getPlayerList().broadcast(null, x, y, z, distance, this.world.dimension(), packet);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index f53ac7f08252d8191f2e34000d0a96271f0c25e5..41340d09666f82f338fdd266207340c10addc63c 100644
+index 9ab8a98b8bfe9a90f504ad09c47a1a6b411c9166..a6cc4a4ff2b0b29bf7c42fe5b02476f390e75e65 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -2980,7 +2980,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -2982,7 +2982,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
  
      @Override
      public void playSound(final net.kyori.adventure.sound.Sound sound, final double x, final double y, final double z) {
@@ -135,7 +135,7 @@ index f53ac7f08252d8191f2e34000d0a96271f0c25e5..41340d09666f82f338fdd266207340c1
      }
  
      @Override
-@@ -2993,9 +2993,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -2995,9 +2995,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
          } else {
              throw new IllegalArgumentException("Sound emitter must be an Entity or self(), but was: " + emitter);
          }

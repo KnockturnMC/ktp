@@ -5,10 +5,10 @@ Subject: [PATCH] Add faked player spectate target change method
 
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index e72d4066c0b1f7e7062d3d420be1c6526b9f2192..756d831870b2e198f39b290bdc50dae9816a0b0f 100644
+index 190313bc060d5f8440cec7c249ad1d2f1074f5bc..3768a853ee0dbf513aecb61a88321fa3ac48e8d0 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -1337,6 +1337,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -1338,6 +1338,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       */
      public void sendMap(MapView map);
  

@@ -9,10 +9,10 @@ usernames.
 Expose the original player profile for this usecase.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index fc768eb251ded0495afc4b9ebfbc3d8447e15081..e7524499f4fbec9ced35269a87184edf964756e9 100644
+index 72e0c625d9e4e4b98b383e2a2547cf66249bda1c..385cc345470eb28d93fce4daa7357d57adf7cf92 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3452,4 +3452,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3459,4 +3459,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
              : net.kyori.adventure.util.TriState.NOT_SET;
      }
      // KTP end - glow override

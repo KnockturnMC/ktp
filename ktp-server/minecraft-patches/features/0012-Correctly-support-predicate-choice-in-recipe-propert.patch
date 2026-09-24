@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Thu, 24 Sep 2026 20:46:02 +0100
+Subject: [PATCH] Correctly support predicate choice in recipe property set
+
+
+diff --git a/net/minecraft/world/item/crafting/RecipePropertySet.java b/net/minecraft/world/item/crafting/RecipePropertySet.java
+index 7387f1ec70ae535714d6c035200a60be3123e6ca..2c6029ebbfb9956060947a1cb19903fd268c0ef4 100644
+--- a/net/minecraft/world/item/crafting/RecipePropertySet.java
++++ b/net/minecraft/world/item/crafting/RecipePropertySet.java
+@@ -32,8 +32,18 @@ public class RecipePropertySet {
+         .map(holders -> new RecipePropertySet(Set.copyOf(holders)), propertySet -> List.copyOf(propertySet.items));
+     public static final RecipePropertySet EMPTY = new RecipePropertySet(Set.of());
+     private final Set<Holder<Item>> items;
++    // KTP start - properly support predicate item choice in recipe property set
++    private final Set<Holder<Item>> serverSideItems;
++    private final List<java.util.function.Predicate<ItemStack>> itemStackPredicates;
+ 
+     private RecipePropertySet(final Set<Holder<Item>> items) {
++        this(items, items, java.util.Collections.emptyList());
++    }
++
++    public RecipePropertySet(final Set<Holder<Item>> items, final Set<Holder<Item>> serverSideItems, final List<java.util.function.Predicate<ItemStack>> itemStackPredicates) {
++        this.serverSideItems = serverSideItems;
++        this.itemStackPredicates = itemStackPredicates;
++    // KTP end - properly support predicate item choice in recipe property set
+         this.items = items;
+     }
+ 
+@@ -42,11 +52,21 @@ public class RecipePropertySet {
+     }
+ 
+     public boolean test(final ItemStack itemStack) {
+-        return this.items.contains(itemStack.typeHolder());
++        return this.serverSideItems.contains(itemStack.typeHolder()) || com.google.common.collect.Iterables.any(this.itemStackPredicates, p -> p.test(itemStack)); // KTP - properly support predicate item choice in recipe property set
+     }
+ 
+     public static RecipePropertySet create(final Collection<Ingredient> ingredients) {
+         Set<Holder<Item>> items = ingredients.stream().flatMap(Ingredient::items).collect(Collectors.toUnmodifiableSet());
++        // KTP start - properly support predicate item choice in recipe property set
++        final List<java.util.function.Predicate<ItemStack>> predicates = ingredients.stream().filter(i -> i.stackPredicate != null).map(i -> i.stackPredicate).toList();
++        if (!predicates.isEmpty()) {
++            return new RecipePropertySet(
++                net.minecraft.core.registries.BuiltInRegistries.ITEM.listElements().collect(Collectors.toSet()),
++                items,
++                predicates
++            );
++        }
++        // KTP end - properly support predicate item choice in recipe property set
+         return new RecipePropertySet(items);
+     }
+ }
