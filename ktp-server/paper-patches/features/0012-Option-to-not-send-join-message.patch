@@ -1,23 +1,22 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Bjarne Koll <git@lynxplay.dev>
 Date: Tue, 20 May 2025 01:40:52 +0200
-Subject: [PATCH] Limbo server config
+Subject: [PATCH] Option to not send join message
 
-The void server should not be sending *any* packets outside of the login
-packet to not confuse the client when quickly switching.
+Less footprint than an additional plugin just to disable this.
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 9e3720598ad0011b7c24c3c424f61bfb9714369c..2a4247f241faaa6bcf229524e14e2782cda9008f 100644
+index 9e3720598ad0011b7c24c3c424f61bfb9714369c..aa19aefc57b88f731df9a2ab1decaa9a1160acc3 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 @@ -189,6 +189,10 @@ public class GlobalConfiguration extends ConfigurationPart {
          @Comment("This setting controls if the server should consider a message with an invalid or missing signature as unsigned or not")
          public boolean considerInvalidMessageSignatureAsUnsigned = false;
          // KTP end - invalid signature unsigned message fallback
-+        // KTP start - limbo server
-+        @Comment("This setting controls if the server should send anything more than just the login packet in the game phase.")
-+        public boolean limboServer = false;
-+        // KTP end - limbo server
++        // KTP start - no join messages
++        @Comment("This setting controls if the server should send join messages")
++        public boolean noJoinMessage = false;
++        // KTP end - no join messages
      }
  
      public Commands commands;
