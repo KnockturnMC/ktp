@@ -7,14 +7,14 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..6473befcc4d8cf5f5bdaf433fab14b3e3a417b84 100644
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..e642fa9762659759596c4c8805c77c9dfc49fef6 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -218,6 +218,7 @@ public abstract class PlayerList {
-         component.withStyle(ChatFormatting.YELLOW);
-         Component joinMessage = component; // Paper - Adventure
-         playerConnection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+@@ -235,6 +235,7 @@ public abstract class PlayerList {
+         this.server.getCustomBossEvents().onPlayerConnect(player); // see commented out section below serverLevel.addPlayerJoin(player);
+         // Paper end - Fire PlayerJoinEvent when Player is actually ready
+         player.initInventoryMenu();
 +        if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.limboServer) return; // KTP - limbo server
-         ServerStatus status = this.server.getStatus();
-         if (status != null && !cookie.transferred()) {
-             player.sendServerStatus(status);
+         // CraftBukkit start
+         org.bukkit.craftbukkit.entity.CraftPlayer bukkitPlayer = player.getBukkitEntity();
+ 
