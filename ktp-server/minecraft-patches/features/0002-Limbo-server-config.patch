@@ -7,14 +7,14 @@ The void server should not be sending *any* packets outside of the login
 packet to not confuse the client when quickly switching.
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 42fd84f078eb3268d820de8f211e78023eab85f9..171d0b855540b6ff6a577b2361985a77362fe75d 100644
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..6473befcc4d8cf5f5bdaf433fab14b3e3a417b84 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -194,6 +194,7 @@ public abstract class PlayerList {
-                 this.server.enforceSecureProfile()
-             )
-         );
+@@ -218,6 +218,7 @@ public abstract class PlayerList {
+         component.withStyle(ChatFormatting.YELLOW);
+         Component joinMessage = component; // Paper - Adventure
+         playerConnection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
 +        if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.limboServer) return; // KTP - limbo server
-         player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
-         playerConnection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
-         playerConnection.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+         ServerStatus status = this.server.getStatus();
+         if (status != null && !cookie.transferred()) {
+             player.sendServerStatus(status);
