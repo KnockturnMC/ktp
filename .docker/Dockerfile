@@ -19,7 +19,8 @@ COPY --parents build-data gradle.properties gradlew gradle/ build.gradle.kts set
 RUN ./gradlew applyAllPatches --no-daemon
 
 # Copy over the entire rest of the repo needed for a proper build.
-COPY --parents .git ktp-api ktp-server .
+COPY --parents ktp-api ktp-server .
+COPY --parents .git .
 
 # Compile ktp to paperclip jar
 RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createPaperclipJar --no-daemon
