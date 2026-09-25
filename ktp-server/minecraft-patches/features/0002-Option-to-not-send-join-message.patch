@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 20 May 2025 01:41:09 +0200
+Subject: [PATCH] Option to not send join message
+
+Less footprint than an additional plugin just to disable this.
+
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..58ef94b7f40bee1a64a0d7052c85c5cbe9fe97e6 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -213,6 +213,7 @@ public abstract class PlayerList {
+         } else {
+             component = Component.translatable("multiplayer.player.joined.renamed", player.getDisplayName(), oldName);
+         }
++        if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.noJoinMessage) component = null; // KTP - no join messages
+ 
+         // CraftBukkit start
+         component.withStyle(ChatFormatting.YELLOW);
