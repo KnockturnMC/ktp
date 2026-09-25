@@ -67,14 +67,21 @@ ENV SERVER_MEMORY="1G"
 COPY .docker/run.sh /bin/run.sh
 
 RUN echo "eula=true" >> eula.txt
-COPY --from=builder /work/server.jar /bin/server.jar
 
 ENTRYPOINT ["bash", "/bin/run.sh"]
 
-# The final image, copying over the jbr binaries
-FROM runner-base AS runner-jbr
+# The pre final image, copying over the jbr binaries
+FROM runner-base AS runner-jbr-java
 COPY --from=jbr-installer /usr/lib/jvm /usr/lib/jvm
 
-# The final image, copying over the corretto binaries
-FROM runner-base AS runner-corretto
+# The pre final image, copying over the corretto binaries
+FROM runner-base AS runner-corretto-java
 COPY --from=corretto-installer /usr/lib/jvm /usr/lib/jvm
+
+# The pre final image, copying over the jbr binaries
+FROM runner-jbr-java AS runner-jbr
+COPY --from=builder /work/server.jar /bin/server.jar
+
+# The pre final image, copying over the corretto binaries
+FROM runner-corretto-java AS runner-corretto
+COPY --from=builder /work/server.jar /bin/server.jar
