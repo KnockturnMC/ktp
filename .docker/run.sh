@@ -14,6 +14,11 @@ else
     EXTRA_ARGS=("--add-modules=jdk.incubator.vector") # Enable vector support on corretto prod builds
 fi
 
+SERVER_PATH="/bin/server.jar"
+if [ -f ".override_docker_jar" ]; then
+    SERVER_PATH="server.jar"
+fi
+
 exec /usr/lib/jvm/bin/java -Xms"$SERVER_MEMORY" -Xmx"$SERVER_MEMORY" -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 \
 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
@@ -21,4 +26,4 @@ exec /usr/lib/jvm/bin/java -Xms"$SERVER_MEMORY" -Xmx"$SERVER_MEMORY" -XX:+UseG1G
 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M "${EXTRA_ARGS[@]}" "${DEBUG_ARG[@]}" -XX:G1ReservePercent=20 -jar \
 -Dworldedit.bukkit.adapter=com.sk89q.worldedit.bukkit.adapter.impl.v26_2.PaperweightAdapter \
 -Dpaper.maxChatCommandInputSize=2048 \
-/bin/server.jar --nogui
+"$SERVER_PATH" --nogui
