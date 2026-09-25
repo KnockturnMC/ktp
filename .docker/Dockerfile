@@ -2,30 +2,6 @@
 
 ARG ALPINE=alpine@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
 ARG CORRETTO=amazoncorretto@sha256:0e4efd9e1cea5ff517e97e23c526a626fbf57ca272d12ff26c6b8e402832f9f3
-# The builder image, responsible for building the project from source state.
-# 25
-FROM ${CORRETTO} AS builder
-RUN yum install -y git findutils
-RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
-
-WORKDIR /work
-
-# Copy the minimal amount of files needed to first download and patch a 0 patch fork.
-# This way, buildx can cache the base fork setup/decompilation steps etc.
-# Improves build speeds in case only code was changed.
-COPY --parents build-data gradle.properties gradlew gradle/ build.gradle.kts settings.gradle.kts **/*.kts.patch .
-
-# Apply 0 fork patches to cache fork setup
-RUN ./gradlew applyAllPatches --no-daemon
-
-# Copy over the entire rest of the repo needed for a proper build.
-COPY --parents ktp-api ktp-server .
-COPY --parents .git .
-
-# Compile ktp to paperclip jar
-RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createPaperclipJar --no-daemon
-
-RUN cp ktp-server/build/libs/ktp-paperclip-$(./gradlew printPaperVersion --quiet).jar server.jar
 
 # Standalone image creating files for installing corretto
 FROM ${ALPINE} AS corretto-installer
@@ -78,6 +54,31 @@ COPY --from=jbr-installer /usr/lib/jvm /usr/lib/jvm
 # The pre final image, copying over the corretto binaries
 FROM runner-base AS runner-corretto-java
 COPY --from=corretto-installer /usr/lib/jvm /usr/lib/jvm
+
+# The builder image, responsible for building the project from source state.
+# 25
+FROM ${CORRETTO} AS builder
+RUN yum install -y git findutils
+RUN git config --global user.name "ci"; git config --global user.email "ci@ci.ci"
+
+WORKDIR /work
+
+# Copy the minimal amount of files needed to first download and patch a 0 patch fork.
+# This way, buildx can cache the base fork setup/decompilation steps etc.
+# Improves build speeds in case only code was changed.
+COPY --parents build-data gradle.properties gradlew gradle/ build.gradle.kts settings.gradle.kts **/*.kts.patch .
+
+# Apply 0 fork patches to cache fork setup
+RUN ./gradlew applyAllPatches --no-daemon
+
+# Copy over the entire rest of the repo needed for a proper build.
+COPY --parents ktp-api ktp-server .
+COPY --parents .git .
+
+# Compile ktp to paperclip jar
+RUN ./gradlew applyAllPatches --no-daemon; ./gradlew createPaperclipJar --no-daemon
+
+RUN cp ktp-server/build/libs/ktp-paperclip-$(./gradlew printPaperVersion --quiet).jar server.jar
 
 # The pre final image, copying over the jbr binaries
 FROM runner-jbr-java AS runner-jbr

@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Fri, 25 Sep 2026 20:41:24 +0100
+Subject: [PATCH] Restrict vanilla command permissions
+
+Enables a present non-granting permission to remove permissions from
+vanilla commands.
+
+diff --git a/net/minecraft/commands/CommandSourceStack.java b/net/minecraft/commands/CommandSourceStack.java
+index 7cbcc8865893ea4f7fae8da13f534c65fcdcd216..dbb7c3ebbffa5343e135c6476dd71d651852c2d1 100644
+--- a/net/minecraft/commands/CommandSourceStack.java
++++ b/net/minecraft/commands/CommandSourceStack.java
+@@ -421,19 +421,24 @@ public class CommandSourceStack implements SharedSuggestionProvider, ExecutionCo
+     // CraftBukkit start
+     public boolean hasPermission(net.minecraft.server.permissions.Permission permission, String bukkitPermission) {
+         // Paper start - Fix permission levels for command blocks
+-        final java.util.function.BooleanSupplier hasBukkitPerm = () -> this.source == CommandSource.NULL /*treat NULL as having all bukkit perms*/ || this.getBukkitSender().hasPermission(bukkitPermission); // lazily check bukkit perms to the benefit of custom permission setups
++        // KTP start - respect negated permissions from bukkit permission
++        final java.util.function.Supplier<net.kyori.adventure.util.TriState> hasBukkitPerm = () -> {
++            if (this.source == CommandSource.NULL) return net.kyori.adventure.util.TriState.TRUE;
++            else return this.getBukkitSender().permissionValue(bukkitPermission);
++        }; // lazily check bukkit perms to the benefit of custom permission setups
++        // KTP end - respect negated permissions from bukkit permission
+         // if the server is null, we must check the vanilla perm level system
+         // if ignoreVanillaPermissions is true, we can skip vanilla perms and just run the bukkit perm check
+         //noinspection ConstantValue
+         if (this.getServer() == null || !this.getServer().server.ignoreVanillaPermissions) { // server & level are null for command function loading
+             final boolean hasPermLevel = this.permissions.hasPermission(permission);
+             if (this.forceRespectPermissionLevel()) { // NULL CommandSource and command blocks (if setting is enabled) should always pass the vanilla perm check
+-                return hasPermLevel && hasBukkitPerm.getAsBoolean();
++                return hasPermLevel && hasBukkitPerm.get().toBooleanOrElse(false); // KTP - respect negated permissions from bukkit permission
+             } else { // otherwise check vanilla perm first then bukkit perm, matching upstream behavior
+-                return hasPermLevel || hasBukkitPerm.getAsBoolean();
++                return hasBukkitPerm.get().toBooleanOrElse(hasPermLevel); // KTP - respect negated permissions from bukkit permission - only yield true if has bukkit perm or non defined but has vanilla perm
+             }
+         }
+-        return hasBukkitPerm.getAsBoolean();
++        return hasBukkitPerm.get().toBooleanOrElse(false); // KTP start - respect negated permissions from bukkit permission
+         // Paper end - Fix permission levels for command blocks
+     }
+     // CraftBukkit end
