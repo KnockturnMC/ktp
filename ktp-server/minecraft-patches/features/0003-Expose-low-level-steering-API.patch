@@ -5,7 +5,7 @@ Subject: [PATCH] Expose low level steering API
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 1732a7c8061ccd519df36e6910c40e76d42c0cc4..d90d7c21bc51252a486799b1a0b018fcb12a8c00 100644
+index 1732a7c8061ccd519df36e6910c40e76d42c0cc4..fcc840cba5be3a0864b7b8a9d276bac6ccb07045 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -1653,7 +1653,12 @@ public abstract class Entity
@@ -15,9 +15,9 @@ index 1732a7c8061ccd519df36e6910c40e76d42c0cc4..d90d7c21bc51252a486799b1a0b018fc
 -    private Vec3 collide(final Vec3 movement) {
 +    // KTP start - expose to static environment
 +    public Vec3 collide(final Vec3 movement) {
-+        return collideStatic(movement, this.level, this.getBoundingBox(), this);
++        return collideStatic(movement, this.level, this.getBoundingBox(), this.maxUpStep(), this);
 +    }
-+    public static Vec3 collideStatic(final Vec3 movement, final Level level, final AABB boundingBox, final @javax.annotation.Nullable Entity entity) {
++    public static Vec3 collideStatic(final Vec3 movement, final Level level, final AABB boundingBox, final double maxStepUp, final @javax.annotation.Nullable Entity entity) {
 +    // KTP end - expose to static environment
          // Paper start - optimise collisions
          final boolean xZero = movement.x == 0.0;
@@ -36,7 +36,7 @@ index 1732a7c8061ccd519df36e6910c40e76d42c0cc4..d90d7c21bc51252a486799b1a0b018fc
          // there is no horizontal movement the step logic cannot run, so keep the smaller query.
          final AABB entityQueryBox = (xZero & zZero) ? initialCollisionBox
 -            : initialCollisionBox.expandTowards(0.0, (double)this.maxUpStep(), 0.0);
-+            : initialCollisionBox.expandTowards(0.0, (double)entity.maxUpStep(), 0.0); // KTP - expose to static environment
++            : initialCollisionBox.expandTowards(0.0, (double)maxStepUp, 0.0); // KTP - expose to static environment
          ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getEntityHardCollisions(
 -            this.level, (Entity)(Object)this, entityQueryBox, entityAABBs, 0, null
 +            level, (Entity)(Object)entity, entityQueryBox, entityAABBs, 0, null // KTP - expose to static environment
