@@ -385,10 +385,10 @@ index 0000000000000000000000000000000000000000..6af66024b8c8adf7aac86578581cff8e
 +
 +}
 diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
-index 3fd8ef8afe32117820e29320fde3f8950933ced8..017e9f1c43b7e91071cd849e59c911fb8638fb33 100644
+index 52ca9eb5408b81126a614686939574bed5d088c0..85c8072e51636fa0fe65f5cd7fd8dcc3ba2cfa9e 100644
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2835,6 +2835,15 @@ public final class Bukkit {
+@@ -2843,6 +2843,15 @@ public final class Bukkit {
          return server.getPotionBrewer();
      }
      // Paper end
@@ -405,10 +405,10 @@ index 3fd8ef8afe32117820e29320fde3f8950933ced8..017e9f1c43b7e91071cd849e59c911fb
      // Paper start - Folia region threading API
      /**
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 9069939b755b1aaec15be572b979ef908ad61b27..71782cc38d171a228b809d1c75600e7cfd2f4a00 100644
+index ef0069ed4c1d0d0c961ffdcd3159fe5508396bc9..a660017cfd9d634860ac4b8b60317e924ba34298 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2778,4 +2778,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2786,4 +2786,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
       */
      void allowPausing(@NotNull org.bukkit.plugin.Plugin plugin, boolean value);
      // Paper end - API to check if the server is sleeping
