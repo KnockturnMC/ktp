@@ -1,5 +1,25 @@
 --- a/paper-api/build.gradle.kts
 +++ b/paper-api/build.gradle.kts
+@@ -5,7 +_,6 @@
+     `java-library`
+     `maven-publish`
+     idea
+-    id("io.papermc.paperweight.paper-checkstyle")
+ }
+ 
+ java {
+@@ -17,11 +_,6 @@
+     JavadocTag("apiNote", "a", "API Note:"),
+ )
+ 
+-paperCheckstyle {
+-    customJavadocTags = projectCustomJavadocTags
+-    directoriesToSkipFile = layout.projectDirectory.file(".checkstyle/ignored_directories.txt")
+-}
+-
+ val annotationsVersion = "26.1.0"
+ val adventureVersion = "5.2.0"
+ val bungeeCordChatVersion = "1.21-R0.2-deprecated+build.21"
 @@ -75,6 +_,7 @@
      apiAndDocs("net.kyori:adventure-text-serializer-gson")
      apiAndDocs("net.kyori:adventure-text-serializer-legacy")
