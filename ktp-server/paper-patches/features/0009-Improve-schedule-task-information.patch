@@ -13,10 +13,10 @@ fetch the implementation class type of overdue tasks from BukkitWorker
 instances which are displayed in the nag message on shutdown.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 84f2c16e9928bc7665ed5555c660ded1c0febb7a..eceda81b79c343231f4bce99d254b35f1e27d7df 100644
+index 092f35190ce87ec817c85147bf26664300d1f9c1..65c316d27fe02e78c52b440734028a98d454f9f3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1039,9 +1039,10 @@ public final class CraftServer implements Server {
+@@ -1017,9 +1017,10 @@ public final class CraftServer implements Server {
          for (BukkitWorker worker : overdueWorkers) {
              Plugin plugin = worker.getOwner();
              this.getLogger().log(Level.SEVERE, String.format(
@@ -28,7 +28,7 @@ index 84f2c16e9928bc7665ed5555c660ded1c0febb7a..eceda81b79c343231f4bce99d254b35f
                  "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
              ));
              if (console.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread(worker.getThread(), "still running"); // Paper - Debugging
-@@ -1077,9 +1078,10 @@ public final class CraftServer implements Server {
+@@ -1055,9 +1056,10 @@ public final class CraftServer implements Server {
          for (BukkitWorker worker : overdueWorkers) {
              Plugin plugin = worker.getOwner();
              getLogger().log(Level.SEVERE, String.format(

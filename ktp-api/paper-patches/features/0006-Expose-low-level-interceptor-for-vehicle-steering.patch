@@ -52,10 +52,10 @@ index 0000000000000000000000000000000000000000..8c302b7790ffa9b1be42b35a5f7ae997
 +    SHULKER;
 +}
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 0d39006698a60f7dbf47892e80c2d3b0c9f4f027..8a38daeb2939acc590e83c658180c27dc4405fe4 100644
+index fb5be7bfbc68cfc8a0df76c560468b9d02308710..afc67fce6a4bee4cf7612100b9aab2b298077232 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4745,4 +4745,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4799,4 +4799,18 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
              }
          }
      }
@@ -75,13 +75,13 @@ index 0d39006698a60f7dbf47892e80c2d3b0c9f4f027..8a38daeb2939acc590e83c658180c27d
 +    // KTP end - expose low level steering interceptors
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index 00376681df7492ac0e080dcb86284ce15d5acf70..3a1cf7935b21ac6bb53912c51baf83d1b7901923 100644
+index f4c103b72e7e3a55a28434b5606cc3d0f70c3906..f161861f56e315e6705a396201859890d72f5736 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1359,4 +1359,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+@@ -1400,4 +1400,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+      * @throws IllegalArgumentException if {@code this} is contained in {@code players}
       */
      void broadcastHurtAnimation(@NotNull java.util.Collection<Player> players);
-     // Paper end - broadcast hurt animation
 +    // KTP start
 +
 +    /**

@@ -128,10 +128,10 @@ index ea08eceb04a8d956c11cb73ffbae6391642d3f1c..38192e6373acc6b882faca7c2e0476df
 +    // KTP end - glow override
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 4b0a95a6dbf1e2ae6c8b8f8626ba619708b750f7..72e0c625d9e4e4b98b383e2a2547cf66249bda1c 100644
+index d6541a5ffefcc3e47386e94a30733a16cf0aac2a..e8587fb2198c13d3f5dc0a0e214a9b592d3f8d0c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3423,4 +3423,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3422,4 +3422,40 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
      public PlayerPostEffects postEffects() {
          return new PaperPlayerPostEffects(this.getHandle());
      }
