@@ -7,10 +7,10 @@ Exposes the internally maintained identifier int of a player for plugin
 mapping purposes.
 
 diff --git a/src/main/java/org/bukkit/entity/Player.java b/src/main/java/org/bukkit/entity/Player.java
-index a570a593d623652eef86d44ab8401a7df445ae18..8cbe97e6d76a51b2b6f5d2efff7bf2c8b74a6921 100644
+index c635f2d66050516c7f2dbac6c65eeb28e5ba9c4f..292f2ee2d7c608ad470d4818126180be296825d4 100644
 --- a/src/main/java/org/bukkit/entity/Player.java
 +++ b/src/main/java/org/bukkit/entity/Player.java
-@@ -4117,4 +4117,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
+@@ -4128,4 +4128,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
       */
      com.destroystokyo.paper.profile.PlayerProfile getOriginalPlayerProfile();
      // KTP end - expose original game profile

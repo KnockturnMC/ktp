@@ -40,10 +40,10 @@ index 0000000000000000000000000000000000000000..c91cb72a4a0e4b3a68ae2b78017621e0
 +
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75d7b4d97d 100644
+index 6afacc88d56608213e7808415a012531222720b3..981aa443b332e7da79b39ace0455f6cb165e85e6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-@@ -386,7 +386,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -388,7 +388,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
  
          this.repairCost = meta.repairCost;
          if (meta.tooltipDisplay != null) {
@@ -52,7 +52,7 @@ index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75
          }
          this.tooltipStyle = meta.tooltipStyle;
          this.itemModel = meta.itemModel;
-@@ -466,7 +466,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -468,7 +468,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
          });
  
          getOrEmpty(patch, CraftMetaItem.TOOLTIP_DISPLAY).ifPresent((tooltipDisplay) -> {
@@ -61,7 +61,7 @@ index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75
          });
  
          getOrEmpty(patch, CraftMetaItem.TOOLTIP_STYLE).ifPresent((tooltipStyle) -> {
-@@ -977,7 +977,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -979,7 +979,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
          }
  
          if (this.tooltipDisplay != null) {
@@ -70,7 +70,7 @@ index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75
          }
  
          if (this.hasTooltipStyle()) {
-@@ -1309,7 +1309,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -1311,7 +1311,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
      @Override
      public void addItemFlags(ItemFlag... hideFlags) {
          if (this.tooltipDisplay == null) {
@@ -79,7 +79,7 @@ index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75
          }
          for (ItemFlag f : hideFlags) {
              this.tooltipDisplay.hiddenComponents().addAll(ITEM_FLAG_EQUIVALENTS.get(f));
-@@ -1487,7 +1487,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -1489,7 +1489,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
      @Override
      public void setHideTooltip(boolean hideTooltip) {
          if (this.tooltipDisplay == null) {
@@ -88,7 +88,7 @@ index 001472fe39da2ae301cd9bc1a6c736ca2f4ca1cf..356ff165ecaf435da702d6016d59dc75
          } else {
              this.tooltipDisplay = new TooltipDisplay(hideTooltip, this.tooltipDisplay.hiddenComponents());
          }
-@@ -2105,7 +2105,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
+@@ -2107,7 +2107,7 @@ public class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDat
              clone.removedTags = Sets.newHashSet(this.removedTags);
              clone.persistentDataContainer = new CraftPersistentDataContainer(this.persistentDataContainer.getTagsCloned(), CraftMetaItem.DATA_TYPE_REGISTRY); // Paper - deep clone NBT tags
              if (this.tooltipDisplay != null) {

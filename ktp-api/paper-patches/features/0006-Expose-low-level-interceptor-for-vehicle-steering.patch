@@ -75,13 +75,13 @@ index fb5be7bfbc68cfc8a0df76c560468b9d02308710..afc67fce6a4bee4cf7612100b9aab2b2
 +    // KTP end - expose low level steering interceptors
  }
 diff --git a/src/main/java/org/bukkit/entity/Entity.java b/src/main/java/org/bukkit/entity/Entity.java
-index f4c103b72e7e3a55a28434b5606cc3d0f70c3906..f161861f56e315e6705a396201859890d72f5736 100644
+index 91e73dd4779bf97da7f029c56f95c4d9b9b2d5c8..94da6778763fd861516331657d90f3c54b3dedd6 100644
 --- a/src/main/java/org/bukkit/entity/Entity.java
 +++ b/src/main/java/org/bukkit/entity/Entity.java
-@@ -1400,4 +1400,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
-      * @throws IllegalArgumentException if {@code this} is contained in {@code players}
+@@ -1450,4 +1450,46 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
+      * @param namespaced the namespaced of the rule
       */
-     void broadcastHurtAnimation(@NotNull java.util.Collection<Player> players);
+     void removeAdditionalAlliedRule(@NotNull Namespaced namespaced);
 +    // KTP start
 +
 +    /**
