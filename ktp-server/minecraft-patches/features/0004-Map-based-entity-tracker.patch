@@ -239,10 +239,10 @@ index e46f95b19da1c14f240ec6697f22b5e220e0a835..1e0728e4a62ed6cb73cc41ce8f29aa2b
          if (this.entity.isRemoved()) {
              // CraftBukkit start - Remove useless error spam, just return
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index fcc840cba5be3a0864b7b8a9d276bac6ccb07045..6a30d88cef3ac5e6917146556b602795be38767c 100644
+index 095b5be1ea6899d9ed60df156755e91660f38cc0..0ed431306da127c9032c69e66653b4f929ad34fd 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -713,7 +713,7 @@ public abstract class Entity
+@@ -714,7 +714,7 @@ public abstract class Entity
              }
              final ServerEntity serverEntity = tracker.serverEntity;
              final List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
