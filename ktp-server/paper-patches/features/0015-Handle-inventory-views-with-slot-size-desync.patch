@@ -40,10 +40,10 @@ index 48c0a876fd54b44023416d15994e2b5a88c435e0..f379e64e85c0c710ae71c6e0f3463a3d
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-index 2f41a92465b9da28e026297cc3528898bb1c8412..cc8e9224b24fb2ee92648b9c8681ce6bb356d20a 100644
+index f97640116f7ddb6a968b8c599469f9d67fe7c84b..72f1ed7635c9864e67a7d4c2b44324f4e6c24d1a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftContainer.java
-@@ -100,6 +100,18 @@ public class CraftContainer extends AbstractContainerMenu {
+@@ -101,6 +101,18 @@ public class CraftContainer extends AbstractContainerMenu {
                  return CraftMenuType.minecraftToBukkit(getNotchInventoryType(inventory));
              }
  

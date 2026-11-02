@@ -5,7 +5,7 @@ Subject: [PATCH] Expose low level steering API
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index ef496cb8701c3a806e1675f98fdbb805677719eb..095b5be1ea6899d9ed60df156755e91660f38cc0 100644
+index 714587b1fa7d9acaad699163a9de45b98097b633..38f41e8133786221ae9a2bdfbd3eb8cdff52c21a 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -1654,7 +1654,12 @@ public abstract class Entity
@@ -52,8 +52,8 @@ index ef496cb8701c3a806e1675f98fdbb805677719eb..095b5be1ea6899d9ed60df156755e916
  
          final double stepHeight;
  
--        if ((!collidedDownwards && !this.onGround) || (!collidedX && !collidedZ) || (stepHeight = (double)this.maxUpStep()) <= 0.0) {
-+        if ((!collidedDownwards && !(entity == null ? false : entity.onGround)) || (!collidedX && !collidedZ) || (stepHeight = (double)(entity == null ? 0 : entity.maxUpStep())) <= 0.0) { // KTP - expose to static environment
+-        if ((!collidedDownwards && !this.onGround()) || (!collidedX && !collidedZ) || (stepHeight = (double)this.maxUpStep()) <= 0.0) {
++        if ((!collidedDownwards && !(entity == null ? false : entity.onGround())) || (!collidedX && !collidedZ) || (stepHeight = (double)(entity == null ? 0 : entity.maxUpStep())) <= 0.0) { // KTP - expose to static environment
              return collided;
          }
  
